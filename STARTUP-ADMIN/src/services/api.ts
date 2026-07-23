@@ -1,10 +1,13 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+let RAW_URL = import.meta.env.VITE_API_URL || 'https://restart-club.vercel.app/api';
+if (RAW_URL.startsWith('ttps://')) RAW_URL = 'h' + RAW_URL;
+if (!RAW_URL.startsWith('http')) RAW_URL = 'https://restart-club.vercel.app/api';
+const API_BASE_URL = RAW_URL.replace(/\/+$/, '');
 
 export const api = {
   // Users
   getUsers: async () => {
     const res = await fetch(`${API_BASE_URL}/users`);
-    return res.json();
+    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   },
   registerUser: async (data: any) => {
     const res = await fetch(`${API_BASE_URL}/users/register`, {
@@ -12,7 +15,7 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
-    return res.json();
+    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   },
   loginUser: async (data: any) => {
     const res = await fetch(`${API_BASE_URL}/users/login`, {
@@ -20,7 +23,7 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
-    return res.json();
+    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   },
   updatePassword: async (data: any) => {
     const res = await fetch(`${API_BASE_URL}/users/update-password`, {
@@ -28,7 +31,7 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
-    return res.json();
+    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   },
   togglePayment: async (email: string, batch: string, tier: 'standard' | 'premium' = 'premium') => {
     const res = await fetch(`${API_BASE_URL}/users/toggle-payment`, {
@@ -36,13 +39,13 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, batch, tier })
     });
-    return res.json();
+    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   },
 
   // Tasks
   getTasks: async (email: string) => {
     const res = await fetch(`${API_BASE_URL}/tasks/${email}`);
-    return res.json();
+    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   },
   updateTasks: async (email: string, tasks: any[]) => {
     const res = await fetch(`${API_BASE_URL}/tasks/${email}`, {
@@ -50,13 +53,13 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ tasks })
     });
-    return res.json();
+    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   },
 
   // Scores
   getScores: async (email: string) => {
     const res = await fetch(`${API_BASE_URL}/scores/${email}`);
-    return res.json();
+    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   },
   updateScores: async (email: string, scores: any[]) => {
     const res = await fetch(`${API_BASE_URL}/scores/${email}`, {
@@ -64,13 +67,13 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ scores })
     });
-    return res.json();
+    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   },
 
   // Planners (Templates)
   getBatchPlanner: async (batch: string) => {
     const res = await fetch(`${API_BASE_URL}/templates/planner/${batch}`);
-    return res.json();
+    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   },
   updateBatchPlanner: async (batch: string, planners: any[]) => {
     const res = await fetch(`${API_BASE_URL}/templates/planner/${batch}`, {
@@ -78,13 +81,13 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ planners })
     });
-    return res.json();
+    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   },
 
   // Notes (Templates)
   getBatchNotes: async (batch: string) => {
     const res = await fetch(`${API_BASE_URL}/templates/notes/${batch}`);
-    return res.json();
+    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   },
   updateBatchNotes: async (batch: string, notes: any[]) => {
     const res = await fetch(`${API_BASE_URL}/templates/notes/${batch}`, {
@@ -92,13 +95,13 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ notes })
     });
-    return res.json();
+    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   },
 
   // Chat
   getChat: async (email: string) => {
     const res = await fetch(`${API_BASE_URL}/chat/${email}`);
-    return res.json();
+    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   },
   updateChat: async (email: string, chat: any[]) => {
     const res = await fetch(`${API_BASE_URL}/chat/${email}`, {
@@ -106,6 +109,6 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ chat })
     });
-    return res.json();
+    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   }
 };
