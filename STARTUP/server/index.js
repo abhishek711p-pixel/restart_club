@@ -431,8 +431,26 @@ app.post('/api/templates/planner/:batch', async (req, res) => {
       update: { tasks: planners },
       create: { batch, tasks: planners }
     });
+
+    // Auto-update checklist for all students in this batch
+    const usersInBatch = await prisma.user.findMany({ where: { batch } });
+    for (const u of usersInBatch) {
+      await prisma.task.deleteMany({ where: { email: u.email, batch } });
+      if (planners && planners.length > 0) {
+        const taskData = planners.map((t, idx) => ({
+          taskId: `task-${idx}-${Date.now()}`,
+          email: u.email,
+          batch,
+          text: t,
+          completed: false
+        }));
+        await prisma.task.createMany({ data: taskData });
+      }
+    }
+
     res.json({ success: true });
   } catch (err) {
+    console.error("Planner template update error:", err);
     res.status(500).json({ error: 'Server error' });
   }
 });
