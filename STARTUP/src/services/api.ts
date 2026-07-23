@@ -1,4 +1,6 @@
-const RAW_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+let RAW_URL = import.meta.env.VITE_API_URL || 'https://restart-club.vercel.app/api';
+if (RAW_URL.startsWith('ttps://')) RAW_URL = 'h' + RAW_URL;
+if (!RAW_URL.startsWith('http')) RAW_URL = 'https://restart-club.vercel.app/api';
 const API_BASE_URL = RAW_URL.replace(/\/+$/, '');
 
 export const api = {
