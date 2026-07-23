@@ -2,13 +2,40 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
+const crypto = require('crypto');
+const Razorpay = require('razorpay');
 const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-app.use(cors());
+let razorpayInstance = null;
+if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET && process.env.RAZORPAY_KEY_ID !== 'dummy_key') {
+  razorpayInstance = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+  });
+}
+
+const allowedOrigins = [
+  'https://restart-club-joam.vercel.app',
+  'https://restart-club-n4ou.vercel.app',
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:3000'
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+    return callback(new Error('CORS Policy: Access denied for this origin.'));
+  },
+  credentials: true
+}));
 app.use(express.json());
 
 // In-memory OTP store for forgot password (email -> { otp, expiresAt })
@@ -261,17 +288,44 @@ app.post('/api/users/toggle-payment', async (req, res) => {
 
 // Razorpay Payment Gateway Endpoints
 app.post('/api/payments/create-order', async (req, res) => {
-  const { email } = req.body;
+  const { email, amount = 49900 } = req.body;
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) return res.status(404).json({ error: 'User not found' });
   
-  res.json({ id: "client_only", amount: 50000, currency: "INR" });
+  if (razorpayInstance) {
+    try {
+      const options = {
+        amount: amount,
+        currency: "INR",
+        receipt: `rcpt_${Date.now()}`,
+      };
+      const order = await razorpayInstance.orders.create(options);
+      return res.json(order);
+    } catch (err) {
+      console.error("Razorpay order creation error:", err);
+      return res.status(500).json({ error: "Failed to create Razorpay order" });
+    }
+  }
+  
+  res.json({ id: "client_only", amount, currency: "INR" });
 });
 
 app.post('/api/payments/verify', async (req, res) => {
-  const { razorpay_payment_id, email, batch, tier = 'premium' } = req.body;
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature, email, batch, tier = 'premium' } = req.body;
   
   if (razorpay_payment_id) {
+    if (razorpayInstance && razorpay_order_id && razorpay_signature) {
+      const body = razorpay_order_id + "|" + razorpay_payment_id;
+      const expectedSignature = crypto
+        .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+        .update(body.toString())
+        .digest("hex");
+        
+      if (expectedSignature !== razorpay_signature) {
+        return res.status(400).json({ error: "Invalid payment signature verification failed" });
+      }
+    }
+
     try {
       const user = await prisma.user.findUnique({ where: { email } });
       if (user) {
