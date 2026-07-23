@@ -51,7 +51,7 @@ model Chat {
 
 model Planner {
   id    String   @id @default(uuid())
-  batch String
+  batch String @unique
   tasks String[]
 }
 
