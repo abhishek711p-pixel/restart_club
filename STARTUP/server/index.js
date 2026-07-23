@@ -441,3 +441,4 @@ app.post('/api/chat/:email', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Live RestartClub API Server active on port ${PORT}`);
 });
+module.exports = app;
