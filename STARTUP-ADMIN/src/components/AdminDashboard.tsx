@@ -798,6 +798,19 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
                   </div>
                 ))}
               </div>
+
+              <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '2px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <button 
+                  onClick={async () => {
+                    await api.updateBatchNotes(selectedBatchNotes, batchNotesList);
+                    alert("✅ Success! Revision notes saved and synced to all students in this batch!");
+                  }}
+                  className="btn btn-accent"
+                  style={{ padding: '12px 24px', fontSize: '0.9rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+                >
+                  💾 Save Revision Notes to All Students
+                </button>
+              </div>
             </div>
           </div>
         )}
