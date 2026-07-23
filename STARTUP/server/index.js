@@ -1,13 +1,12 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
 const nodemailer = require('nodemailer');
+const { PrismaClient } = require('@prisma/client');
 
+const prisma = new PrismaClient();
 const app = express();
 const PORT = process.env.PORT || 5001;
-const DB_FILE = path.join(__dirname, 'db.json');
 
 app.use(cors());
 app.use(express.json());
@@ -23,111 +22,25 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// Load / Initialize local database JSON file
-function loadDB() {
-  if (!fs.existsSync(DB_FILE)) {
-    const initialData = {
-      users: {},
-      tasks: {},
-      scores: {},
-      chat: {},
-      planners: {
-        '10': ["Complete Science Chapter 4 boards checking", "Solve 10 algebra questions", "Review mock test quiz results"],
-        '11': ["Clear Class 11 physics backlog (mechanics)", "Solve 15 Chemistry practice questions", "Read Biology NCERT Chapter 5"],
-        '12': ["Practice Class 12 mock writing board sheet", "Attempt physics chapter-wise JEE test", "Revise Chemistry organic conversions"],
-        'jee-dropper': ["Solve 20 JEE Mains calculus equations", "Complete inorganic trends notes review", "Attempt 1 full mock test paper"],
-        'neet-dropper': ["Read Biology NCERT plant physiology trends", "Revise physics kinematics formula logs", "Solve 30 biology MCQ check sheets"]
-      },
-      notes: {
-        '10': [
-          { name: "Science Boards handwritten notes.pdf", size: "4.8 MB" },
-          { name: "Maths NTSE & Olympiad cheat sheet.pdf", size: "2.1 MB" },
-          { name: "Class 10 CBSE Sample writing checks.pdf", size: "3.5 MB" }
-        ],
-        '11': [
-          { name: "Physics Class 11 formulas summary.pdf", size: "5.2 MB" },
-          { name: "Inorganic Chemistry trend sheets.pdf", size: "3.8 MB" },
-          { name: "Mathematics coordinate geometry tracker.pdf", size: "4.1 MB" }
-        ],
-        '12': [
-          { name: "Physics Boards & JEE core cheatsheet.pdf", size: "6.1 MB" },
-          { name: "Organic Chemistry named reactions notes.pdf", size: "4.5 MB" },
-          { name: "Mathematics calculus boards check sheet.pdf", size: "5.0 MB" }
-        ],
-        'jee-dropper': [
-          { name: "JEE Main and Advanced physics notes.pdf", size: "8.4 MB" },
-          { name: "Physical Chemistry formula logs.pdf", size: "5.9 MB" },
-          { name: "Coordinate Geometry Advanced problem sheet.pdf", size: "7.2 MB" }
-        ],
-        'neet-dropper': [
-          { name: "Biology NCERT-blueprint short sheets.pdf", size: "11.2 MB" },
-          { name: "Physics NEET-UG formula logs.pdf", size: "4.8 MB" },
-          { name: "Organic Chemistry mock logs sheet.pdf", size: "6.5 MB" }
-        ]
-      }
-    };
-    fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2));
-    return initialData;
-  }
-  let dbData = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
-  let needsSave = false;
-
-  // Migrate users: bought -> purchasedBatches
-  Object.values(dbData.users).forEach(user => {
-    if (user.purchasedBatches === undefined) {
-      user.purchasedBatches = user.bought ? [user.batch] : [];
-      delete user.bought;
-      needsSave = true;
-    }
-  });
-
-  // Migrate tasks and scores from email to email_batch
-  Object.keys(dbData.tasks).forEach(email => {
-    if (Array.isArray(dbData.tasks[email])) {
-      const user = dbData.users[email];
-      if (user) {
-        dbData.tasks[`${email}_${user.batch}`] = dbData.tasks[email];
-      }
-      delete dbData.tasks[email];
-      needsSave = true;
-    }
-  });
-  
-  Object.keys(dbData.scores).forEach(email => {
-    if (Array.isArray(dbData.scores[email])) {
-      const user = dbData.users[email];
-      if (user) {
-        dbData.scores[`${email}_${user.batch}`] = dbData.scores[email];
-      }
-      delete dbData.scores[email];
-      needsSave = true;
-    }
-  });
-
-  if (needsSave) {
-    saveDB(dbData);
-  }
-
-  return dbData;
-}
-
-function saveDB(data) {
-  fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
-}
-
 // ENDPOINTS
 
 // 1. Users Directory (Admin & Auth)
-app.get('/api/users', (req, res) => {
-  const db = loadDB();
-  res.json(db.users);
+app.get('/api/users', async (req, res) => {
+  try {
+    const usersArray = await prisma.user.findMany();
+    const usersMap = {};
+    usersArray.forEach(u => usersMap[u.email] = u);
+    res.json(usersMap);
+  } catch (error) {
+    res.status(500).json({ error: 'Database error' });
+  }
 });
 
 app.post('/api/users/forgot-password', async (req, res) => {
   const { email } = req.body;
-  const db = loadDB();
+  const user = await prisma.user.findUnique({ where: { email } });
 
-  if (!db.users[email]) {
+  if (!user) {
     return res.status(404).json({ error: 'User not found' });
   }
 
@@ -170,11 +83,11 @@ app.post('/api/users/forgot-password', async (req, res) => {
   }
 });
 
-app.post('/api/users/reset-password', (req, res) => {
+app.post('/api/users/reset-password', async (req, res) => {
   const { email, otp, newPassword } = req.body;
-  const db = loadDB();
+  const user = await prisma.user.findUnique({ where: { email } });
 
-  if (!db.users[email]) {
+  if (!user) {
     return res.status(404).json({ error: 'User not found' });
   }
 
@@ -193,65 +106,82 @@ app.post('/api/users/reset-password', (req, res) => {
   }
 
   // Success, update password
-  db.users[email].password = newPassword;
-  saveDB(db);
-  delete otpStore[email]; // clean up
+  await prisma.user.update({
+    where: { email },
+    data: { password: newPassword }
+  });
   
+  delete otpStore[email]; // clean up
   res.json({ success: true, message: 'Password reset successful' });
 });
 
-app.post('/api/users/register', (req, res) => {
+app.post('/api/users/register', async (req, res) => {
   const { username, email, password, batch } = req.body;
-  const db = loadDB();
-
-  if (db.users[email]) {
-    return res.status(400).json({ error: 'User already exists' });
-  }
-
-  // Save new user profile
-  db.users[email] = { username, email, password, batch, purchasedBatches: [] };
-
-  // Initialize their default tasks from templates
-  const defaults = db.planners[batch] || [];
-  db.tasks[`${email}_${batch}`] = defaults.map((t, idx) => ({
-    id: `task-${idx}-${Date.now()}`,
-    text: t,
-    completed: false
-  }));
-
-  // Initialize mock test scores
-  db.scores[`${email}_${batch}`] = [
-    { id: '1', subject: 'Physics Mock 1', score: 82, date: '2026-07-15' },
-    { id: '2', subject: 'Chemistry Revision Test', score: 88, date: '2026-07-18' },
-    { id: '3', subject: 'Math/Bio Olympiad Prep', score: 76, date: '2026-07-20' }
-  ];
-
-  // Welcome chat message
-  const mentorMap = {
-    '10': { name: "Aarav Sharma", college: "CBSE State Topper (98.6%)" },
-    '11': { name: "Sameer Verma", college: "IIT Delhi (EE)" },
-    '12': { name: "Divya Patel", college: "IIT Bombay (CSE)" },
-    'jee-dropper': { name: "Rohan Gupta", college: "IIT Kharagpur (CSE)" },
-    'neet-dropper': { name: "Riya Sen", college: "AIIMS New Delhi (AIR 42)" }
-  };
-  const mentor = mentorMap[batch] || { name: "RestartClub Senior Topper", college: "IIT/NEET Topper" };
-  db.chat[email] = [
-    {
-      sender: 'mentor',
-      text: `Hey ${username}! Welcome to your dashboard. I am your assigned topper mentor, ${mentor.name} (${mentor.college}). Main aapko call pe update dunga, but any query or doubts ke liye type here! Aapki revision sheets share kar di gayi hain left side check karo.`,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  
+  try {
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      return res.status(400).json({ error: 'User already exists' });
     }
-  ];
 
-  saveDB(db);
-  res.json({ success: true, user: db.users[email] });
+    const user = await prisma.user.create({
+      data: { username, email, password, batch, purchasedBatches: [] }
+    });
+
+    // Initialize their default tasks from templates
+    const planner = await prisma.planner.findUnique({ where: { batch } });
+    const defaults = planner ? planner.tasks : [];
+    
+    if (defaults.length > 0) {
+      const taskData = defaults.map((t, idx) => ({
+        taskId: `task-${idx}-${Date.now()}`,
+        email,
+        batch,
+        text: t,
+        completed: false
+      }));
+      await prisma.task.createMany({ data: taskData });
+    }
+
+    // Initialize mock test scores
+    await prisma.score.createMany({
+      data: [
+        { scoreId: '1', email, batch, subject: 'Physics Mock 1', score: 82, date: '2026-07-15' },
+        { scoreId: '2', email, batch, subject: 'Chemistry Revision Test', score: 88, date: '2026-07-18' },
+        { scoreId: '3', email, batch, subject: 'Math/Bio Olympiad Prep', score: 76, date: '2026-07-20' }
+      ]
+    });
+
+    // Welcome chat message
+    const mentorMap = {
+      '10': { name: "Aarav Sharma", college: "CBSE State Topper (98.6%)" },
+      '11': { name: "Sameer Verma", college: "IIT Delhi (EE)" },
+      '12': { name: "Divya Patel", college: "IIT Bombay (CSE)" },
+      'jee-dropper': { name: "Rohan Gupta", college: "IIT Kharagpur (CSE)" },
+      'neet-dropper': { name: "Riya Sen", college: "AIIMS New Delhi (AIR 42)" }
+    };
+    const mentor = mentorMap[batch] || { name: "RestartClub Senior Topper", college: "IIT/NEET Topper" };
+    
+    await prisma.chat.create({
+      data: {
+        email,
+        sender: 'mentor',
+        text: `Hey ${username}! Welcome to your dashboard. I am your assigned topper mentor, ${mentor.name} (${mentor.college}). Main aapko call pe update dunga, but any query or doubts ke liye type here! Aapki revision sheets share kar di gayi hain left side check karo.`,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }
+    });
+
+    res.json({ success: true, user });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
-app.post('/api/users/login', (req, res) => {
+app.post('/api/users/login', async (req, res) => {
   const { email, password } = req.body;
-  const db = loadDB();
+  const user = await prisma.user.findUnique({ where: { email } });
 
-  const user = db.users[email];
   if (!user || user.password !== password) {
     return res.status(400).json({ error: 'Invalid email or password' });
   }
@@ -259,214 +189,255 @@ app.post('/api/users/login', (req, res) => {
   res.json({ success: true, user });
 });
 
-app.post('/api/users/update-password', (req, res) => {
+app.post('/api/users/update-password', async (req, res) => {
   const { email, password } = req.body;
-  const db = loadDB();
-
-  if (!db.users[email]) {
-    return res.status(404).json({ error: 'User not found' });
+  try {
+    await prisma.user.update({
+      where: { email },
+      data: { password }
+    });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(404).json({ error: 'User not found' });
   }
-
-  db.users[email].password = password;
-  saveDB(db);
-  res.json({ success: true });
 });
 
-app.post('/api/users/update-batch', (req, res) => {
+app.post('/api/users/update-batch', async (req, res) => {
   const { email, batch } = req.body;
-  const db = loadDB();
-
-  if (!db.users[email]) {
-    return res.status(404).json({ error: 'User not found' });
+  try {
+    const user = await prisma.user.update({
+      where: { email },
+      data: { batch }
+    });
+    res.json({ success: true, user });
+  } catch (err) {
+    res.status(404).json({ error: 'User not found' });
   }
-
-  db.users[email].batch = batch;
-  saveDB(db);
-  res.json({ success: true, user: db.users[email] });
 });
 
-app.post('/api/users/toggle-payment', (req, res) => {
+app.post('/api/users/toggle-payment', async (req, res) => {
   const { email, batch, tier = 'premium' } = req.body;
-  const db = loadDB();
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    
+    const currentBatch = batch || user.batch || '12';
+    
+    const isPremiumExisting = user.purchasedBatches.includes(currentBatch);
+    const isStandardExisting = user.purchasedBatches.includes(`${currentBatch}_standard`);
+    const isNewPremiumExisting = user.purchasedBatches.includes(`${currentBatch}_premium`);
+    
+    let hasStandardAccess = isPremiumExisting || isStandardExisting || isNewPremiumExisting;
+    let hasPremiumAccess = isPremiumExisting || isNewPremiumExisting;
 
-  if (!db.users[email]) {
-    return res.status(404).json({ error: 'User not found' });
-  }
+    let updatedBatches = user.purchasedBatches.filter(
+      b => b !== currentBatch && b !== `${currentBatch}_standard` && b !== `${currentBatch}_premium`
+    );
 
-  const user = db.users[email];
-  if (!user.purchasedBatches) user.purchasedBatches = [];
-  
-  const currentBatch = batch || user.batch || '12';
-  
-  // Format for purchased batches: "{batch}_{tier}".
-  // Backward compatibility: If an array element is exactly "{batch}", it implies premium.
-  const isPremiumExisting = user.purchasedBatches.includes(currentBatch);
-  const isStandardExisting = user.purchasedBatches.includes(`${currentBatch}_standard`);
-  const isNewPremiumExisting = user.purchasedBatches.includes(`${currentBatch}_premium`);
-  
-  let hasStandardAccess = isPremiumExisting || isStandardExisting || isNewPremiumExisting;
-  let hasPremiumAccess = isPremiumExisting || isNewPremiumExisting;
+    let addedAccess = false;
 
-  // We are toggling the specific tier
-  // If admin toggles standard, we either remove it (if they only had standard) or add standard.
-  // Wait, the logic is simpler:
-  // If toggling standard:
-  //   - If they currently have standard or premium, we revoke ALL access for this batch.
-  //   - If they have no access, we grant standard.
-  // If toggling premium:
-  //   - If they currently have premium, we revoke ALL access.
-  //   - If they have no access or only standard, we upgrade them to premium.
-
-  // First, remove all variations of this batch from the array to clean it up
-  user.purchasedBatches = user.purchasedBatches.filter(b => b !== currentBatch && b !== `${currentBatch}_standard` && b !== `${currentBatch}_premium`);
-
-  let addedAccess = false;
-
-  if (tier === 'standard') {
-    if (!hasStandardAccess) {
-      user.purchasedBatches.push(`${currentBatch}_standard`);
-      addedAccess = true;
+    if (tier === 'standard') {
+      if (!hasStandardAccess) {
+        updatedBatches.push(`${currentBatch}_standard`);
+        addedAccess = true;
+      }
+    } else if (tier === 'premium') {
+      if (!hasPremiumAccess) {
+        updatedBatches.push(`${currentBatch}_premium`);
+        addedAccess = true;
+      }
     }
-    // If they already had access, we just removed it above, so it acts as a toggle-off
-  } else if (tier === 'premium') {
-    if (!hasPremiumAccess) {
-      user.purchasedBatches.push(`${currentBatch}_premium`);
-      addedAccess = true;
-    }
-  }
-  
-  saveDB(db);
+    
+    await prisma.user.update({
+      where: { email },
+      data: { purchasedBatches: updatedBatches }
+    });
 
-  res.json({ success: true, bought: addedAccess, purchasedBatches: user.purchasedBatches });
+    res.json({ success: true, bought: addedAccess, purchasedBatches: updatedBatches });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // Razorpay Payment Gateway Endpoints
 app.post('/api/payments/create-order', async (req, res) => {
   const { email } = req.body;
-  const db = loadDB();
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) return res.status(404).json({ error: 'User not found' });
   
-  if (!db.users[email]) {
-    return res.status(404).json({ error: 'User not found' });
-  }
-  
-  // Client-side integration bypass: No need to create a server order
   res.json({ id: "client_only", amount: 50000, currency: "INR" });
 });
 
-app.post('/api/payments/verify', (req, res) => {
+app.post('/api/payments/verify', async (req, res) => {
   const { razorpay_payment_id, email, batch, tier = 'premium' } = req.body;
   
   if (razorpay_payment_id) {
-    // Payment is verified directly from client success
-    const db = loadDB();
-    if (db.users[email]) {
-      if (!db.users[email].purchasedBatches) {
-        db.users[email].purchasedBatches = [];
+    try {
+      const user = await prisma.user.findUnique({ where: { email } });
+      if (user) {
+        let updatedBatches = [...user.purchasedBatches];
+        const newEntry = `${batch}_${tier}`;
+        
+        if (tier === 'premium') {
+          updatedBatches = updatedBatches.filter(b => b !== `${batch}_standard`);
+        }
+        
+        if (!updatedBatches.includes(newEntry) && !updatedBatches.includes(batch)) {
+          updatedBatches.push(newEntry);
+        }
+        
+        await prisma.user.update({
+          where: { email },
+          data: { purchasedBatches: updatedBatches }
+        });
       }
-      
-      const newEntry = `${batch}_${tier}`;
-      
-      // Remove any existing standard if upgrading to premium
-      if (tier === 'premium') {
-        db.users[email].purchasedBatches = db.users[email].purchasedBatches.filter(b => b !== `${batch}_standard`);
-      }
-      
-      if (!db.users[email].purchasedBatches.includes(newEntry) && !db.users[email].purchasedBatches.includes(batch)) {
-        db.users[email].purchasedBatches.push(newEntry);
-      }
-      saveDB(db);
+      return res.json({ success: true, message: "Payment verified successfully" });
+    } catch (err) {
+      return res.status(500).json({ error: "Server error" });
     }
-    return res.json({ success: true, message: "Payment verified successfully" });
   } else {
     return res.status(400).json({ error: "Invalid payment ID" });
   }
 });
 
 // 2. Student Checklist Tasks
-app.get('/api/tasks/:email/:batch', (req, res) => {
+app.get('/api/tasks/:email/:batch', async (req, res) => {
   const { email, batch } = req.params;
-  const db = loadDB();
-  res.json(db.tasks[`${email}_${batch}`] || []);
+  const tasks = await prisma.task.findMany({ where: { email, batch } });
+  res.json(tasks.map(t => ({ id: t.taskId, text: t.text, completed: t.completed })));
 });
 
-app.post('/api/tasks/:email/:batch', (req, res) => {
+app.post('/api/tasks/:email/:batch', async (req, res) => {
   const { email, batch } = req.params;
   const { tasks } = req.body;
-  const db = loadDB();
-
-  db.tasks[`${email}_${batch}`] = tasks;
-  saveDB(db);
-  res.json({ success: true });
+  
+  try {
+    await prisma.task.deleteMany({ where: { email, batch } });
+    if (tasks && tasks.length > 0) {
+      await prisma.task.createMany({
+        data: tasks.map(t => ({
+          taskId: t.id || `task-${Date.now()}-${Math.random()}`,
+          email,
+          batch,
+          text: t.text,
+          completed: t.completed || false
+        }))
+      });
+    }
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // 3. Mock Test Scores
-app.get('/api/scores/:email/:batch', (req, res) => {
+app.get('/api/scores/:email/:batch', async (req, res) => {
   const { email, batch } = req.params;
-  const db = loadDB();
-  res.json(db.scores[`${email}_${batch}`] || []);
+  const scores = await prisma.score.findMany({ where: { email, batch } });
+  res.json(scores.map(s => ({ id: s.scoreId, subject: s.subject, score: s.score, date: s.date })));
 });
 
-app.post('/api/scores/:email/:batch', (req, res) => {
+app.post('/api/scores/:email/:batch', async (req, res) => {
   const { email, batch } = req.params;
   const { scores } = req.body;
-  const db = loadDB();
-
-  db.scores[`${email}_${batch}`] = scores;
-  saveDB(db);
-  res.json({ success: true });
+  
+  try {
+    await prisma.score.deleteMany({ where: { email, batch } });
+    if (scores && scores.length > 0) {
+      await prisma.score.createMany({
+        data: scores.map(s => ({
+          scoreId: s.id || `score-${Date.now()}-${Math.random()}`,
+          email,
+          batch,
+          subject: s.subject,
+          score: s.score,
+          date: s.date
+        }))
+      });
+    }
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // 4. Batch Planners Templates (Admin Settings)
-app.get('/api/templates/planner/:batch', (req, res) => {
+app.get('/api/templates/planner/:batch', async (req, res) => {
   const { batch } = req.params;
-  const db = loadDB();
-  res.json(db.planners[batch] || []);
+  const planner = await prisma.planner.findUnique({ where: { batch } });
+  res.json(planner ? planner.tasks : []);
 });
 
-app.post('/api/templates/planner/:batch', (req, res) => {
+app.post('/api/templates/planner/:batch', async (req, res) => {
   const { batch } = req.params;
   const { planners } = req.body;
-  const db = loadDB();
-
-  db.planners[batch] = planners;
-  saveDB(db);
-  res.json({ success: true });
+  try {
+    await prisma.planner.upsert({
+      where: { batch },
+      update: { tasks: planners },
+      create: { batch, tasks: planners }
+    });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // 5. Revision Notes Templates (Admin Settings)
-app.get('/api/templates/notes/:batch', (req, res) => {
+app.get('/api/templates/notes/:batch', async (req, res) => {
   const { batch } = req.params;
-  const db = loadDB();
-  res.json(db.notes[batch] || []);
+  const notes = await prisma.note.findMany({ where: { batch } });
+  res.json(notes.map(n => ({ name: n.name, size: n.size })));
 });
 
-app.post('/api/templates/notes/:batch', (req, res) => {
+app.post('/api/templates/notes/:batch', async (req, res) => {
   const { batch } = req.params;
   const { notes } = req.body;
-  const db = loadDB();
-
-  db.notes[batch] = notes;
-  saveDB(db);
-  res.json({ success: true });
+  try {
+    await prisma.note.deleteMany({ where: { batch } });
+    if (notes && notes.length > 0) {
+      await prisma.note.createMany({
+        data: notes.map(n => ({ batch, name: n.name, size: n.size }))
+      });
+    }
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // 6. Mentor Chat Workspace
-app.get('/api/chat/:email', (req, res) => {
+app.get('/api/chat/:email', async (req, res) => {
   const { email } = req.params;
-  const db = loadDB();
-  res.json(db.chat[email] || []);
+  const chatMsgs = await prisma.chat.findMany({
+    where: { email },
+    orderBy: { createdAt: 'asc' }
+  });
+  res.json(chatMsgs.map(c => ({ sender: c.sender, text: c.text, time: c.time, createdAt: c.createdAt })));
 });
 
-app.post('/api/chat/:email', (req, res) => {
+app.post('/api/chat/:email', async (req, res) => {
   const { email } = req.params;
   const { chat } = req.body;
-  const db = loadDB();
-
-  db.chat[email] = chat;
-  saveDB(db);
-  res.json({ success: true });
+  try {
+    await prisma.chat.deleteMany({ where: { email } });
+    if (chat && chat.length > 0) {
+      await prisma.chat.createMany({
+        data: chat.map(c => ({
+          email,
+          sender: c.sender,
+          text: c.text,
+          time: c.time,
+          createdAt: c.createdAt ? new Date(c.createdAt) : new Date()
+        }))
+      });
+    }
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Shared RestartClub Database API Server active on http://localhost:${PORT}`);
+  console.log(`🚀 Live RestartClub API Server active on port ${PORT}`);
 });

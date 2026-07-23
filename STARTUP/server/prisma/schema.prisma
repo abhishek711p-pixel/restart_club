@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  email            String   @id
+  username         String
+  password         String
+  batch            String
+  purchasedBatches String[] @default([])
+}
+
+model Task {
+  id        String  @id @default(uuid())
+  email     String
+  batch     String
+  taskId    String
+  text      String
+  completed Boolean @default(false)
+
+  @@index([email, batch])
+}
+
+model Score {
+  id      String @id @default(uuid())
+  email   String
+  batch   String
+  scoreId String
+  subject String
+  score   Int
+  date    String
+
+  @@index([email, batch])
+}
+
+model Chat {
+  id        String   @id @default(uuid())
+  email     String
+  sender    String
+  text      String
+  time      String
+  createdAt DateTime @default(now())
+
+  @@index([email])
+}
+
+model Planner {
+  id    String   @id @default(uuid())
+  batch String
+  tasks String[]
+}
+
+model Note {
+  id    String @id @default(uuid())
+  batch String
+  name  String
+  size  String
+}
