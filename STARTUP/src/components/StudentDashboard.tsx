@@ -288,7 +288,11 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
         setMockScores(initialScores || []);
 
         const notes = await api.getBatchNotes(activeBatch);
-        setActiveNotes(notes || []);
+        if (notes && notes.length > 0) {
+          setActiveNotes(notes);
+        } else {
+          setActiveNotes(currentBatchDetails.notes || []);
+        }
       } catch (err) {
         console.error("Failed to load initial data", err);
       }
