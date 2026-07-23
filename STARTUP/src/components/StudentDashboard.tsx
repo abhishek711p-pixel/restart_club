@@ -291,7 +291,7 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
         if (notes && notes.length > 0) {
           setActiveNotes(notes);
         } else {
-          setActiveNotes(currentBatchDetails.notes || []);
+          setActiveNotes((currentBatchDetails as any).notes || []);
         }
       } catch (err) {
         console.error("Failed to load initial data", err);

@@ -47,7 +47,9 @@ export const api = {
     const res = await fetch(`${API_BASE_URL}/tasks/${email}/${batch}`);
     try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   },
-  updateTasks: async (email: string, batch: string = '12', tasks: any[]) => {
+  updateTasks: async (email: string, arg2: any, arg3?: any[]) => {
+    const batch = typeof arg2 === 'string' ? arg2 : '12';
+    const tasks = Array.isArray(arg2) ? arg2 : arg3 || [];
     const res = await fetch(`${API_BASE_URL}/tasks/${email}/${batch}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
