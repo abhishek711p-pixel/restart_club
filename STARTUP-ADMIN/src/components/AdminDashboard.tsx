@@ -657,6 +657,9 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
               </h3>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '24px' }}>
                 These default study checklist goals are automatically assigned to all newly registering students in this batch.
+                <span style={{ display: 'inline-block', marginLeft: '10px', fontSize: '0.75rem', fontWeight: '700', color: '#059669', background: '#d1fae5', padding: '2px 8px', borderRadius: '6px' }}>
+                  ✓ Auto-saved to Cloud Database
+                </span>
               </p>
 
               {/* Add template task form */}
