@@ -84,22 +84,10 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   // Load selected batch planner defaults
   useEffect(() => {
     const loadPlanner = async () => {
-      const defaultTasks = {
-        '10': ["Complete Science Chapter 4 boards checking", "Solve 10 algebra questions", "Review mock test quiz results"],
-        '11': ["Clear Class 11 physics backlog (mechanics)", "Solve 15 Chemistry practice questions", "Read Biology NCERT Chapter 5"],
-        '12': ["Practice Class 12 mock writing board sheet", "Attempt physics chapter-wise JEE test", "Revise Chemistry organic conversions"],
-        'jee-dropper': ["Solve 20 JEE Mains calculus equations", "Complete inorganic trends notes review", "Attempt 1 full mock test paper"],
-        'neet-dropper': ["Read Biology NCERT plant physiology trends", "Revise physics kinematics formula logs", "Solve 30 biology MCQ check sheets"]
-      };
-      
       try {
         const storedPlanner = await api.getBatchPlanner(selectedBatchPlanner);
-        if (storedPlanner && storedPlanner.length > 0) {
+        if (Array.isArray(storedPlanner)) {
           setBatchPlannerTasks(storedPlanner);
-        } else {
-          const defaults = defaultTasks[selectedBatchPlanner as keyof typeof defaultTasks] || [];
-          setBatchPlannerTasks(defaults);
-          await api.updateBatchPlanner(selectedBatchPlanner, defaults);
         }
       } catch (err) {
         console.error("Failed to load planner", err);
@@ -111,41 +99,10 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   // Load selected batch notes
   useEffect(() => {
     const loadNotes = async () => {
-      const defaultNotes = {
-        '10': [
-          { name: "Science Boards handwritten notes.pdf", size: "4.8 MB" },
-          { name: "Maths NTSE & Olympiad cheat sheet.pdf", size: "2.1 MB" },
-          { name: "Class 10 CBSE Sample writing checks.pdf", size: "3.5 MB" }
-        ],
-        '11': [
-          { name: "Physics Class 11 formulas summary.pdf", size: "5.2 MB" },
-          { name: "Inorganic Chemistry trend sheets.pdf", size: "3.8 MB" },
-          { name: "Mathematics coordinate geometry tracker.pdf", size: "4.1 MB" }
-        ],
-        '12': [
-          { name: "Physics Boards & JEE core cheatsheet.pdf", size: "6.1 MB" },
-          { name: "Organic Chemistry named reactions notes.pdf", size: "4.5 MB" },
-          { name: "Mathematics calculus boards check sheet.pdf", size: "5.0 MB" }
-        ],
-        'jee-dropper': [
-          { name: "JEE Main and Advanced physics notes.pdf", size: "8.4 MB" },
-          { name: "Physical Chemistry formula logs.pdf", size: "5.9 MB" },
-          { name: "Coordinate Geometry Advanced problem sheet.pdf", size: "7.2 MB" }
-        ],
-        'neet-dropper': [
-          { name: "Biology NCERT-blueprint short sheets.pdf", size: "11.2 MB" },
-          { name: "Physics NEET-UG formula logs.pdf", size: "4.8 MB" },
-          { name: "Organic Chemistry mock logs sheet.pdf", size: "6.5 MB" }
-        ]
-      };
       try {
         const storedNotes = await api.getBatchNotes(selectedBatchNotes);
-        if (storedNotes && storedNotes.length > 0) {
+        if (Array.isArray(storedNotes)) {
           setBatchNotesList(storedNotes);
-        } else {
-          const defaults = defaultNotes[selectedBatchNotes as keyof typeof defaultNotes] || [];
-          setBatchNotesList(defaults);
-          await api.updateBatchNotes(selectedBatchNotes, defaults);
         }
       } catch (err) {
         console.error("Failed to load notes", err);

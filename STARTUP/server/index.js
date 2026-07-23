@@ -415,11 +415,27 @@ app.post('/api/scores/:email/:batch', async (req, res) => {
   }
 });
 
-// 4. Batch Planners Templates (Admin Settings)
 app.get('/api/templates/planner/:batch', async (req, res) => {
   const { batch } = req.params;
-  const planner = await prisma.planner.findUnique({ where: { batch } });
-  res.json(planner ? planner.tasks : []);
+  try {
+    let planner = await prisma.planner.findUnique({ where: { batch } });
+    if (!planner) {
+      const defaultsMap = {
+        '10': ["Complete Science Chapter 4 boards checking", "Solve 10 algebra questions", "Review mock test quiz results"],
+        '11': ["Clear Class 11 physics backlog (mechanics)", "Solve 15 Chemistry practice questions", "Read Biology NCERT Chapter 5"],
+        '12': ["Practice Class 12 mock writing board sheet", "Attempt physics chapter-wise JEE test", "Revise Chemistry organic conversions"],
+        'jee-dropper': ["Solve 20 JEE Mains calculus equations", "Complete inorganic trends notes review", "Attempt 1 full mock test paper"],
+        'neet-dropper': ["Read Biology NCERT plant physiology trends", "Revise physics kinematics formula logs", "Solve 30 biology MCQ check sheets"]
+      };
+      const defaultTasks = defaultsMap[batch] || [];
+      planner = await prisma.planner.create({
+        data: { batch, tasks: defaultTasks }
+      });
+    }
+    res.json(planner.tasks);
+  } catch (err) {
+    res.json([]);
+  }
 });
 
 app.post('/api/templates/planner/:batch', async (req, res) => {
