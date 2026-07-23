@@ -66,8 +66,8 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
         try {
           // Wait, the API for student tasks is in the main API as getTasks but it was not defined in the Admin dashboard API! 
           // Let me define it in api.ts first. Wait, I will just add getTasks and updateTasks to api.ts in STARTUP-ADMIN as well, but for now I'll write the API calls using fetch directly if it's missing, OR I can just edit api.ts in STARTUP-ADMIN later. I will assume I added them to api.ts.
-          const storedTasks = await fetch(`http://localhost:5001/api/tasks/${selectedStudent.email}`).then(res => res.json());
-          if (storedTasks && storedTasks.length > 0) {
+          const storedTasks = await api.getTasks(selectedStudent.email, selectedStudent.batch);
+          if (storedTasks && Array.isArray(storedTasks) && storedTasks.length > 0) {
             setStudentTasks(storedTasks);
           } else {
             setStudentTasks([]);
@@ -181,12 +181,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
 
     const updatedTasks = [...studentTasks, newTask];
     setStudentTasks(updatedTasks);
-    // Since updateTasks doesn't exist in Admin api.ts, let's use fetch directly
-    await fetch(`http://localhost:5001/api/tasks/${selectedStudent.email}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tasks: updatedTasks })
-    });
+    await api.updateTasks(selectedStudent.email, selectedStudent.batch, updatedTasks);
     setNewStudentTaskText('');
   };
 
@@ -195,11 +190,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
     if (!selectedStudent) return;
     const updated = studentTasks.filter(t => t.id !== taskId);
     setStudentTasks(updated);
-    await fetch(`http://localhost:5001/api/tasks/${selectedStudent.email}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tasks: updated })
-    });
+    await api.updateTasks(selectedStudent.email, selectedStudent.batch, updated);
   };
 
   const handleAddPlannerTask = async (e: React.FormEvent) => {
@@ -707,6 +698,19 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
                     </button>
                   </div>
                 ))}
+              </div>
+
+              <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '2px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <button 
+                  onClick={async () => {
+                    await api.updateBatchPlanner(selectedBatchPlanner, batchPlannerTasks);
+                    alert("✅ Success! Planner tasks saved and synced to all students in this batch!");
+                  }}
+                  className="btn btn-accent"
+                  style={{ padding: '12px 24px', fontSize: '0.9rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+                >
+                  💾 Save Planner to All Students
+                </button>
               </div>
             </div>
           </div>
