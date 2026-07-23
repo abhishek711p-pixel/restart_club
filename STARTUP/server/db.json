@@ -1,0 +1,90 @@
+{
+  "users": {
+    "abhishek.jain.sot25@pwioi.com": {
+      "username": "Abhishek ",
+      "email": "abhishek.jain.sot25@pwioi.com",
+      "password": "123456",
+      "batch": "neet-dropper",
+      "purchasedBatches": [
+        "neet-dropper_premium"
+      ],
+      "bought": true
+    },
+    "abhishek.711p@gmail.com": {
+      "username": "abhii",
+      "email": "abhishek.711p@gmail.com",
+      "password": "123456",
+      "batch": "12",
+      "purchasedBatches": [
+        "jee-dropper_premium",
+        "12_premium"
+      ],
+      "bought": true
+    },
+    "radhika.sot25@pwioi.com": {
+      "username": "Radhika",
+      "email": "radhika.sot25@pwioi.com",
+      "password": "123456",
+      "batch": "neet-dropper",
+      "purchasedBatches": [
+        "neet-dropper_premium"
+      ]
+    }
+  },
+  "tasks": {},
+  "scores": {},
+  "chat": {
+    "abhishek.jain.sot25@pwioi.com": [
+      {
+        "sender": "mentor",
+        "text": "Hey Abhishek ! Welcome to your dashboard. I am your assigned topper mentor, Riya Sen (AIIMS New Delhi (AIR 42)). Main aapko call pe update dunga, but any query or doubts ke liye type here! Aapki revision sheets share kar di gayi hain left side check karo.",
+        "time": "04:48 PM"
+      }
+    ],
+    "abhishek.711p@gmail.com": [
+      {
+        "sender": "mentor",
+        "text": "Hey abhii! Welcome to your dashboard. I am your assigned topper mentor, Rohan Gupta (IIT Kharagpur (CSE)). Main aapko call pe update dunga, but any query or doubts ke liye type here! Aapki revision sheets share kar di gayi hain left side check karo.",
+        "time": "05:26 PM"
+      }
+    ],
+    "radhika.sot25@pwioi.com": [
+      {
+        "sender": "mentor",
+        "text": "Hey Radhika! Welcome to your dashboard. I am your assigned topper mentor, Riya Sen (AIIMS New Delhi (AIR 42)). Main aapko call pe update dunga, but any query or doubts ke liye type here! Aapki revision sheets share kar di gayi hain left side check karo.",
+        "time": "10:34 PM"
+      }
+    ]
+  },
+  "planners": {
+    "10": [],
+    "11": [],
+    "12": [
+      "Practice Class 12 mock writing board sheet",
+      "Attempt physics chapter-wise JEE test",
+      "Revise Chemistry organic conversions"
+    ],
+    "jee-dropper": [],
+    "neet-dropper": []
+  },
+  "notes": {
+    "10": [],
+    "11": [],
+    "12": [
+      {
+        "name": "Physics Boards & JEE core cheatsheet.pdf",
+        "size": "6.1 MB"
+      },
+      {
+        "name": "Organic Chemistry named reactions notes.pdf",
+        "size": "4.5 MB"
+      },
+      {
+        "name": "Mathematics calculus boards check sheet.pdf",
+        "size": "5.0 MB"
+      }
+    ],
+    "jee-dropper": [],
+    "neet-dropper": []
+  }
+}
