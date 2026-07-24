@@ -1,6 +1,6 @@
 // Force Vercel build update for Admin Panel Save Button
 import React, { useState, useEffect } from 'react';
-import { Compass, LogOut, X, Users, Trash2, FileText } from 'lucide-react';
+import { Compass, LogOut, X, Users, Trash2, FileText, Edit } from 'lucide-react';
 import { api } from '../services/api';
 
 interface AdminDashboardProps {
@@ -24,7 +24,7 @@ const BATCH_LABELS: Record<string, string> = {
 };
 
 export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
-  const [activeTab, setActiveTab] = useState<'students' | 'planners' | 'notes'>('students');
+  const [activeTab, setActiveTab] = useState<'students' | 'scores' | 'planners' | 'notes'>('students');
   const [studentsList, setStudentsList] = useState<StudentUser[]>([]);
   const [selectedBatchFilter, setSelectedBatchFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -293,6 +293,23 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
             👥 Students Directory
           </button>
           <button 
+            onClick={() => { setActiveTab('scores'); setSelectedStudent(null); }}
+            className="btn" 
+            style={{
+              padding: '8px 20px',
+              border: 'none',
+              fontSize: '0.9rem',
+              fontWeight: '700',
+              background: activeTab === 'scores' ? '#ef4444' : 'transparent',
+              color: activeTab === 'scores' ? '#ffffff' : 'var(--text-primary)',
+              boxShadow: 'none',
+              transform: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            📊 Manage Test Scores
+          </button>
+          <button 
             onClick={() => setActiveTab('planners')}
             className="btn" 
             style={{
@@ -329,11 +346,9 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
         </div>
       </div>
 
-      {/* Main Admin Workspace Container */}
-      <main className="container" style={{ flex: 1, padding: '40px 24px' }}>
-        
-        {/* TAB 1: STUDENTS DIRECTORY */}
-        {activeTab === 'students' && (
+      {/* Main Content Area */}
+      <main className="container" style={{ paddingTop: '20px', paddingBottom: '60px' }}>
+        {(activeTab === 'students' || activeTab === 'scores') && (
           <div style={{ display: 'grid', gridTemplateColumns: selectedStudent ? '1fr 0.8fr' : '1fr', gap: '30px' }}>
             
             {/* Students Table */}
@@ -443,96 +458,106 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                                   </td>
                                   <td style={{ padding: '10px', textAlign: 'right' }}>
                                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                      <button 
-                                        onClick={() => {
-                                          if (!isStandard) {
-                                            // If they have premium, we might need to handle that, but togglePayment will add standard.
-                                            // To ensure they only have one, we could just call togglePayment for standard.
-                                            handleTogglePayment(student.email, batch, 'standard');
-                                          }
-                                        }}
-                                        className="btn btn-secondary"
-                                        title="₹499 for 6months Tier (No AI Chat Bot)"
-                                        style={{ 
-                                          padding: '6px 12px', 
-                                          fontSize: '0.7rem', 
-                                          cursor: 'pointer', 
-                                          background: isStandard && !isPremium ? '#10b981' : '#ffffff',
-                                          color: isStandard && !isPremium ? '#ffffff' : '#111827',
-                                          border: isStandard && !isPremium ? '2px solid #10b981' : '2px solid var(--border-color)'
-                                        }}
-                                      >
-                                        Paid ₹499 for 6months
-                                      </button>
-                                      <button 
-                                        onClick={() => {
-                                          if (!isPremium) {
-                                            handleTogglePayment(student.email, batch, 'premium');
-                                          }
-                                        }}
-                                        className="btn btn-secondary"
-                                        title="₹599 for 6months Tier (With AI Chat Bot)"
-                                        style={{ 
-                                          padding: '6px 12px', 
-                                          fontSize: '0.7rem', 
-                                          cursor: 'pointer', 
-                                          background: isPremium ? '#10b981' : '#ffffff',
-                                          color: isPremium ? '#ffffff' : '#111827',
-                                          border: isPremium ? '2px solid #10b981' : '2px solid var(--border-color)'
-                                        }}
-                                      >
-                                        Paid ₹599 for 6months
-                                      </button>
-                                      <button 
-                                        onClick={() => {
-                                          if (isPremium) {
-                                            handleTogglePayment(student.email, batch, 'premium');
-                                          } else if (isStandard) {
-                                            handleTogglePayment(student.email, batch, 'standard');
-                                          }
-                                        }}
-                                        className="btn btn-secondary"
-                                        title="Revoke Access"
-                                        style={{ 
-                                          padding: '6px 12px', 
-                                          fontSize: '0.7rem', 
-                                          cursor: 'pointer', 
-                                          background: !(isStandard || isPremium) ? '#10b981' : '#ffffff',
-                                          color: !(isStandard || isPremium) ? '#ffffff' : '#111827',
-                                          border: !(isStandard || isPremium) ? '2px solid #10b981' : '2px solid var(--border-color)'
-                                        }}
-                                      >
-                                        Unpaid
-                                      </button>
-                                      <button 
-                                        onClick={async () => {
-                                          const batchName = BATCH_LABELS[batch] || batch;
-                                          if (window.confirm(`⚠️ Delete batch "${batchName}" for "${student.username}" (${student.email})?\n\nOnly data for "${batchName}" will be erased. Their other active batches will remain completely safe!`)) {
-                                            await api.deleteUserBatch(student.email, batch);
-                                            alert(`✅ Batch "${batchName}" deleted for "${student.username}"!`);
-                                            loadStudents();
-                                            if (selectedStudent?.email === student.email && selectedStudent.batch === batch) {
-                                              setSelectedStudent(null);
-                                            }
-                                          }
-                                        }}
-                                        className="btn"
-                                        title={`Delete ${BATCH_LABELS[batch] || batch} Batch Data`}
-                                        style={{
-                                          padding: '6px 10px',
-                                          fontSize: '0.7rem',
-                                          cursor: 'pointer',
-                                          background: '#fee2e2',
-                                          color: '#dc2626',
-                                          border: '2px solid #f87171',
-                                          fontWeight: '800',
-                                          display: 'inline-flex',
-                                          alignItems: 'center',
-                                          gap: '4px'
-                                        }}
-                                      >
-                                        <Trash2 size={12} /> Delete
-                                      </button>
+                                      {activeTab === 'students' ? (
+                                        <React.Fragment>
+                                          <button 
+                                            onClick={() => {
+                                              if (!isStandard) {
+                                                handleTogglePayment(student.email, batch, 'standard');
+                                              }
+                                            }}
+                                            className="btn btn-secondary"
+                                            title="₹499 for 6months Tier (No AI Chat Bot)"
+                                            style={{ 
+                                              padding: '6px 12px', 
+                                              fontSize: '0.7rem', 
+                                              cursor: 'pointer', 
+                                              background: isStandard && !isPremium ? '#10b981' : '#ffffff',
+                                              color: isStandard && !isPremium ? '#ffffff' : '#111827',
+                                              border: isStandard && !isPremium ? '2px solid #10b981' : '2px solid var(--border-color)'
+                                            }}
+                                          >
+                                            Paid ₹499 for 6months
+                                          </button>
+                                          <button 
+                                            onClick={() => {
+                                              if (!isPremium) {
+                                                handleTogglePayment(student.email, batch, 'premium');
+                                              }
+                                            }}
+                                            className="btn btn-secondary"
+                                            title="₹599 for 6months Tier (With AI Chat Bot)"
+                                            style={{ 
+                                              padding: '6px 12px', 
+                                              fontSize: '0.7rem', 
+                                              cursor: 'pointer', 
+                                              background: isPremium ? '#10b981' : '#ffffff',
+                                              color: isPremium ? '#ffffff' : '#111827',
+                                              border: isPremium ? '2px solid #10b981' : '2px solid var(--border-color)'
+                                            }}
+                                          >
+                                            Paid ₹599 for 6months
+                                          </button>
+                                          <button 
+                                            onClick={() => {
+                                              if (isPremium) {
+                                                handleTogglePayment(student.email, batch, 'premium');
+                                              } else if (isStandard) {
+                                                handleTogglePayment(student.email, batch, 'standard');
+                                              }
+                                            }}
+                                            className="btn btn-secondary"
+                                            title="Revoke Access"
+                                            style={{ 
+                                              padding: '6px 12px', 
+                                              fontSize: '0.7rem', 
+                                              cursor: 'pointer', 
+                                              background: !(isStandard || isPremium) ? '#10b981' : '#ffffff',
+                                              color: !(isStandard || isPremium) ? '#ffffff' : '#111827',
+                                              border: !(isStandard || isPremium) ? '2px solid #10b981' : '2px solid var(--border-color)'
+                                            }}
+                                          >
+                                            Unpaid
+                                          </button>
+                                          <button 
+                                            onClick={async () => {
+                                              const batchName = BATCH_LABELS[batch] || batch;
+                                              if (window.confirm(`⚠️ Delete batch "${batchName}" for "${student.username}" (${student.email})?\n\nOnly data for "${batchName}" will be erased. Their other active batches will remain completely safe!`)) {
+                                                await api.deleteUserBatch(student.email, batch);
+                                                alert(`✅ Batch "${batchName}" deleted for "${student.username}"!`);
+                                                loadStudents();
+                                                if (selectedStudent?.email === student.email && selectedStudent.batch === batch) {
+                                                  setSelectedStudent(null);
+                                                }
+                                              }
+                                            }}
+                                            className="btn"
+                                            title={`Delete ${BATCH_LABELS[batch] || batch} Batch Data`}
+                                            style={{
+                                              padding: '6px 10px',
+                                              fontSize: '0.7rem',
+                                              cursor: 'pointer',
+                                              background: '#fee2e2',
+                                              color: '#dc2626',
+                                              border: '2px solid #f87171',
+                                              fontWeight: '800',
+                                              display: 'inline-flex',
+                                              alignItems: 'center',
+                                              gap: '4px'
+                                            }}
+                                          >
+                                            <Trash2 size={12} /> Delete
+                                          </button>
+                                        </React.Fragment>
+                                      ) : (
+                                        <button 
+                                          onClick={() => setSelectedStudent({ ...student, batch })}
+                                          className="btn btn-accent"
+                                          style={{ padding: '6px 12px', fontSize: '0.75rem', cursor: 'pointer' }}
+                                        >
+                                          <Edit size={14} style={{ marginRight: '4px' }} /> Manage Scores
+                                        </button>
+                                      )}
                                     </div>
                                   </td>
                                 </React.Fragment>
@@ -575,132 +600,140 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                     Batch: <strong>{BATCH_LABELS[selectedStudent.batch] || selectedStudent.batch}</strong>
                   </p>
 
-                  {/* Add task directly to student */}
-                  <form onSubmit={handleAddStudentTask} style={{ marginBottom: '20px' }}>
-                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: '#111827', marginBottom: '6px' }}>
-                      ASSIGN DIRECT TASK / GOAL
-                    </label>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <input 
-                        type="text" 
-                        value={newStudentTaskText}
-                        onChange={(e) => setNewStudentTaskText(e.target.value)}
-                        placeholder="E.g., Complete physics backlog chapter..."
-                        style={{
-                          flex: 1,
-                          padding: '10px 12px',
-                          borderRadius: '8px',
-                          border: '2px solid var(--border-color)',
-                          outline: 'none',
-                          fontSize: '0.85rem'
-                        }}
-                      />
-                      <button type="submit" className="btn btn-accent" style={{ padding: '10px 14px', fontSize: '0.85rem', cursor: 'pointer' }}>
-                        Assign
-                      </button>
-                    </div>
-                  </form>
+                  {activeTab === 'students' && (
+                    <React.Fragment>
+                      {/* Add task directly to student */}
+                      <form onSubmit={handleAddStudentTask} style={{ marginBottom: '20px' }}>
+                        <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: '#111827', marginBottom: '6px' }}>
+                          ASSIGN DIRECT TASK / GOAL
+                        </label>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <input 
+                            type="text" 
+                            value={newStudentTaskText}
+                            onChange={(e) => setNewStudentTaskText(e.target.value)}
+                            placeholder="E.g., Complete physics backlog chapter..."
+                            style={{
+                              flex: 1,
+                              padding: '10px 12px',
+                              borderRadius: '8px',
+                              border: '2px solid var(--border-color)',
+                              outline: 'none',
+                              fontSize: '0.85rem'
+                            }}
+                          />
+                          <button type="submit" className="btn btn-accent" style={{ padding: '10px 14px', fontSize: '0.85rem', cursor: 'pointer' }}>
+                            Assign
+                          </button>
+                        </div>
+                      </form>
 
-                  {/* Student Active Task List */}
-                  <h4 style={{ fontSize: '0.85rem', fontWeight: '800', color: '#111827', marginBottom: '10px' }}>
-                    Active Checklist Tasks ({studentTasks.length})
-                  </h4>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '250px', overflowY: 'auto' }}>
-                    {studentTasks.map(task => (
-                      <div key={task.id} style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '10px 12px',
-                        background: '#fafafa',
-                        borderRadius: '8px',
-                        border: '1.5px solid var(--border-color)'
-                      }}>
-                        <span style={{ fontSize: '0.85rem', fontWeight: '600', textDecoration: task.completed ? 'line-through' : 'none', color: task.completed ? '#9ca3af' : '#111827' }}>
-                          {task.text} {task.completed && '✓'}
-                        </span>
-                        <button 
-                          onClick={() => handleDeleteStudentTask(task.id)}
-                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', padding: '2px' }}
-                        >
-                          <Trash2 size={14} />
-                        </button>
+                      {/* Student Active Task List */}
+                      <h4 style={{ fontSize: '0.85rem', fontWeight: '800', color: '#111827', marginBottom: '10px' }}>
+                        Active Checklist Tasks ({studentTasks.length})
+                      </h4>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '250px', overflowY: 'auto' }}>
+                        {studentTasks.map(task => (
+                          <div key={task.id} style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            padding: '10px 12px',
+                            background: '#fafafa',
+                            borderRadius: '8px',
+                            border: '1.5px solid var(--border-color)'
+                          }}>
+                            <span style={{ fontSize: '0.85rem', fontWeight: '600', textDecoration: task.completed ? 'line-through' : 'none', color: task.completed ? '#9ca3af' : '#111827' }}>
+                              {task.text} {task.completed && '✓'}
+                            </span>
+                            <button 
+                              onClick={() => handleDeleteStudentTask(task.id)}
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', padding: '2px' }}
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        ))}
+                        {studentTasks.length === 0 && (
+                          <p style={{ fontSize: '0.8rem', color: '#9ca3af', textAlign: 'center', padding: '10px' }}>
+                            No checklist tasks assigned yet.
+                          </p>
+                        )}
                       </div>
-                    ))}
-                    {studentTasks.length === 0 && (
-                      <p style={{ fontSize: '0.8rem', color: '#9ca3af', textAlign: 'center', padding: '10px' }}>
-                        No checklist tasks assigned yet.
-                      </p>
-                    )}
-                  </div>
+                    </React.Fragment>
+                  )}
 
-                  {/* Student Test Scores List */}
-                  <h4 style={{ fontSize: '0.85rem', fontWeight: '800', color: '#111827', marginBottom: '10px', marginTop: '20px' }}>
-                    Mock Test Scores ({studentScores.length})
-                  </h4>
-                  <form onSubmit={handleAddStudentScore} style={{ marginBottom: '16px' }}>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <input 
-                        type="text" 
-                        value={newScoreSubject}
-                        onChange={(e) => setNewScoreSubject(e.target.value)}
-                        placeholder="E.g., Physics Mock 1..."
-                        style={{
-                          flex: 1,
-                          padding: '10px 12px',
-                          borderRadius: '8px',
-                          border: '2px solid var(--border-color)',
-                          outline: 'none',
-                          fontSize: '0.85rem'
-                        }}
-                      />
-                      <input 
-                        type="number" 
-                        value={newScoreValue}
-                        onChange={(e) => setNewScoreValue(e.target.value)}
-                        placeholder="Score (0-100)..."
-                        style={{
-                          width: '120px',
-                          padding: '10px 12px',
-                          borderRadius: '8px',
-                          border: '2px solid var(--border-color)',
-                          outline: 'none',
-                          fontSize: '0.85rem'
-                        }}
-                      />
-                      <button type="submit" className="btn btn-accent" style={{ padding: '10px 14px', fontSize: '0.85rem', cursor: 'pointer' }}>
-                        Add
-                      </button>
-                    </div>
-                  </form>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '250px', overflowY: 'auto' }}>
-                    {studentScores.map(score => (
-                      <div key={score.id} style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '10px 12px',
-                        background: '#fafafa',
-                        borderRadius: '8px',
-                        border: '1.5px solid var(--border-color)'
-                      }}>
-                        <span style={{ fontSize: '0.85rem', fontWeight: '600', color: '#111827' }}>
-                          {score.subject} <span style={{ color: 'var(--accent-color)', marginLeft: '8px' }}>{score.score}%</span>
-                        </span>
-                        <button 
-                          onClick={() => handleDeleteStudentScore(score.id)}
-                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', padding: '2px' }}
-                        >
-                          <Trash2 size={14} />
-                        </button>
+                  {activeTab === 'scores' && (
+                    <React.Fragment>
+                      {/* Student Test Scores List */}
+                      <h4 style={{ fontSize: '0.85rem', fontWeight: '800', color: '#111827', marginBottom: '10px' }}>
+                        Mock Test Scores ({studentScores.length})
+                      </h4>
+                      <form onSubmit={handleAddStudentScore} style={{ marginBottom: '16px' }}>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <input 
+                            type="text" 
+                            value={newScoreSubject}
+                            onChange={(e) => setNewScoreSubject(e.target.value)}
+                            placeholder="E.g., Physics Mock 1..."
+                            style={{
+                              flex: 1,
+                              padding: '10px 12px',
+                              borderRadius: '8px',
+                              border: '2px solid var(--border-color)',
+                              outline: 'none',
+                              fontSize: '0.85rem'
+                            }}
+                          />
+                          <input 
+                            type="number" 
+                            value={newScoreValue}
+                            onChange={(e) => setNewScoreValue(e.target.value)}
+                            placeholder="Score (0-100)..."
+                            style={{
+                              width: '120px',
+                              padding: '10px 12px',
+                              borderRadius: '8px',
+                              border: '2px solid var(--border-color)',
+                              outline: 'none',
+                              fontSize: '0.85rem'
+                            }}
+                          />
+                          <button type="submit" className="btn btn-accent" style={{ padding: '10px 14px', fontSize: '0.85rem', cursor: 'pointer' }}>
+                            Add
+                          </button>
+                        </div>
+                      </form>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '250px', overflowY: 'auto' }}>
+                        {studentScores.map(score => (
+                          <div key={score.id} style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            padding: '10px 12px',
+                            background: '#fafafa',
+                            borderRadius: '8px',
+                            border: '1.5px solid var(--border-color)'
+                          }}>
+                            <span style={{ fontSize: '0.85rem', fontWeight: '600', color: '#111827' }}>
+                              {score.subject} <span style={{ color: 'var(--accent-color)', marginLeft: '8px' }}>{score.score}%</span>
+                            </span>
+                            <button 
+                              onClick={() => handleDeleteStudentScore(score.id)}
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', padding: '2px' }}
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        ))}
+                        {studentScores.length === 0 && (
+                          <p style={{ fontSize: '0.8rem', color: '#9ca3af', textAlign: 'center', padding: '10px' }}>
+                            No mock test scores logged yet.
+                          </p>
+                        )}
                       </div>
-                    ))}
-                    {studentScores.length === 0 && (
-                      <p style={{ fontSize: '0.8rem', color: '#9ca3af', textAlign: 'center', padding: '10px' }}>
-                        No mock test scores logged yet.
-                      </p>
-                    )}
-                  </div>
+                    </React.Fragment>
+                  )}
 
                   <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '2px solid var(--border-color)' }}>
                     <button
