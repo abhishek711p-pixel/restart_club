@@ -289,9 +289,42 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
     const fetchInitialData = async () => {
       try {
         const users = await api.getUsers();
-        if (users[user.email]) {
-          setUser(users[user.email]);
+        const updatedUser = users[user.email];
+
+        if (!updatedUser) {
+          // Account completely erased by Admin -> Redirect to Landing Page!
+          onLogout();
+          return;
         }
+
+        // Determine all batches this user has access/registration for
+        const purchasedList = updatedUser.purchasedBatches || [];
+        const cleanPurchased = purchasedList.map((b: string) => b.replace('_standard', '').replace('_premium', ''));
+        const allUserBatches = Array.from(new Set([updatedUser.batch, ...cleanPurchased]));
+
+        // Check if current activeBatch is in user's registered batches
+        const isRegisteredInActiveBatch = allUserBatches.includes(activeBatch);
+
+        if (!isRegisteredInActiveBatch) {
+          // Admin deleted the batch the student was currently viewing!
+          if (allUserBatches.length > 0 && cleanPurchased.length > 0) {
+            // Student HAS another registered batch -> direct them directly to that batch!
+            const targetBatch = cleanPurchased[0] || allUserBatches[0];
+            setActiveBatch(targetBatch);
+            localStorage.setItem('drona_selected_batch', targetBatch);
+            setUser(updatedUser);
+            localStorage.setItem('studentSession', JSON.stringify(updatedUser));
+            return;
+          } else {
+            // Student has NO other registered batches -> direct them directly to Landing Page!
+            onLogout();
+            return;
+          }
+        }
+
+        setUser(updatedUser);
+        localStorage.setItem('studentSession', JSON.stringify(updatedUser));
+
         const initialTasks = await api.getTasks(user.email, activeBatch);
         if (initialTasks && initialTasks.length > 0) {
           setTasks(initialTasks);
