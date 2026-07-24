@@ -224,14 +224,6 @@ app.post('/api/users/register', async (req, res) => {
       await prisma.task.createMany({ data: taskData });
     }
 
-    // Initialize mock test scores
-    await prisma.score.createMany({
-      data: [
-        { scoreId: '1', email, batch, subject: 'Physics Mock 1', score: 82, date: '2026-07-15' },
-        { scoreId: '2', email, batch, subject: 'Chemistry Revision Test', score: 88, date: '2026-07-18' },
-        { scoreId: '3', email, batch, subject: 'Math/Bio Olympiad Prep', score: 76, date: '2026-07-20' }
-      ]
-    });
 
     // Welcome chat message
     const mentorMap = {

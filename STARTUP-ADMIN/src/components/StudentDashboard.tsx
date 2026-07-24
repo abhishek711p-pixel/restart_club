@@ -264,7 +264,7 @@ export default function StudentDashboard({ user, onLogout }: StudentDashboardPro
     };
     const updatedScores = [newScore, ...mockScores];
     setMockScores(updatedScores);
-    await api.updateScores(user.email, updatedScores);
+    await api.updateScores(user.email, activeBatch, updatedScores);
     setLogScore('');
     alert(`🎉 Mock test score logged successfully!`);
   };
@@ -272,7 +272,7 @@ export default function StudentDashboard({ user, onLogout }: StudentDashboardPro
   const handleDeleteScore = async (id: string) => {
     const updated = mockScores.filter(s => s.id !== id);
     setMockScores(updated);
-    await api.updateScores(user.email, updated);
+    await api.updateScores(user.email, activeBatch, updated);
   };
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -315,7 +315,7 @@ export default function StudentDashboard({ user, onLogout }: StudentDashboardPro
         }
 
         // Load Scores
-        const scoresData = await api.getScores(user.email);
+        const scoresData = await api.getScores(user.email, activeBatch);
         if (scoresData && scoresData.length > 0) {
           setMockScores(scoresData);
         } else {
@@ -325,7 +325,7 @@ export default function StudentDashboard({ user, onLogout }: StudentDashboardPro
             { id: '3', subject: 'Math/Bio Olympiad Prep', score: 76, date: '2026-07-20' }
           ];
           setMockScores(initialScores);
-          await api.updateScores(user.email, initialScores);
+          await api.updateScores(user.email, activeBatch, initialScores);
         }
       } catch (err) {
         console.error("Failed to load dashboard data from API", err);

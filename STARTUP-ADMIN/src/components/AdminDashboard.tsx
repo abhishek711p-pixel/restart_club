@@ -32,7 +32,11 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   // Selected student management
   const [selectedStudent, setSelectedStudent] = useState<StudentUser | null>(null);
   const [studentTasks, setStudentTasks] = useState<any[]>([]);
-  const [newStudentTaskText, setNewStudentTaskText] = useState('');
+  const [newStudentTaskText, setNewStudentTaskText] = useState("");
+  
+  const [studentScores, setStudentScores] = useState<any[]>([]);
+  const [newScoreSubject, setNewScoreSubject] = useState("");
+  const [newScoreValue, setNewScoreValue] = useState("");
   
   // Planners editor
   const [selectedBatchPlanner, setSelectedBatchPlanner] = useState<string>('12');
@@ -82,8 +86,12 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
           } else {
             setStudentTasks([]);
           }
+          
+          const storedScores = await api.getScores(selectedStudent.email, selectedStudent.batch);
+          setStudentScores(Array.isArray(storedScores) ? storedScores : []);
         } catch (err) {
           setStudentTasks([]);
+          setStudentScores([]);
         }
       }
     };
@@ -158,6 +166,32 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
     const updated = studentTasks.filter(t => t.id !== taskId);
     setStudentTasks(updated);
     await api.updateTasks(selectedStudent.email, selectedStudent.batch, updated);
+  };
+
+  const handleAddStudentScore = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedStudent || !newScoreSubject.trim() || !newScoreValue.trim()) return;
+    const value = parseInt(newScoreValue, 10);
+    if (isNaN(value)) return;
+
+    const newScore = {
+      id: `score-${Date.now()}`,
+      subject: newScoreSubject,
+      score: value,
+      date: new Date().toISOString().split('T')[0]
+    };
+    const updated = [...studentScores, newScore];
+    setStudentScores(updated);
+    setNewScoreSubject("");
+    setNewScoreValue("");
+    await api.updateScores(selectedStudent.email, selectedStudent.batch, updated);
+  };
+
+  const handleDeleteStudentScore = async (id: string) => {
+    if (!selectedStudent) return;
+    const updated = studentScores.filter(s => s.id !== id);
+    setStudentScores(updated);
+    await api.updateScores(selectedStudent.email, selectedStudent.batch, updated);
   };
 
   const handleAddPlannerTask = async (e: React.FormEvent) => {
@@ -596,6 +630,74 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                     {studentTasks.length === 0 && (
                       <p style={{ fontSize: '0.8rem', color: '#9ca3af', textAlign: 'center', padding: '10px' }}>
                         No checklist tasks assigned yet.
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Student Test Scores List */}
+                  <h4 style={{ fontSize: '0.85rem', fontWeight: '800', color: '#111827', marginBottom: '10px', marginTop: '20px' }}>
+                    Mock Test Scores ({studentScores.length})
+                  </h4>
+                  <form onSubmit={handleAddStudentScore} style={{ marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input 
+                        type="text" 
+                        value={newScoreSubject}
+                        onChange={(e) => setNewScoreSubject(e.target.value)}
+                        placeholder="E.g., Physics Mock 1..."
+                        style={{
+                          flex: 1,
+                          padding: '10px 12px',
+                          borderRadius: '8px',
+                          border: '2px solid var(--border-color)',
+                          outline: 'none',
+                          fontSize: '0.85rem'
+                        }}
+                      />
+                      <input 
+                        type="number" 
+                        value={newScoreValue}
+                        onChange={(e) => setNewScoreValue(e.target.value)}
+                        placeholder="Score (0-100)..."
+                        style={{
+                          width: '120px',
+                          padding: '10px 12px',
+                          borderRadius: '8px',
+                          border: '2px solid var(--border-color)',
+                          outline: 'none',
+                          fontSize: '0.85rem'
+                        }}
+                      />
+                      <button type="submit" className="btn btn-accent" style={{ padding: '10px 14px', fontSize: '0.85rem', cursor: 'pointer' }}>
+                        Add
+                      </button>
+                    </div>
+                  </form>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '250px', overflowY: 'auto' }}>
+                    {studentScores.map(score => (
+                      <div key={score.id} style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '10px 12px',
+                        background: '#fafafa',
+                        borderRadius: '8px',
+                        border: '1.5px solid var(--border-color)'
+                      }}>
+                        <span style={{ fontSize: '0.85rem', fontWeight: '600', color: '#111827' }}>
+                          {score.subject} <span style={{ color: 'var(--accent-color)', marginLeft: '8px' }}>{score.score}%</span>
+                        </span>
+                        <button 
+                          onClick={() => handleDeleteStudentScore(score.id)}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', padding: '2px' }}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    ))}
+                    {studentScores.length === 0 && (
+                      <p style={{ fontSize: '0.8rem', color: '#9ca3af', textAlign: 'center', padding: '10px' }}>
+                        No mock test scores logged yet.
                       </p>
                     )}
                   </div>

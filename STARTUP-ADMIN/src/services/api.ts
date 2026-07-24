@@ -71,12 +71,12 @@ export const api = {
   },
 
   // Scores
-  getScores: async (email: string) => {
-    const res = await fetch(`${API_BASE_URL}/scores/${email}`);
+  getScores: async (email: string, batch: string) => {
+    const res = await fetch(`${API_BASE_URL}/scores/${email}/${batch}`);
     try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   },
-  updateScores: async (email: string, scores: any[]) => {
-    const res = await fetch(`${API_BASE_URL}/scores/${email}`, {
+  updateScores: async (email: string, batch: string, scores: any[]) => {
+    const res = await fetch(`${API_BASE_URL}/scores/${email}/${batch}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ scores })

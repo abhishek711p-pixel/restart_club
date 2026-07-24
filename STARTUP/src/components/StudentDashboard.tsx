@@ -708,7 +708,7 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
                 <CheckSquare size={20} style={{ color: 'var(--accent-color)' }} />
                 Daily Study Planner Checklist
               </h3>
-              <div style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--accent-color)', background: 'var(--bg-primary)', padding: '4px 10px', borderRadius: '6px', border: '1.5px solid var(--border-color)' }}>
+              <div style={{ whiteSpace: 'nowrap', flexShrink: 0, fontSize: '0.85rem', fontWeight: '700', color: 'var(--accent-color)', background: 'var(--bg-primary)', padding: '4px 10px', borderRadius: '6px', border: '1.5px solid var(--border-color)' }}>
                 {progressPercent}% Complete
               </div>
             </div>
