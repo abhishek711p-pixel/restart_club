@@ -1843,3 +1843,33 @@ p {
   vertical-align: middle;
   margin-left: 4px;
 }
+
+/* Mobile Layout Tweaks */
+@media (max-width: 768px) {
+  /* Landing page tweaks */
+  .class-selector-tabs {
+    flex-wrap: wrap !important;
+    justify-content: center;
+  }
+  
+  /* Student Dashboard tweaks */
+  .student-dashboard .navbar-header .container {
+    flex-direction: column !important;
+    gap: 16px;
+  }
+  .student-dashboard .tab-switcher {
+    flex-wrap: wrap !important;
+    justify-content: center;
+  }
+  .student-dashboard main.container[style*="grid"] {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  .student-dashboard .glass-card {
+    padding: 24px !important;
+  }
+  .student-dashboard main.container {
+    padding-top: 20px !important;
+    padding-bottom: 20px !important;
+  }
+}

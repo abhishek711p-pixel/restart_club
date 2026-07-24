@@ -383,7 +383,7 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
   const progressPercent = tasks.length > 0 ? Math.round((completedCount / tasks.length) * 100) : 0;
 
   return (
-    <div style={{ background: 'var(--bg-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="student-dashboard" style={{ background: 'var(--bg-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       
       <header className="navbar-header" style={{ background: '#ffffff', borderBottom: '2px solid var(--border-color)', padding: '16px 0' }}>
         <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
