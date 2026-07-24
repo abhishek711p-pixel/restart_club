@@ -82,7 +82,7 @@ export default function App() {
           <div className="hero-content">
             <div className="hero-badge float-animation">
               <Sparkles size={14} className="text-emerald" />
-              <span>Personal Topper Mentors + AI Assistant Feature</span>
+              <span>Dedicated Mentor & Guidance + AI Assistant Feature</span>
             </div>
             
             <h1 className="hero-title">
@@ -90,11 +90,11 @@ export default function App() {
             </h1>
             
             <h2 className="hero-subtitle-primary">
-              Personal Topper Mentorship + 24/7 AI WhatsApp Planner
+              Dedicated Mentor & Guidance + 24/7 AI WhatsApp Planner
             </h2>
             
             <p className="hero-subtitle">
-              Study under real IITian & NEET topper mentors who track your progress, with our 24/7 custom Hinglish AI assistant feature on WhatsApp for daily doubts & study planners. Tailored for Classes 10–12 and JEE/NEET.
+              Study under real dedicated mentors who track your progress, with our 24/7 custom Hinglish AI assistant feature on WhatsApp for daily doubts & study planners. Tailored for Classes 10–12 and JEE/NEET.
             </p>
             
             <div className="hero-actions">
@@ -134,7 +134,7 @@ export default function App() {
               </div>
               <div className="card-body text-left">
                 <div className="visual-status-row">
-                  <div className="visual-status-pill green">Topper Mentor Assigned</div>
+                  <div className="visual-status-pill green">Dedicated Mentor Assigned</div>
                   <div className="visual-status-pill purple">AI Feature Active</div>
                 </div>
                 <h4 className="visual-chat-header">WhatsApp Study Companion:</h4>
@@ -288,15 +288,15 @@ export default function App() {
       <section className="why-section">
         <div className="container">
           <div className="why-header text-center">
-            <h2 className="why-title">WHY DRONA MENTORSHIP?</h2>
+            <h2 className="why-title">WHY DEDICATED MENTOR & GUIDANCE?</h2>
             <p className="why-subtitle-sub">Take a step to clear your target exams with flying colors today</p>
           </div>
 
           <div className="why-grid">
             <div className="why-col">
-              <h3 className="why-col-title">Topper Mentors + Smart AI Features at a fraction of the cost</h3>
+              <h3 className="why-col-title">Dedicated Mentors + Smart AI Features at a fraction of the cost</h3>
               <p className="why-col-text">
-                We understand that students need real human connections, but hiring a personal mentor is highly expensive. By using our AI assistant features to handle daily planners and doubt answering, we reduce human mentor workload by 80%—allowing us to offer premium personal topper mentorship starting at just ₹499/month.
+                We understand that students need real human connections, but hiring a personal mentor is highly expensive. By using our AI assistant features to handle daily planners and doubt answering, we reduce human mentor workload by 80%—allowing us to offer dedicated mentor & guidance starting at just ₹499/month.
               </p>
             </div>
             
@@ -315,7 +315,7 @@ export default function App() {
         <div className="container">
           <div className="math-value-header text-center">
             <div className="badge-pill">Value Calculation</div>
-            <h2 className="section-title">How Small is ₹499/month for Topper Mentorship?</h2>
+            <h2 className="section-title">How Small is ₹499/month for Dedicated Mentor & Guidance?</h2>
             <p className="section-description max-w-2xl mx-auto">
               Putting your monthly subscription cost into perspective:
             </p>
@@ -324,12 +324,12 @@ export default function App() {
           <div className="math-grid">
             <div className="math-card glass-card">
               <span className="math-metric-highlight">Less Than 1 Pizza</span>
-              <p className="math-card-desc">₹499/month is less than the cost of ordering a single medium pizza. Invest it in securing your topper mentorship and AI guides instead.</p>
+              <p className="math-card-desc">₹499/month is less than the cost of ordering a single medium pizza. Invest it in securing your dedicated mentor & guidance and AI guides instead.</p>
             </div>
             
             <div className="math-card glass-card">
               <span className="math-metric-highlight">5% of Coaching Cost</span>
-              <p className="math-card-desc">Traditional coaching institutes charge ₹10,000+ per month. RestartClub gives personal topper attention + 24/7 AI features at 5% of that cost.</p>
+              <p className="math-card-desc">Traditional coaching institutes charge ₹10,000+ per month. RestartClub gives dedicated mentor attention + 24/7 AI features at 5% of that cost.</p>
             </div>
             
             <div className="math-card glass-card">
@@ -350,7 +350,7 @@ export default function App() {
         <div className="container">
           <div className="table-header text-center">
             <div className="badge-pill">Compare & Choose</div>
-            <h2 className="section-title">Why RestartClub Hybrid Mentorship is Unbeatable</h2>
+            <h2 className="section-title">Why RestartClub Dedicated Mentor & Guidance is Unbeatable</h2>
             <p className="section-description max-w-2xl mx-auto">
               See how we stack up against traditional learning methods:
             </p>
@@ -374,7 +374,7 @@ export default function App() {
                   <td className="highlight-col"><Check className="table-icon green" size={20} /> <span className="highlight-text">Instant</span></td>
                 </tr>
                 <tr>
-                  <td className="feature-name">Dedicated Topper Mentor Assigned</td>
+                  <td className="feature-name">Dedicated Mentor & Guidance Assigned</td>
                   <td><X className="table-icon red" size={20} /> <span className="cell-sub text-muted">One-way</span></td>
                   <td><X className="table-icon red" size={20} /> <span className="cell-sub text-muted">Rarely</span></td>
                   <td className="highlight-col"><Check className="table-icon green" size={20} /> <span className="highlight-text">Direct access</span></td>

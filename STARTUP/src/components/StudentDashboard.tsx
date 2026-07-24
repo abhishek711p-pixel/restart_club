@@ -19,7 +19,7 @@ const BATCH_DETAILS = {
     tagline: "Board-Booster + JEE/NEET Foundation Prep",
     filled: 62,
     features: [
-      "1-on-1 Dedicated Board Topper Mentor",
+      "1-on-1 Dedicated Mentor & Guidance",
       "Toppers' handwritten Science & Math Board notes",
       "CBSE, ICSE & State Board writing paper checks",
       "Science & Maths Olympiad Foundation targets",
@@ -32,7 +32,7 @@ const BATCH_DETAILS = {
     tagline: "Class 11 school syllabus + JEE/NEET concepts",
     filled: 74,
     features: [
-      "1-on-1 Dedicated IITian / NEET Topper Mentor",
+      "1-on-1 Dedicated Mentor & Guidance",
       "Physics & Chemistry formula sheets + topper revision notes",
       "Class 11 Backlog clearing planner & trackers",
       "Advanced Science/Math doubt solver guidance",
@@ -45,7 +45,7 @@ const BATCH_DETAILS = {
     tagline: "Class 12 Board preparation + JEE/NEET Cracker",
     filled: 91,
     features: [
-      "1-on-1 Dedicated Top-Ranker IITian / NEET Mentor",
+      "1-on-1 Dedicated Mentor & Guidance",
       "Class 12 Boards & JEE/NEET Toppers' handwritten notes & formula sheets",
       "Boards Pre-Board & Revision revision checklists",
       "Mock Test Analysis & mistake-tracking spreadsheets",
@@ -58,7 +58,7 @@ const BATCH_DETAILS = {
     tagline: "Full JEE Main & Advanced coverage + Backlog tracker",
     filled: 83,
     features: [
-      "1-on-1 Dedicated IITian Topper Mentor",
+      "1-on-1 Dedicated Mentor & Guidance",
       "JEE Core Formula cheatsheets & topper-vetted short revision notes",
       "Dropper Backlog & Daily Practice Problem tracker",
       "JEE Main & Advanced weekly mock test analytics",
@@ -71,7 +71,7 @@ const BATCH_DETAILS = {
     tagline: "Full NEET-UG coverage + NCERT line-by-line tracker",
     filled: 87,
     features: [
-      "1-on-1 Dedicated NEET Topper Mentor (AIR < 1000)",
+      "1-on-1 Dedicated Mentor & Guidance",
       "NEET Biology NCERT-blueprint short notes & Physics formula sheets",
       "Dropper Backlog & Biology NCERT mapping",
       "NEET mock test error checking & tracking sheets",
