@@ -7,7 +7,7 @@ const BATCH_DETAILS = {
     filled: 62,
     features: [
       "1-on-1 Dedicated Mentor & Guidance",
-      "Toppers' handwritten Science & Math Board notes",
+      "Handwritten Science & Math Board notes",
       "CBSE, ICSE & State Board writing paper checks",
       "Science & Maths Olympiad Foundation targets",
       "24/7 WhatsApp AI Chatbot Assistant",
@@ -21,7 +21,7 @@ const BATCH_DETAILS = {
     filled: 74,
     features: [
       "1-on-1 Dedicated Mentor & Guidance",
-      "Physics & Chemistry formula sheets + topper revision notes",
+      "Physics & Chemistry formula sheets + revision notes",
       "Class 11 Backlog clearing planner & trackers",
       "Advanced Science/Math doubt solver guidance",
       "24/7 WhatsApp AI Chatbot Assistant",
@@ -35,7 +35,7 @@ const BATCH_DETAILS = {
     filled: 91,
     features: [
       "1-on-1 Dedicated Mentor & Guidance",
-      "Class 12 Boards & JEE/NEET Toppers' handwritten notes & formula sheets",
+      "Class 12 Boards & JEE/NEET handwritten notes & formula sheets",
       "Boards Pre-Board & Revision revision checklists",
       "Mock Test Analysis & mistake-tracking spreadsheets",
       "24/7 WhatsApp AI Chatbot Assistant",
@@ -49,7 +49,7 @@ const BATCH_DETAILS = {
     filled: 83,
     features: [
       "1-on-1 Dedicated Mentor & Guidance",
-      "JEE Core Formula cheatsheets & topper-vetted short revision notes",
+      "JEE Core Formula cheatsheets & short revision notes",
       "Dropper Backlog & Daily Practice Problem tracker",
       "JEE Main & Advanced weekly mock test analytics",
       "24/7 WhatsApp AI Chatbot Assistant",
