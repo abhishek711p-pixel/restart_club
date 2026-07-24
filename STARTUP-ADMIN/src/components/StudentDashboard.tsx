@@ -319,13 +319,7 @@ export default function StudentDashboard({ user, onLogout }: StudentDashboardPro
         if (scoresData && scoresData.length > 0) {
           setMockScores(scoresData);
         } else {
-          const initialScores = [
-            { id: '1', subject: 'Physics Mock 1', score: 82, date: '2026-07-15' },
-            { id: '2', subject: 'Chemistry Revision Test', score: 88, date: '2026-07-18' },
-            { id: '3', subject: 'Math/Bio Olympiad Prep', score: 76, date: '2026-07-20' }
-          ];
-          setMockScores(initialScores);
-          await api.updateScores(user.email, activeBatch, initialScores);
+          setMockScores([]);
         }
       } catch (err) {
         console.error("Failed to load dashboard data from API", err);
