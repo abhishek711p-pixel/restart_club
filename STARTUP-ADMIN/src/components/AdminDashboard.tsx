@@ -470,19 +470,20 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                                       >
                                         Unpaid
                                       </button>
-                                      <button
+                                      <button 
                                         onClick={async () => {
-                                          if (window.confirm(`⚠️ Delete student "${student.username}" (${student.email})?\n\nThis will completely erase all their data (checklist tasks, test scores, mentor chats, and account). They will have to register/login again for this batch.`)) {
-                                            await api.deleteUser(student.email);
-                                            alert(`✅ Student account "${student.username}" erased successfully!`);
+                                          const batchName = BATCH_LABELS[batch] || batch;
+                                          if (window.confirm(`⚠️ Delete batch "${batchName}" for "${student.username}" (${student.email})?\n\nOnly data for "${batchName}" will be erased. Their other active batches will remain completely safe!`)) {
+                                            await api.deleteUserBatch(student.email, batch);
+                                            alert(`✅ Batch "${batchName}" deleted for "${student.username}"!`);
                                             loadStudents();
-                                            if (selectedStudent?.email === student.email) {
+                                            if (selectedStudent?.email === student.email && selectedStudent.batch === batch) {
                                               setSelectedStudent(null);
                                             }
                                           }
                                         }}
                                         className="btn"
-                                        title="Delete Student ID & Erase All Data"
+                                        title={`Delete ${BATCH_LABELS[batch] || batch} Batch Data`}
                                         style={{
                                           padding: '6px 10px',
                                           fontSize: '0.7rem',
@@ -602,9 +603,10 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                   <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '2px solid var(--border-color)' }}>
                     <button
                       onClick={async () => {
-                        if (window.confirm(`⚠️ Erase student account "${selectedStudent.username}" (${selectedStudent.email})?\n\nThis permanently erases all tasks, test scores, chat history, and account registration. They must sign up/login again from scratch.`)) {
-                          await api.deleteUser(selectedStudent.email);
-                          alert(`✅ Student "${selectedStudent.username}" erased successfully!`);
+                        const batchName = BATCH_LABELS[selectedStudent.batch] || selectedStudent.batch;
+                        if (window.confirm(`⚠️ Delete batch "${batchName}" for "${selectedStudent.username}" (${selectedStudent.email})?\n\nOnly data for "${batchName}" will be erased. Their other active batches will remain completely safe!`)) {
+                          await api.deleteUserBatch(selectedStudent.email, selectedStudent.batch);
+                          alert(`✅ Batch "${batchName}" deleted for "${selectedStudent.username}"!`);
                           setSelectedStudent(null);
                           loadStudents();
                         }
@@ -624,7 +626,7 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                         gap: '6px'
                       }}
                     >
-                      <Trash2 size={16} /> Delete Student Account & Erase Data
+                      <Trash2 size={16} /> Delete This Batch Data ({BATCH_LABELS[selectedStudent.batch] || selectedStudent.batch})
                     </button>
                   </div>
                 </div>

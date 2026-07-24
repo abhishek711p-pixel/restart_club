@@ -158,6 +158,44 @@ app.delete('/api/users/:email', async (req, res) => {
   }
 });
 
+// Delete specific batch enrollment for a student while keeping other batches intact
+app.delete('/api/users/:email/batch/:batch', async (req, res) => {
+  const { email, batch } = req.params;
+  try {
+    await prisma.task.deleteMany({ where: { email, batch } });
+    await prisma.score.deleteMany({ where: { email, batch } });
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (user) {
+      const remainingBatches = (user.purchasedBatches || []).filter(
+        b => b !== batch && b !== `${batch}_standard` && b !== `${batch}_premium`
+      );
+
+      if (remainingBatches.length === 0 && user.batch === batch) {
+        await prisma.chat.deleteMany({ where: { email } });
+        await prisma.user.delete({ where: { email } });
+      } else {
+        const newPrimaryBatch = user.batch === batch 
+          ? (remainingBatches[0]?.replace('_standard', '').replace('_premium', '') || '12') 
+          : user.batch;
+
+        await prisma.user.update({
+          where: { email },
+          data: {
+            batch: newPrimaryBatch,
+            purchasedBatches: remainingBatches
+          }
+        });
+      }
+    }
+
+    res.json({ success: true, message: `Batch ${batch} deleted for ${email}` });
+  } catch (err) {
+    console.error("Failed to delete user batch:", err);
+    res.status(500).json({ error: 'Failed to delete user batch' });
+  }
+});
+
 app.post('/api/users/register', async (req, res) => {
   const { username, email, password, batch } = req.body;
   
