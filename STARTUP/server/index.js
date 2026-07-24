@@ -142,6 +142,22 @@ app.post('/api/users/reset-password', async (req, res) => {
   res.json({ success: true, message: 'Password reset successful' });
 });
 
+// Delete student user account & erase all student data
+app.delete('/api/users/:email', async (req, res) => {
+  const { email } = req.params;
+  try {
+    await prisma.task.deleteMany({ where: { email } });
+    await prisma.score.deleteMany({ where: { email } });
+    await prisma.chat.deleteMany({ where: { email } });
+    await prisma.user.deleteMany({ where: { email } });
+
+    res.json({ success: true, message: `Student ${email} and all data completely erased.` });
+  } catch (err) {
+    console.error("Failed to delete user:", err);
+    res.status(500).json({ error: 'Failed to delete student' });
+  }
+});
+
 app.post('/api/users/register', async (req, res) => {
   const { username, email, password, batch } = req.body;
   

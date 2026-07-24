@@ -41,6 +41,12 @@ export const api = {
     });
     try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   },
+  deleteUser: async (email: string) => {
+    const res = await fetch(`${API_BASE_URL}/users/${encodeURIComponent(email)}`, {
+      method: 'DELETE'
+    });
+    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
+  },
 
   // Tasks
   getTasks: async (email: string, batch: string = '12') => {

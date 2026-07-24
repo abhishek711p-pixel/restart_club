@@ -470,6 +470,34 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                                       >
                                         Unpaid
                                       </button>
+                                      <button
+                                        onClick={async () => {
+                                          if (window.confirm(`⚠️ Delete student "${student.username}" (${student.email})?\n\nThis will completely erase all their data (checklist tasks, test scores, mentor chats, and account). They will have to register/login again for this batch.`)) {
+                                            await api.deleteUser(student.email);
+                                            alert(`✅ Student account "${student.username}" erased successfully!`);
+                                            loadStudents();
+                                            if (selectedStudent?.email === student.email) {
+                                              setSelectedStudent(null);
+                                            }
+                                          }
+                                        }}
+                                        className="btn"
+                                        title="Delete Student ID & Erase All Data"
+                                        style={{
+                                          padding: '6px 10px',
+                                          fontSize: '0.7rem',
+                                          cursor: 'pointer',
+                                          background: '#fee2e2',
+                                          color: '#dc2626',
+                                          border: '2px solid #f87171',
+                                          fontWeight: '800',
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          gap: '4px'
+                                        }}
+                                      >
+                                        <Trash2 size={12} /> Delete
+                                      </button>
                                     </div>
                                   </td>
                                 </React.Fragment>
@@ -569,6 +597,35 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                         No checklist tasks assigned yet.
                       </p>
                     )}
+                  </div>
+
+                  <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '2px solid var(--border-color)' }}>
+                    <button
+                      onClick={async () => {
+                        if (window.confirm(`⚠️ Erase student account "${selectedStudent.username}" (${selectedStudent.email})?\n\nThis permanently erases all tasks, test scores, chat history, and account registration. They must sign up/login again from scratch.`)) {
+                          await api.deleteUser(selectedStudent.email);
+                          alert(`✅ Student "${selectedStudent.username}" erased successfully!`);
+                          setSelectedStudent(null);
+                          loadStudents();
+                        }
+                      }}
+                      className="btn w-full"
+                      style={{
+                        padding: '10px',
+                        fontSize: '0.85rem',
+                        fontWeight: '800',
+                        background: '#fee2e2',
+                        color: '#dc2626',
+                        border: '2px solid #f87171',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px'
+                      }}
+                    >
+                      <Trash2 size={16} /> Delete Student Account & Erase Data
+                    </button>
                   </div>
                 </div>
               </div>
