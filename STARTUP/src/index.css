@@ -464,18 +464,25 @@ p {
   gap: 40px;
   border-top: 2px solid var(--border-color);
   padding-top: 32px;
+  flex-wrap: wrap;
 }
 
 @media (max-width: 968px) {
   .hero-social-proof {
     justify-content: center;
+    gap: 24px;
   }
 }
 
 @media (max-width: 480px) {
   .hero-social-proof {
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
+    align-items: center;
+    text-align: center;
+  }
+  .proof-number {
+    font-size: 1.25rem;
   }
 }
 

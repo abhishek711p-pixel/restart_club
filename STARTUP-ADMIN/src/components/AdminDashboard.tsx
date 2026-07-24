@@ -387,8 +387,8 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                               const isBought = isPremium || isStandard;
                               
                               let statusText = 'Unpaid/Pending';
-                              if (isPremium) statusText = 'Active (Premium ₹599)';
-                              else if (isStandard) statusText = 'Active (Standard ₹499)';
+                              if (isPremium) statusText = 'Active (Premium ₹599 for 6months)';
+                              else if (isStandard) statusText = 'Active (Standard ₹499 for 6months)';
 
                               return (
                                 <React.Fragment>
@@ -418,7 +418,7 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                                           }
                                         }}
                                         className="btn btn-secondary"
-                                        title="₹499 Tier (No AI Chat Bot)"
+                                        title="₹499 for 6months Tier (No AI Chat Bot)"
                                         style={{ 
                                           padding: '6px 12px', 
                                           fontSize: '0.7rem', 
@@ -428,7 +428,7 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                                           border: isStandard && !isPremium ? '2px solid #10b981' : '2px solid var(--border-color)'
                                         }}
                                       >
-                                        Paid ₹499
+                                        Paid ₹499 for 6months
                                       </button>
                                       <button 
                                         onClick={() => {
@@ -437,7 +437,7 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                                           }
                                         }}
                                         className="btn btn-secondary"
-                                        title="₹599 Tier (With AI Chat Bot)"
+                                        title="₹599 for 6months Tier (With AI Chat Bot)"
                                         style={{ 
                                           padding: '6px 12px', 
                                           fontSize: '0.7rem', 
@@ -447,7 +447,7 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                                           border: isPremium ? '2px solid #10b981' : '2px solid var(--border-color)'
                                         }}
                                       >
-                                        Paid ₹599
+                                        Paid ₹599 for 6months
                                       </button>
                                       <button 
                                         onClick={() => {

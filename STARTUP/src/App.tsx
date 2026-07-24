@@ -112,7 +112,7 @@ export default function App() {
                 <span className="proof-label">Boards, JEE & NEET</span>
               </div>
               <div className="proof-item">
-                <span className="proof-number">Starts at ₹499/mo</span>
+                <span className="proof-number">Starts at ₹499 for 6months</span>
                 <span className="proof-label">Hybrid Mentorship</span>
               </div>
               <div className="proof-item">
@@ -296,7 +296,7 @@ export default function App() {
             <div className="why-col">
               <h3 className="why-col-title">Dedicated Mentors + Smart AI Features at a fraction of the cost</h3>
               <p className="why-col-text">
-                We understand that students need real human connections, but hiring a personal mentor is highly expensive. By using our AI assistant features to handle daily planners and doubt answering, we reduce human mentor workload by 80%—allowing us to offer dedicated mentor & guidance starting at just ₹499/month.
+                We understand that students need real human connections, but hiring a personal mentor is highly expensive. By using our AI assistant features to handle daily planners and doubt answering, we reduce human mentor workload by 80%—allowing us to offer dedicated mentor & guidance starting at just ₹499 for 6months.
               </p>
             </div>
             
@@ -315,7 +315,7 @@ export default function App() {
         <div className="container">
           <div className="math-value-header text-center">
             <div className="badge-pill">Value Calculation</div>
-            <h2 className="section-title">How Small is ₹499/month for Dedicated Mentor & Guidance?</h2>
+            <h2 className="section-title">How Small is ₹499 for 6months for Dedicated Mentor & Guidance?</h2>
             <p className="section-description max-w-2xl mx-auto">
               Putting your monthly subscription cost into perspective:
             </p>
@@ -324,7 +324,7 @@ export default function App() {
           <div className="math-grid">
             <div className="math-card glass-card">
               <span className="math-metric-highlight">Less Than 1 Pizza</span>
-              <p className="math-card-desc">₹499/month is less than the cost of ordering a single medium pizza. Invest it in securing your dedicated mentor & guidance and AI guides instead.</p>
+              <p className="math-card-desc">₹499 for 6months is less than the cost of ordering a single medium pizza. Invest it in securing your dedicated mentor & guidance and AI guides instead.</p>
             </div>
             
             <div className="math-card glass-card">
@@ -334,7 +334,7 @@ export default function App() {
             
             <div className="math-card glass-card">
               <span className="math-metric-highlight">Save Commute Travel</span>
-              <p className="math-card-desc">A single daily travel auto/bus trip to coaching centers costs more than ₹499/month. Save travel time and resolve doubts comfortably from home.</p>
+              <p className="math-card-desc">A single daily travel auto/bus trip to coaching centers costs more than ₹499 for 6months. Save travel time and resolve doubts comfortably from home.</p>
             </div>
             
             <div className="math-card glass-card">
@@ -363,7 +363,7 @@ export default function App() {
                   <th>Features</th>
                   <th>YouTube Channels</th>
                   <th>Offline Coaching</th>
-                  <th className="highlight-col">RestartClub (AI + Mentor) (Starts at ₹499)</th>
+                  <th className="highlight-col">RestartClub (AI + Mentor) (Starts at ₹499 for 6months)</th>
                 </tr>
               </thead>
               <tbody>
@@ -395,7 +395,7 @@ export default function App() {
                   <td className="feature-name">Affordable Pricing</td>
                   <td><Check className="table-icon green" size={20} /> <span className="cell-sub green-text">Free</span></td>
                   <td><X className="table-icon red" size={20} /> <span className="cell-sub text-muted">₹1.2L+/yr</span></td>
-                  <td className="highlight-col"><Check className="table-icon green" size={20} /> <span className="highlight-text">Starts at ₹499/mo</span></td>
+                  <td className="highlight-col"><Check className="table-icon green" size={20} /> <span className="highlight-text">Starts at ₹499 for 6months</span></td>
                 </tr>
               </tbody>
             </table>

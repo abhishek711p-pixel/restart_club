@@ -36,7 +36,7 @@ export default function Navbar({ onSelectBatch, onJoinClick }: NavbarProps) {
         
         <div className="nav-cta">
           <button onClick={onJoinClick} className="btn btn-primary nav-btn" style={{ cursor: 'pointer' }}>
-            Join the Family <span className="price-tag">Starts at ₹499/mo</span>
+            Join the Family <span className="price-tag">Starts at ₹499 for 6months</span>
           </button>
         </div>
       </div>

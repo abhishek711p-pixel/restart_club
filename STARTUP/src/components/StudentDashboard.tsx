@@ -1021,14 +1021,14 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
                 className="btn btn-secondary w-full"
                 style={{ padding: '14px', fontSize: '1rem', fontWeight: '800', cursor: 'pointer', background: '#f3f4f6' }}
               >
-                Unlock Standard Mentorship (₹499/mo)
+                Unlock Standard Mentorship (₹499 for 6months)
               </button>
               <button 
                 onClick={() => { setCheckoutTier('premium'); setShowCheckout(true); }} 
                 className="btn btn-accent w-full"
                 style={{ padding: '14px', fontSize: '1rem', fontWeight: '800', cursor: 'pointer' }}
               >
-                Unlock Premium with AI Chat Bot (₹599/mo)
+                Unlock Premium with AI Chat Bot (₹599 for 6months)
               </button>
             </div>
           </div>
@@ -1061,7 +1061,7 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
               💳 Subscription Checkout
             </h3>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '20px' }}>
-              You are subscribing to **{currentBatchDetails.name}** {checkoutTier === 'premium' ? 'Premium (₹599/mo)' : 'Standard (₹499/mo)'}.
+              You are subscribing to **{currentBatchDetails.name}** {checkoutTier === 'premium' ? 'Premium (₹599 for 6months)' : 'Standard (₹499 for 6months)'}.
             </p>
 
             {checkoutError && (
