@@ -37,13 +37,22 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   // Planners editor
   const [selectedBatchPlanner, setSelectedBatchPlanner] = useState<string>('12');
   const [batchPlannerTasks, setBatchPlannerTasks] = useState<string[]>([]);
+const BATCH_SUBJECTS: Record<string, string[]> = {
+  '10': ['Physics', 'Chemistry', 'Biology', 'Maths', 'English', 'History', 'Geography'],
+  '11': ['Physics', 'Chemistry', 'Biology', 'Maths', 'English', 'Physical Education'],
+  '12': ['Physics', 'Chemistry', 'Biology', 'Maths', 'English', 'Physical Education'],
+  'jee-dropper': ['Physics', 'Chemistry', 'Maths'],
+  'neet-dropper': ['Physics', 'Chemistry', 'Botany', 'Zoology']
+};
+
   const [newPlannerTaskText, setNewPlannerTaskText] = useState('');
 
   // Notes editor
   const [selectedBatchNotes, setSelectedBatchNotes] = useState<string>('12');
-  const [batchNotesList, setBatchNotesList] = useState<Array<{ name: string; size: string }>>([]);
+  const [batchNotesList, setBatchNotesList] = useState<Array<{ name: string; size: string; subject?: string }>>([]);
   const [newNoteName, setNewNoteName] = useState('');
   const [newNoteSize, setNewNoteSize] = useState('4.5 MB');
+  const [newNoteSubject, setNewNoteSubject] = useState<string>('Physics');
 
   // Load all students on mount
   useEffect(() => {
@@ -170,9 +179,12 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const handleAddNote = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newNoteName.trim()) return;
+    const currentSubjects = BATCH_SUBJECTS[selectedBatchNotes] || ['Physics'];
+    const activeSubject = currentSubjects.includes(newNoteSubject) ? newNoteSubject : currentSubjects[0];
     const newNote = {
       name: newNoteName.endsWith('.pdf') ? newNoteName : `${newNoteName}.pdf`,
-      size: newNoteSize || '4.5 MB'
+      size: newNoteSize || '4.5 MB',
+      subject: activeSubject
     };
     const updated = [...batchNotesList, newNote];
     setBatchNotesList(updated);
@@ -723,7 +735,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
                 <h4 style={{ fontSize: '0.9rem', fontWeight: '800', color: '#111827', marginBottom: '12px' }}>
                   📤 Upload Mock Study PDF
                 </h4>
-                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '12px', marginBottom: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.9fr 0.6fr', gap: '12px', marginBottom: '12px' }}>
                   <div>
                     <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#111827', marginBottom: '4px' }}>FILE NAME</label>
                     <input 
@@ -740,6 +752,26 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
                         fontSize: '0.85rem'
                       }}
                     />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#111827', marginBottom: '4px' }}>SUBJECT SECTION</label>
+                    <select
+                      value={newNoteSubject}
+                      onChange={(e) => setNewNoteSubject(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px',
+                        borderRadius: '8px',
+                        border: '2px solid var(--border-color)',
+                        outline: 'none',
+                        fontSize: '0.85rem',
+                        background: '#ffffff'
+                      }}
+                    >
+                      {(BATCH_SUBJECTS[selectedBatchNotes] || ['Physics']).map(subj => (
+                        <option key={subj} value={subj}>{subj}</option>
+                      ))}
+                    </select>
                   </div>
                   <div>
                     <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#111827', marginBottom: '4px' }}>FILE SIZE</label>
@@ -780,8 +812,11 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <FileText size={18} style={{ color: 'var(--accent-color)' }} />
                       <div>
-                        <div style={{ fontSize: '0.85rem', fontWeight: '700', color: '#111827' }}>
+                        <div style={{ fontSize: '0.85rem', fontWeight: '700', color: '#111827', display: 'flex', alignItems: 'center', gap: '8px' }}>
                           {note.name}
+                          <span style={{ fontSize: '0.65rem', padding: '2px 8px', borderRadius: '4px', background: '#e0e7ff', color: '#3730a3', fontWeight: '800' }}>
+                            {note.subject || (BATCH_SUBJECTS[selectedBatchNotes]?.[0] || 'Physics')}
+                          </span>
                         </div>
                         <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
                           PDF Document • {note.size}

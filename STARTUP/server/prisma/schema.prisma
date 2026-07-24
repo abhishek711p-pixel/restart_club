@@ -56,8 +56,9 @@ model Planner {
 }
 
 model Note {
-  id    String @id @default(uuid())
-  batch String
-  name  String
-  size  String
+  id      String  @id @default(uuid())
+  batch   String
+  name    String
+  size    String
+  subject String? @default("General")
 }

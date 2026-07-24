@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Compass, LogOut, Download, Trash2, Award, Calendar, CheckSquare, Users, Check } from 'lucide-react';
+import { Compass, LogOut, Download, Trash2, Award, Calendar, CheckSquare, Users, Check, FileText } from 'lucide-react';
 import { api } from '../services/api';
 
 interface StudentDashboardProps {
@@ -241,9 +241,9 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
     }
   };
 
-  const [activeTab, setActiveTab] = useState<'workspace' | 'progress' | 'test' | 'chatbot'>(() => {
+  const [activeTab, setActiveTab] = useState<'workspace' | 'progress' | 'test' | 'chatbot' | 'notes'>(() => {
     const saved = localStorage.getItem('drona_active_tab');
-    return (saved === 'progress' || saved === 'workspace' || saved === 'test' || saved === 'chatbot') ? saved as any : 'workspace';
+    return (saved === 'progress' || saved === 'workspace' || saved === 'test' || saved === 'chatbot' || saved === 'notes') ? saved as any : 'workspace';
   });
 
   useEffect(() => {
@@ -257,9 +257,33 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
     await api.updateScores(user.email, activeBatch, updated);
   };
 
+  const BATCH_SUBJECTS_MAP: Record<string, { label: string; subjects: string[] }> = {
+    '10': {
+      label: 'Class 10 (Foundation)',
+      subjects: ['Physics', 'Chemistry', 'Biology', 'Maths', 'English', 'History', 'Geography']
+    },
+    '11': {
+      label: 'Class 11 (Aarambh)',
+      subjects: ['Physics', 'Chemistry', 'Biology', 'Maths', 'English', 'Physical Education']
+    },
+    '12': {
+      label: 'Class 12 (Sankalp)',
+      subjects: ['Physics', 'Chemistry', 'Biology', 'Maths', 'English', 'Physical Education']
+    },
+    'jee-dropper': {
+      label: 'JEE Dropper',
+      subjects: ['Physics', 'Chemistry', 'Maths']
+    },
+    'neet-dropper': {
+      label: 'NEET Dropper',
+      subjects: ['Physics', 'Chemistry', 'Botany', 'Zoology']
+    }
+  };
+
   const currentBatchDetails = BATCH_DETAILS[activeBatch as keyof typeof BATCH_DETAILS] || BATCH_DETAILS['12'];
   const mentor = MOCK_MENTORS[activeBatch] || { name: "RestartClub Senior Topper", college: "IIT/NEET Topper" };
-  const [activeNotes, setActiveNotes] = useState<Array<{ name: string; size: string }>>([]);
+  const [activeNotes, setActiveNotes] = useState<Array<{ name: string; size: string; subject?: string }>>([]);
+  const [selectedSubjectFilter, setSelectedSubjectFilter] = useState<string>('All Subjects');
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -298,6 +322,11 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
     
     fetchInitialData();
   }, [user.email, activeBatch, hasAccess]);
+
+  const filteredNotes = activeNotes.filter(n => {
+    if (selectedSubjectFilter === 'All Subjects') return true;
+    return (n.subject || 'Physics').toLowerCase() === selectedSubjectFilter.toLowerCase();
+  });
 
   const saveTasks = async (newTasks: Task[]) => {
     setTasks(newTasks);
@@ -391,6 +420,23 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
               }}
             >
               📈 My Progress Board
+            </button>
+            <button 
+              onClick={() => setActiveTab('notes')}
+              className="btn" 
+              style={{
+                padding: '8px 20px',
+                border: 'none',
+                fontSize: '0.9rem',
+                fontWeight: '700',
+                background: activeTab === 'notes' ? 'var(--accent-color)' : 'transparent',
+                color: activeTab === 'notes' ? '#ffffff' : 'var(--text-primary)',
+                boxShadow: 'none',
+                transform: 'none',
+                cursor: 'pointer'
+              }}
+            >
+              📑 Revision Notes
             </button>
             <button 
               onClick={() => setActiveTab('test')}
@@ -506,6 +552,106 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
               )}
             </div>
           </main>
+        ) : activeTab === 'notes' ? (
+          <main className="container" style={{ flex: 1, padding: '40px 24px', maxWidth: '850px', margin: '0 auto', width: '100%' }}>
+            <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '30px', marginBottom: '24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '8px' }}>
+                <div style={{ background: '#e0e7ff', width: '48px', height: '48px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <FileText size={24} style={{ color: '#4338ca' }} />
+                </div>
+                <div>
+                  <h2 style={{ fontSize: '1.4rem', fontWeight: '800', color: '#111827', margin: 0 }}>
+                    📑 Topper Revision Notes & Cheatsheets
+                  </h2>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                    Subject-wise study PDFs for {BATCH_SUBJECTS_MAP[activeBatch]?.label || 'your batch'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Subject Filter Buttons */}
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '20px', paddingTop: '16px', borderTop: '2px solid var(--border-color)' }}>
+                {['All Subjects', ...(BATCH_SUBJECTS_MAP[activeBatch]?.subjects || ['Physics'])].map(subj => {
+                  const isSelected = selectedSubjectFilter === subj;
+                  return (
+                    <button
+                      key={subj}
+                      onClick={() => setSelectedSubjectFilter(subj)}
+                      className="btn"
+                      style={{
+                        padding: '8px 16px',
+                        fontSize: '0.85rem',
+                        fontWeight: '700',
+                        borderRadius: '8px',
+                        border: '2px solid var(--border-color)',
+                        background: isSelected ? 'var(--accent-color)' : '#ffffff',
+                        color: isSelected ? '#ffffff' : '#111827',
+                        boxShadow: isSelected ? '2px 2px 0px #111827' : 'none',
+                        transform: 'none',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {subj}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Notes PDF List */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {filteredNotes.length === 0 ? (
+                <div style={{ padding: '48px', textAlign: 'center', color: 'var(--text-secondary)', background: '#ffffff', border: '2px dashed var(--border-color)', borderRadius: '14px' }}>
+                  <Download size={36} style={{ margin: '0 auto 12px', opacity: 0.4 }} />
+                  <h4 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#111827', marginBottom: '4px' }}>
+                    No Revision Notes Available
+                  </h4>
+                  <p style={{ fontSize: '0.85rem' }}>
+                    Mentor will upload study notes for {selectedSubjectFilter === 'All Subjects' ? 'this batch' : selectedSubjectFilter} soon!
+                  </p>
+                </div>
+              ) : (
+                filteredNotes.map((file, idx) => (
+                  <div key={idx} className="glass-card" style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '16px 20px',
+                    background: '#ffffff',
+                    border: '2px solid var(--border-color)',
+                    borderRadius: '12px',
+                    boxShadow: '3px 3px 0px #111827'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', textAlign: 'left' }}>
+                      <div style={{ background: '#f0fdf4', padding: '10px', borderRadius: '10px', border: '1.5px solid #bbf7d0' }}>
+                        <FileText size={20} style={{ color: '#16a34a' }} />
+                      </div>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
+                          <h4 style={{ fontSize: '0.95rem', fontWeight: '800', color: '#111827', margin: 0 }}>{file.name}</h4>
+                          <span style={{ fontSize: '0.65rem', padding: '2px 8px', borderRadius: '4px', background: '#e0e7ff', color: '#3730a3', fontWeight: '800' }}>
+                            {file.subject || (BATCH_SUBJECTS_MAP[activeBatch]?.subjects[0] || 'Physics')}
+                          </span>
+                        </div>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                          📄 PDF Document • {file.size}
+                        </span>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => handleDownload(file.name)} 
+                      disabled={downloadingFile !== null}
+                      className="btn btn-accent" 
+                      style={{ padding: '8px 18px', fontSize: '0.85rem', gap: '6px', cursor: 'pointer' }}
+                    >
+                      {downloadingFile === file.name ? 'Saving...' : 'Download PDF'} 
+                      <Download size={14} />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </main>
         ) : activeTab === 'workspace' ? (
           <main className="container" style={{ flex: 1, padding: '40px 24px', maxWidth: '800px', margin: '0 auto', width: '100%' }}>
         
@@ -593,10 +739,19 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
           </div>
 
           <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left' }}>
-            <h3 style={{ fontSize: '1.2rem', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', color: '#111827', borderBottom: '2px solid var(--border-color)', paddingBottom: '12px' }}>
-              <Calendar size={20} style={{ color: 'var(--accent-color)' }} />
-              Revision Study Notes & Cheat Sheets
-            </h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '2px solid var(--border-color)', paddingBottom: '12px' }}>
+              <h3 style={{ fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '8px', color: '#111827', margin: 0 }}>
+                <Calendar size={20} style={{ color: 'var(--accent-color)' }} />
+                Revision Study Notes & Cheat Sheets
+              </h3>
+              <button
+                onClick={() => setActiveTab('notes')}
+                className="btn"
+                style={{ padding: '6px 14px', fontSize: '0.8rem', fontWeight: '700', cursor: 'pointer', background: 'var(--accent-color)', color: '#fff', border: 'none', borderRadius: '6px' }}
+              >
+                View All Subject Sections 📑
+              </button>
+            </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {activeNotes.length === 0 ? (

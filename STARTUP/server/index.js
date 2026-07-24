@@ -475,7 +475,7 @@ app.post('/api/templates/planner/:batch', async (req, res) => {
 app.get('/api/templates/notes/:batch', async (req, res) => {
   const { batch } = req.params;
   const notes = await prisma.note.findMany({ where: { batch } });
-  res.json(notes.map(n => ({ name: n.name, size: n.size })));
+  res.json(notes.map(n => ({ name: n.name, size: n.size, subject: n.subject || 'Physics' })));
 });
 
 app.post('/api/templates/notes/:batch', async (req, res) => {
@@ -485,7 +485,7 @@ app.post('/api/templates/notes/:batch', async (req, res) => {
     await prisma.note.deleteMany({ where: { batch } });
     if (notes && notes.length > 0) {
       await prisma.note.createMany({
-        data: notes.map(n => ({ batch, name: n.name, size: n.size }))
+        data: notes.map(n => ({ batch, name: n.name, size: n.size || '4.5 MB', subject: n.subject || 'Physics' }))
       });
     }
     res.json({ success: true });
