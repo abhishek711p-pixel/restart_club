@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Compass, LogOut, Download, Trash2, Award, Calendar, CheckSquare, Users, Check, FileText } from 'lucide-react';
+import { Compass, LogOut, Download, Award, Calendar, CheckSquare, Users, Check, FileText } from 'lucide-react';
 import { api } from '../services/api';
 
 interface StudentDashboardProps {
@@ -250,12 +250,6 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
     localStorage.setItem('drona_active_tab', activeTab);
   }, [activeTab]);
   const [mockScores, setMockScores] = useState<Array<{ id: string; subject: string; score: number; date: string }>>([]);
-
-  const handleDeleteScore = async (id: string) => {
-    const updated = mockScores.filter(s => s.id !== id);
-    setMockScores(updated);
-    await api.updateScores(user.email, activeBatch, updated);
-  };
 
   const BATCH_SUBJECTS_MAP: Record<string, { label: string; subjects: string[] }> = {
     '10': {
@@ -513,7 +507,7 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
       )}
 
       {hasAccess ? (
-        activeTab === 'test' || activeTab === 'chatbot' ? (
+        activeTab === 'chatbot' ? (
           <main className="container" style={{ flex: 1, padding: '60px 24px', maxWidth: '800px', margin: '0 auto', width: '100%', textAlign: 'center' }}>
             <div className="glass-card" style={{ background: '#ffffff', padding: '60px' }}>
               {activeTab === 'chatbot' && !hasPremiumAccess ? (
@@ -579,10 +573,54 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
                 <>
                   <h2 style={{ fontSize: '2rem', color: '#111827', marginBottom: '16px' }}>🚀 Coming Soon</h2>
                   <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>
-                    We're working hard to bring you the {activeTab === 'test' ? 'Test Engine' : 'AI Chat Bot'}. Stay tuned!
+                    We're working hard to bring you the AI Chat Bot. Stay tuned!
                   </p>
                 </>
               )}
+            </div>
+          </main>
+        ) : activeTab === 'test' ? (
+          <main className="container" style={{ flex: 1, padding: '40px 24px', maxWidth: '850px', margin: '0 auto', width: '100%' }}>
+            <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '24px' }}>
+              <h3 style={{ fontSize: '1.15rem', marginBottom: '16px', color: '#111827', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px' }}>
+                📋 Logged Test History
+              </h3>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '500px', overflowY: 'auto' }}>
+                {mockScores.map(score => (
+                  <div key={score.id} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '12px 14px',
+                    background: '#fafafa',
+                    borderRadius: '10px',
+                    border: '2px solid var(--border-color)',
+                    boxShadow: '2px 2px 0px #111827'
+                  }}>
+                    <div style={{ textAlign: 'left' }}>
+                      <div style={{ fontSize: '0.85rem', fontWeight: '700', color: '#111827' }}>
+                        {score.subject}
+                      </div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                        Logged: {score.date}
+                      </div>
+                    </div>
+                    
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span style={{ fontSize: '1rem', fontWeight: '800', color: score.score >= 75 ? '#10b981' : '#f59e0b' }}>
+                        {score.score}%
+                      </span>
+                    </div>
+                  </div>
+                ))}
+
+                {mockScores.length === 0 && (
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textAlign: 'center', padding: '20px 0' }}>
+                    No mock scores logged yet. Your admin will update them soon!
+                  </p>
+                )}
+              </div>
             </div>
           </main>
         ) : activeTab === 'notes' ? (
@@ -899,59 +937,7 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
               </div>
             </div>
 
-            {/* Right Column: Log & Track Mock Tests */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-              
-              {/* Logged mock tests tracker list */}
-              <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '24px' }}>
-                <h3 style={{ fontSize: '1.15rem', marginBottom: '16px', color: '#111827', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px' }}>
-                  📋 Logged Test History
-                </h3>
-                
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '300px', overflowY: 'auto' }}>
-                  {mockScores.map(score => (
-                    <div key={score.id} style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '12px 14px',
-                      background: '#fafafa',
-                      borderRadius: '10px',
-                      border: '2px solid var(--border-color)',
-                      boxShadow: '2px 2px 0px #111827'
-                    }}>
-                      <div style={{ textAlign: 'left' }}>
-                        <div style={{ fontSize: '0.85rem', fontWeight: '700', color: '#111827' }}>
-                          {score.subject}
-                        </div>
-                        <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                          Logged: {score.date}
-                        </div>
-                      </div>
-                      
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <span style={{ fontSize: '1rem', fontWeight: '800', color: score.score >= 75 ? '#10b981' : '#f59e0b' }}>
-                          {score.score}%
-                        </span>
-                        <button 
-                          onClick={() => handleDeleteScore(score.id)}
-                          style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px' }}
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
 
-                  {mockScores.length === 0 && (
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textAlign: 'center', padding: '20px 0' }}>
-                      No mock scores logged yet. Add one above!
-                    </p>
-                  )}
-                </div>
-              </div>
-
-            </div>
           </main>
         )
       ) : (
