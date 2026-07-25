@@ -9,6 +9,14 @@ export const api = {
     const res = await fetch(`${API_BASE_URL}/users`);
     try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   },
+  sendRegisterOtp: async (data: { email: string }) => {
+    const res = await fetch(`${API_BASE_URL}/users/send-register-otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
+  },
   registerUser: async (data: any) => {
     const res = await fetch(`${API_BASE_URL}/users/register`, {
       method: 'POST',

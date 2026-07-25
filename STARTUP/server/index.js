@@ -38,8 +38,9 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// In-memory OTP store for forgot password (email -> { otp, expiresAt })
+// In-memory OTP store for forgot password and registration (email -> { otp, expiresAt })
 const otpStore = {};
+const registerOtpStore = {};
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -196,9 +197,8 @@ app.delete('/api/users/:email/batch/:batch', async (req, res) => {
   }
 });
 
-app.post('/api/users/register', async (req, res) => {
-  const { username, email, password, batch } = req.body;
-  
+app.post('/api/users/send-register-otp', async (req, res) => {
+  const { email } = req.body;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!email || !emailRegex.test(email.trim())) {
     return res.status(400).json({ error: 'Invalid email address format' });
@@ -207,8 +207,72 @@ app.post('/api/users/register', async (req, res) => {
   try {
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
+      return res.status(400).json({ error: 'An account with this email already exists. Please Sign In.' });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    registerOtpStore[email] = {
+      otp,
+      expiresAt: Date.now() + 10 * 60 * 1000
+    };
+
+    const mailOptions = {
+      from: `"RestartClub Verification" <${process.env.SMTP_EMAIL}>`,
+      to: email,
+      subject: 'Verify Your Email for RestartClub Registration',
+      text: `Your OTP for completing your RestartClub registration is: ${otp}. It will expire in 10 minutes.`,
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+          <h2 style="color: #ea580c;">RestartClub</h2>
+          <p>Welcome to RestartClub!</p>
+          <p>Your 6-digit email verification OTP is: <strong style="font-size: 24px; color: #111827;">${otp}</strong></p>
+          <p>This code will expire in 10 minutes.</p>
+          <br/>
+          <p>Best regards,<br/>The RestartClub Team</p>
+        </div>
+      `
+    };
+
+    if (process.env.SMTP_EMAIL && process.env.SMTP_EMAIL !== 'dummy@gmail.com') {
+      await transporter.sendMail(mailOptions);
+    } else {
+      console.log(`[DUMMY SMTP] Registration OTP for ${email}: ${otp}`);
+    }
+    res.json({ success: true, message: 'Verification OTP sent to your email' });
+  } catch (err) {
+    console.error('Error sending registration OTP:', err);
+    res.status(500).json({ error: 'Failed to send OTP email' });
+  }
+});
+
+app.post('/api/users/register', async (req, res) => {
+  const { username, email, password, batch, otp } = req.body;
+  
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !emailRegex.test(email.trim())) {
+    return res.status(400).json({ error: 'Invalid email address format' });
+  }
+
+  // Verify registration OTP
+  const record = registerOtpStore[email];
+  if (!record) {
+    return res.status(400).json({ error: 'Please request an OTP for email verification first.' });
+  }
+  if (Date.now() > record.expiresAt) {
+    delete registerOtpStore[email];
+    return res.status(400).json({ error: 'Verification OTP has expired. Please request a new code.' });
+  }
+  if (record.otp !== otp) {
+    return res.status(400).json({ error: 'Invalid verification OTP code' });
+  }
+
+  try {
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) {
       return res.status(400).json({ error: 'User already exists' });
     }
+
+    delete registerOtpStore[email];
 
     const user = await prisma.user.create({
       data: { username, email, password, batch, purchasedBatches: [] }

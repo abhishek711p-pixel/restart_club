@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Compass, Mail, Lock, User, ArrowLeft, BookOpen } from 'lucide-react';
+import { Compass, Mail, Lock, User, ArrowLeft, BookOpen, Key } from 'lucide-react';
 import { api } from '../services/api';
 
 interface AuthScreenProps {
@@ -9,11 +9,12 @@ interface AuthScreenProps {
 }
 
 export default function AuthScreen({ onSuccess, onBack, defaultBatch }: AuthScreenProps) {
-  const [mode, setMode] = useState<'login' | 'register' | 'forgot-email' | 'forgot-otp'>('register');
+  const [mode, setMode] = useState<'login' | 'register' | 'register-otp' | 'forgot-email' | 'forgot-otp'>('register');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [otp, setOtp] = useState('');
+  const [registerOtp, setRegisterOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [batch, setBatch] = useState(defaultBatch);
   const [error, setError] = useState('');
@@ -45,7 +46,20 @@ export default function AuthScreen({ onSuccess, onBack, defaultBatch }: AuthScre
 
     try {
       if (mode === 'register') {
-        const response = await api.registerUser({ username, email, password, batch });
+        const response = await api.sendRegisterOtp({ email });
+        if (response.error) {
+          setError(response.error);
+          return;
+        }
+        setMessage(`Verification code sent to ${email}. Please enter it below to complete registration.`);
+        setMode('register-otp');
+      } else if (mode === 'register-otp') {
+        if (!registerOtp) {
+          setError('Please enter the 6-digit verification code sent to your email.');
+          setIsLoading(false);
+          return;
+        }
+        const response = await api.registerUser({ username, email, password, batch, otp: registerOtp });
         if (response.error) {
           setError(response.error);
           return;
@@ -134,11 +148,13 @@ export default function AuthScreen({ onSuccess, onBack, defaultBatch }: AuthScre
           marginBottom: '8px'
         }}>
           {mode === 'register' ? 'Join RestartClub' : 
+           mode === 'register-otp' ? 'Verify Your Email' :
            mode === 'login' ? 'Welcome Back' : 
            mode === 'forgot-email' ? 'Reset Password' : 'Enter OTP'}
         </h2>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
           {mode === 'register' ? 'Start your journey to top ranks today.' : 
+           mode === 'register-otp' ? `We sent a 6-digit OTP code to ${email}` :
            mode === 'login' ? 'Resume your preparation.' : 
            mode === 'forgot-email' ? 'Enter your email to receive an OTP.' : 'Enter the 6-digit OTP and your new password.'}
         </p>
@@ -358,6 +374,37 @@ export default function AuthScreen({ onSuccess, onBack, defaultBatch }: AuthScre
             </div>
           )}
 
+          {mode === 'register-otp' && (
+            <div>
+              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', marginBottom: '6px', color: '#111827' }}>
+                EMAIL VERIFICATION CODE (OTP)
+              </label>
+              <div style={{ position: 'relative' }}>
+                <Key size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+                <input 
+                  type="text"
+                  required
+                  placeholder="Enter 6-digit verification code"
+                  value={registerOtp}
+                  onChange={(e) => setRegisterOtp(e.target.value)}
+                  maxLength={6}
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px 12px 40px',
+                    borderRadius: '10px',
+                    border: '2px solid var(--border-color)',
+                    fontSize: '1.1rem',
+                    fontWeight: '800',
+                    letterSpacing: '2px',
+                    outline: 'none',
+                    background: '#ffffff',
+                    fontFamily: 'var(--sans-font)'
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
           <button 
             type="submit" 
             className="btn btn-accent w-full"
@@ -372,10 +419,43 @@ export default function AuthScreen({ onSuccess, onBack, defaultBatch }: AuthScre
             }}
           >
             {isLoading ? 'Processing...' :
-             mode === 'register' ? 'Join the Family' : 
+             mode === 'register' ? 'Verify Email & Join' : 
+             mode === 'register-otp' ? 'Complete Registration' :
              mode === 'login' ? 'Sign In' : 
              mode === 'forgot-email' ? 'Send OTP' : 'Reset Password'}
           </button>
+
+          {mode === 'register-otp' && (
+            <button 
+              type="button"
+              onClick={async () => {
+                setError('');
+                setMessage('');
+                try {
+                  const response = await api.sendRegisterOtp({ email });
+                  if (response.error) {
+                    setError(response.error);
+                  } else {
+                    setMessage(`A new verification OTP has been sent to ${email}!`);
+                  }
+                } catch (err) {
+                  setError('Failed to resend OTP.');
+                }
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--accent-color)',
+                fontWeight: '700',
+                fontSize: '0.85rem',
+                cursor: 'pointer',
+                textDecoration: 'underline',
+                marginTop: '8px'
+              }}
+            >
+              Didn't receive the verification code? Resend Code
+            </button>
+          )}
 
           {mode === 'forgot-otp' && (
             <button 
