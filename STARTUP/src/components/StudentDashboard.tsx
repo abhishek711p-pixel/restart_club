@@ -123,9 +123,10 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
     try {
       const res = await api.updatePassword({ email: user.email, password: newPassword });
       if (res.success) {
-        setProfileSuccess('Password updated successfully!');
         setNewPassword('');
         setConfirmPassword('');
+        alert('Password updated successfully!');
+        setIsProfileOpen(false);
       } else {
         setProfileError(res.error || 'User account not found.');
       }
@@ -151,6 +152,7 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
         setActiveBatch(pendingBatch);
         localStorage.setItem('studentSession', JSON.stringify(res.user));
         alert('Batch updated successfully!');
+        setIsProfileOpen(false);
       }
     } catch (err) {
       console.error("Failed to change batch", err);
