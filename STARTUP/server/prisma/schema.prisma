@@ -62,3 +62,18 @@ model Note {
   size    String
   subject String? @default("General")
 }
+
+model StudyHour {
+  id    String @id @default(uuid())
+  email String
+  batch String
+  mon   Int @default(0)
+  tue   Int @default(0)
+  wed   Int @default(0)
+  thu   Int @default(0)
+  fri   Int @default(0)
+  sat   Int @default(0)
+  sun   Int @default(0)
+
+  @@unique([email, batch])
+}

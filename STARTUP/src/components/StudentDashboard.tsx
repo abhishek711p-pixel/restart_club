@@ -250,6 +250,15 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
     localStorage.setItem('drona_active_tab', activeTab);
   }, [activeTab]);
   const [mockScores, setMockScores] = useState<Array<{ id: string; subject: string; score: number; date: string }>>([]);
+  const [studyHours, setStudyHours] = useState([
+    { day: 'Mon', hrs: 0 },
+    { day: 'Tue', hrs: 0 },
+    { day: 'Wed', hrs: 0 },
+    { day: 'Thu', hrs: 0 },
+    { day: 'Fri', hrs: 0 },
+    { day: 'Sat', hrs: 0 },
+    { day: 'Sun', hrs: 0 }
+  ]);
 
   const BATCH_SUBJECTS_MAP: Record<string, { label: string; subjects: string[] }> = {
     '10': {
@@ -337,6 +346,19 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
         
         const initialScores = await api.getScores(user.email, activeBatch);
         setMockScores(initialScores || []);
+
+        const initialHours = await api.getStudyHours(user.email, activeBatch);
+        if (initialHours && !initialHours.error) {
+          setStudyHours([
+            { day: 'Mon', hrs: initialHours.mon || 0 },
+            { day: 'Tue', hrs: initialHours.tue || 0 },
+            { day: 'Wed', hrs: initialHours.wed || 0 },
+            { day: 'Thu', hrs: initialHours.thu || 0 },
+            { day: 'Fri', hrs: initialHours.fri || 0 },
+            { day: 'Sat', hrs: initialHours.sat || 0 },
+            { day: 'Sun', hrs: initialHours.sun || 0 }
+          ]);
+        }
 
         const notes = await api.getBatchNotes(activeBatch);
         if (Array.isArray(notes)) {
@@ -906,15 +928,7 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
 
                 {/* Simulated Chart Bars */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', height: '180px', padding: '0 20px 20px 20px', background: '#fafafa', borderRadius: '12px', border: '2px solid var(--border-color)' }}>
-                  {[
-                    { day: 'Mon', hrs: 0 },
-                    { day: 'Tue', hrs: 0 },
-                    { day: 'Wed', hrs: 0 },
-                    { day: 'Thu', hrs: 0 },
-                    { day: 'Fri', hrs: 0 },
-                    { day: 'Sat', hrs: 0 },
-                    { day: 'Sun', hrs: 0 }
-                  ].map((d, idx) => {
+                  {studyHours.map((d, idx) => {
                     const percentHeight = (d.hrs / 12) * 100;
                     return (
                       <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '40px' }}>

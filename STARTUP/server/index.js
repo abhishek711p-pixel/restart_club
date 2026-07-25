@@ -461,6 +461,46 @@ app.post('/api/scores/:email/:batch', async (req, res) => {
   }
 });
 
+
+// 4. Study Hours Log
+app.get('/api/study-hours/:email/:batch', async (req, res) => {
+  const { email, batch } = req.params;
+  try {
+    let record = await prisma.studyHour.findUnique({ where: { email_batch: { email, batch } } });
+    if (!record) {
+      record = await prisma.studyHour.create({ data: { email, batch } });
+    }
+    res.json({
+      mon: record.mon,
+      tue: record.tue,
+      wed: record.wed,
+      thu: record.thu,
+      fri: record.fri,
+      sat: record.sat,
+      sun: record.sun
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.post('/api/study-hours/:email/:batch', async (req, res) => {
+  const { email, batch } = req.params;
+  const { mon, tue, wed, thu, fri, sat, sun } = req.body;
+  try {
+    await prisma.studyHour.upsert({
+      where: { email_batch: { email, batch } },
+      update: { mon, tue, wed, thu, fri, sat, sun },
+      create: { email, batch, mon: mon || 0, tue: tue || 0, wed: wed || 0, thu: thu || 0, fri: fri || 0, sat: sat || 0, sun: sun || 0 }
+    });
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 app.get('/api/templates/planner/:batch', async (req, res) => {
   const { batch } = req.params;
   try {

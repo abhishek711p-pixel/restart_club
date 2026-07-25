@@ -84,6 +84,20 @@ export const api = {
     try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   },
 
+  // Study Hours
+  getStudyHours: async (email: string, batch: string) => {
+    const res = await fetch(`${API_BASE_URL}/study-hours/${email}/${batch}`);
+    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
+  },
+  updateStudyHours: async (email: string, batch: string, hours: any) => {
+    const res = await fetch(`${API_BASE_URL}/study-hours/${email}/${batch}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(hours)
+    });
+    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
+  },
+
   // Planners (Templates)
   getBatchPlanner: async (batch: string) => {
     const res = await fetch(`${API_BASE_URL}/templates/planner/${batch}`);

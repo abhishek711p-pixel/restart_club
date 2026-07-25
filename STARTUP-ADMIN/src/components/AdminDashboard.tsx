@@ -32,9 +32,10 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   // Selected student management
   const [selectedStudent, setSelectedStudent] = useState<StudentUser | null>(null);
   const [studentTasks, setStudentTasks] = useState<any[]>([]);
+  const [studentScores, setStudentScores] = useState<any[]>([]);
+  const [studentStudyHours, setStudentStudyHours] = useState<Record<string, number>>({ mon: 0, tue: 0, wed: 0, thu: 0, fri: 0, sat: 0, sun: 0 });
   const [newStudentTaskText, setNewStudentTaskText] = useState("");
   
-  const [studentScores, setStudentScores] = useState<any[]>([]);
   const [newScoreSubject, setNewScoreSubject] = useState("");
   const [newScoreValue, setNewScoreValue] = useState("");
   
@@ -89,9 +90,25 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
           
           const storedScores = await api.getScores(selectedStudent.email, selectedStudent.batch);
           setStudentScores(Array.isArray(storedScores) ? storedScores : []);
+
+          const storedHours = await api.getStudyHours(selectedStudent.email, selectedStudent.batch);
+          if (storedHours && !storedHours.error) {
+            setStudentStudyHours({
+              mon: storedHours.mon || 0,
+              tue: storedHours.tue || 0,
+              wed: storedHours.wed || 0,
+              thu: storedHours.thu || 0,
+              fri: storedHours.fri || 0,
+              sat: storedHours.sat || 0,
+              sun: storedHours.sun || 0
+            });
+          } else {
+            setStudentStudyHours({ mon: 0, tue: 0, wed: 0, thu: 0, fri: 0, sat: 0, sun: 0 });
+          }
         } catch (err) {
           setStudentTasks([]);
           setStudentScores([]);
+          setStudentStudyHours({ mon: 0, tue: 0, wed: 0, thu: 0, fri: 0, sat: 0, sun: 0 });
         }
       }
     };
@@ -192,6 +209,17 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
     const updated = studentScores.filter(s => s.id !== id);
     setStudentScores(updated);
     await api.updateScores(selectedStudent.email, selectedStudent.batch, updated);
+  };
+
+  const handleStudyHoursChange = (day: string, value: string) => {
+    const num = parseInt(value, 10);
+    setStudentStudyHours(prev => ({ ...prev, [day]: isNaN(num) ? 0 : num }));
+  };
+
+  const handleSaveStudyHours = async () => {
+    if (!selectedStudent) return;
+    await api.updateStudyHours(selectedStudent.email, selectedStudent.batch, studentStudyHours);
+    alert('Study hours saved successfully!');
   };
 
   const handleAddPlannerTask = async (e: React.FormEvent) => {
@@ -731,6 +759,41 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                             No mock test scores logged yet.
                           </p>
                         )}
+                      </div>
+
+                      {/* Weekly Study Hours Form */}
+                      <div style={{ marginTop: '30px', paddingTop: '20px', borderTop: '2px solid var(--border-color)' }}>
+                        <h4 style={{ fontSize: '0.85rem', fontWeight: '800', color: '#111827', marginBottom: '12px' }}>
+                          Manage Weekly Study Hours
+                        </h4>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '16px' }}>
+                          {['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].map((day) => (
+                            <div key={day} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                              <label style={{ fontSize: '0.7rem', fontWeight: '700', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>{day}</label>
+                              <input 
+                                type="number" 
+                                min="0"
+                                max="24"
+                                value={studentStudyHours[day] || ''}
+                                onChange={(e) => handleStudyHoursChange(day, e.target.value)}
+                                style={{
+                                  padding: '8px',
+                                  borderRadius: '6px',
+                                  border: '2px solid var(--border-color)',
+                                  outline: 'none',
+                                  fontSize: '0.85rem'
+                                }}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                        <button 
+                          onClick={handleSaveStudyHours}
+                          className="btn btn-accent" 
+                          style={{ width: '100%', padding: '10px 14px', fontSize: '0.85rem', cursor: 'pointer' }}
+                        >
+                          Save Study Hours
+                        </button>
                       </div>
                     </React.Fragment>
                   )}
