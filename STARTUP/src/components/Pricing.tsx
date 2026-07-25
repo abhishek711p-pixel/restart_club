@@ -209,9 +209,27 @@ export default function Pricing({ selectedClass, setSelectedClass, onJoinClick }
             <h3 className="comp-title gradient-text-indigo" style={{ marginBottom: '4px' }}>
               {currentBatch.name} Standard
             </h3>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '20px' }}>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
               {currentBatch.tagline} (Without AI Chat Bot)
             </p>
+
+            {(selectedClass === '10' || selectedClass === '11' || selectedClass === '12') && (
+              <div style={{ 
+                background: '#eff6ff', 
+                color: '#1d4ed8', 
+                border: '1.5px solid #bfdbfe',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                fontSize: '0.75rem',
+                fontWeight: '800',
+                marginBottom: '20px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}>
+                <span>🎯</span> Combined Batch for JEE & NEET
+              </div>
+            )}
 
             <div className="comp-price">
               <span className="price-num">₹499</span>
@@ -258,9 +276,27 @@ export default function Pricing({ selectedClass, setSelectedClass, onJoinClick }
             <h3 className="comp-title gradient-text-indigo" style={{ marginBottom: '4px' }}>
               {currentBatch.name} Premium
             </h3>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '20px' }}>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
               {currentBatch.tagline} (Includes AI Chat Bot)
             </p>
+
+            {(selectedClass === '10' || selectedClass === '11' || selectedClass === '12') && (
+              <div style={{ 
+                background: '#eff6ff', 
+                color: '#1d4ed8', 
+                border: '1.5px solid #bfdbfe',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                fontSize: '0.75rem',
+                fontWeight: '800',
+                marginBottom: '20px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}>
+                <span>🎯</span> Combined Batch for JEE & NEET
+              </div>
+            )}
 
             <div className="comp-price">
               <span className="price-num">₹599</span>
