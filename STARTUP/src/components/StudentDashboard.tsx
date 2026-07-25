@@ -423,8 +423,9 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
               onClick={() => setIsProfileOpen(true)}
               className="btn btn-secondary" 
               style={{ padding: '8px 16px', gap: '6px', fontSize: '0.85rem', cursor: 'pointer', background: '#ffffff' }}
+              title="Click to view profile or change active batch"
             >
-              👤 {user.username} (Profile)
+              👤 {user.username} (Profile / Change Batch)
             </button>
             <button onClick={onLogout} className="btn btn-secondary" style={{ padding: '8px 16px', gap: '6px', fontSize: '0.85rem', cursor: 'pointer' }}>
               Logout <LogOut size={14} />
@@ -812,8 +813,29 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
             <div style={{ background: 'var(--bg-primary)', width: '60px', height: '60px', borderRadius: '14px', border: '2px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <Award size={30} style={{ color: 'var(--accent-color)' }} />
             </div>
-            <div style={{ textAlign: 'left' }}>
-              <h3 style={{ fontSize: '1.25rem', marginBottom: '4px', color: '#111827' }}>Welcome, {user.username}!</h3>
+            <div style={{ textAlign: 'left', flex: 1 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '4px' }}>
+                <h3 style={{ fontSize: '1.25rem', color: '#111827', margin: 0 }}>Welcome, {user.username}!</h3>
+                <button 
+                  onClick={() => setIsProfileOpen(true)}
+                  style={{ 
+                    fontSize: '0.75rem', 
+                    color: 'var(--accent-color)', 
+                    background: '#eff6ff', 
+                    padding: '4px 10px', 
+                    borderRadius: '6px', 
+                    border: '1.5px solid #bfdbfe', 
+                    fontWeight: '700', 
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                  title="Change active batch"
+                >
+                  🎓 Batch: {currentBatchDetails?.name || activeBatch} <span style={{ textDecoration: 'underline', color: '#2563eb' }}>(Change in Profile 👤)</span>
+                </button>
+              </div>
               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
                 Believe in yourself and your goals. Every study session brings you closer to success!
               </p>
@@ -1016,9 +1038,35 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
             <h2 style={{ fontSize: '1.75rem', marginBottom: '8px', color: '#111827' }}>
               Unlock {currentBatchDetails.name}
             </h2>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '24px' }}>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
               {currentBatchDetails.tagline}
             </p>
+
+            {/* Change Batch Hint Banner */}
+            <div style={{
+              background: '#eff6ff',
+              border: '1.5px solid #93c5fd',
+              borderRadius: '10px',
+              padding: '10px 14px',
+              marginBottom: '20px',
+              fontSize: '0.85rem',
+              color: '#1e40af',
+              fontWeight: '600',
+              textAlign: 'left',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '10px'
+            }}>
+              <span>💡 Joined a different batch? Switch your active batch anytime!</span>
+              <button 
+                onClick={() => setIsProfileOpen(true)}
+                className="btn btn-secondary"
+                style={{ fontSize: '0.75rem', padding: '4px 10px', cursor: 'pointer', whiteSpace: 'nowrap', background: '#ffffff' }}
+              >
+                👤 Open Profile
+              </button>
+            </div>
 
             {/* Visual Seat Filled Progress Tracker */}
             <div className="seat-filled-tracker" style={{
@@ -1163,9 +1211,12 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
             textAlign: 'left',
             boxShadow: '8px 8px 0px #111827'
           }}>
-            <h3 style={{ fontSize: '1.4rem', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px', color: '#111827', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px' }}>
+            <h3 style={{ fontSize: '1.4rem', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px', color: '#111827' }}>
               👤 Your RestartClub Profile
             </h3>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: '600', marginBottom: '20px', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px' }}>
+              💡 Change your active batch or update your password below.
+            </p>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
               <div>
