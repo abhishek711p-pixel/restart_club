@@ -197,17 +197,18 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
       setShowCheckout(false);
 
       const options = {
-        key: "rzp_test_TGvs6Ti9j9LKZb",
+        key: "rzp_live_THckRb4GLCahES",
         amount: order.amount,
-        currency: order.currency,
+        currency: order.currency || "INR",
         name: "RestartClub Education",
         description: `Subscription for ${currentBatchDetails.name}`,
-        handler: async function (_response: any) {
+        order_id: order.id !== "client_only" ? order.id : undefined,
+        handler: async function (response: any) {
           try {
             const verification = await api.verifyPayment({
-              razorpay_order_id: "client_success_order",
-              razorpay_payment_id: "client_success_payment",
-              razorpay_signature: "client_success_signature",
+              razorpay_order_id: response?.razorpay_order_id || "client_success_order",
+              razorpay_payment_id: response?.razorpay_payment_id || "client_success_payment",
+              razorpay_signature: response?.razorpay_signature || "client_success_signature",
               email: user.email,
               batch: activeBatch,
               tier: checkoutTier
@@ -606,17 +607,17 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
                       }
 
                       const options = {
-                        key: "rzp_test_TGvs6Ti9j9LKZb",
+                        key: "rzp_live_THckRb4GLCahES",
                         amount: 10000,
                         currency: "INR",
                         name: "RestartClub Education",
                         description: `Upgrade to Premium for ${currentBatchDetails?.name}`,
-                        handler: async function (_response: any) {
+                        handler: async function (response: any) {
                           try {
                             const verification = await api.verifyPayment({
-                              razorpay_order_id: "client_success_order",
-                              razorpay_payment_id: "client_success_payment",
-                              razorpay_signature: "client_success_signature",
+                              razorpay_order_id: response?.razorpay_order_id || "client_success_order",
+                              razorpay_payment_id: response?.razorpay_payment_id || "client_success_payment",
+                              razorpay_signature: response?.razorpay_signature || "client_success_signature",
                               email: user.email,
                               batch: activeBatch,
                               tier: 'premium'
