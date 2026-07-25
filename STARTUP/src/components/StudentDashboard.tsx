@@ -849,17 +849,6 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
                   </div>
                 )}
               </div>
-
-              {/* Day Wise Task Completed Widget */}
-              <div style={{ width: '250px', flexShrink: 0, background: '#f9fafb', border: '2px solid var(--border-color)', borderRadius: '12px', padding: '20px', textAlign: 'center', boxShadow: '3px 3px 0px #111827' }}>
-                <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: '#6b7280', marginBottom: '8px' }}>DAY WISE TASK COMPLETED</span>
-                <span style={{ fontSize: '2.5rem', fontWeight: '800', color: 'var(--accent-color)', fontFamily: 'var(--heading-font)' }}>
-                  {progressPercent}%
-                </span>
-                <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '8px' }}>
-                  {completedCount} of {tasks.length} goals complete
-                </span>
-              </div>
             </div>
           </div>
 
