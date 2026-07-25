@@ -445,8 +445,14 @@ export default function App() {
             </div>
             <p className="footer-desc">Empowering Tier 2 & Tier 3 students to ace their Class 10-12 boards and JEE/NEET exams with personalized Hinglish AI guides.</p>
           </div>
-          <div className="footer-right" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+          <div className="footer-right" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
             <span className="copyright">© 2026 RestartClub Mentorship. All rights reserved.</span>
+            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span>📧 Point of Contact:</span>
+              <a href="mailto:rstartclub@gmail.com" style={{ color: 'var(--accent-color)', textDecoration: 'underline', fontWeight: '700' }}>
+                rstartclub@gmail.com
+              </a>
+            </div>
           </div>
         </div>
       </footer>
