@@ -70,6 +70,7 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
   const [studentPlannerTasks, setStudentPlannerTasks] = useState<any[]>([]);
   const [newStudentPlannerTaskText, setNewStudentPlannerTaskText] = useState('');
   const [plannerSearchQuery, setPlannerSearchQuery] = useState('');
+  const [plannerBatchFilter, setPlannerBatchFilter] = useState<string>('all');
 
   const [notesMode, setNotesMode] = useState<'batch' | 'student'>('batch');
   const [selectedStudentNotes, setSelectedStudentNotes] = useState<StudentUser | null>(null);
@@ -78,6 +79,7 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
   const [newStudentNoteSize, setNewStudentNoteSize] = useState('4.5 MB');
   const [newStudentNoteSubject, setNewStudentNoteSubject] = useState('Physics');
   const [notesSearchQuery, setNotesSearchQuery] = useState('');
+  const [notesBatchFilter, setNotesBatchFilter] = useState<string>('all');
 
   // Load selected student planner tasks
   useEffect(() => {
@@ -1147,29 +1149,57 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                     Select Student
                   </h3>
 
+                  {/* Filter by Batch */}
+                  <div style={{ marginBottom: '12px' }}>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-secondary)', marginBottom: '4px' }}>FILTER BY BATCH</label>
+                    <select
+                      value={plannerBatchFilter}
+                      onChange={(e) => setPlannerBatchFilter(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '8px 12px',
+                        borderRadius: '8px',
+                        border: '2px solid var(--border-color)',
+                        outline: 'none',
+                        fontSize: '0.8rem',
+                        background: '#ffffff',
+                        fontWeight: '700'
+                      }}
+                    >
+                      <option value="all">All Batches</option>
+                      {Object.keys(BATCH_LABELS).map(key => (
+                        <option key={key} value={key}>{BATCH_LABELS[key]}</option>
+                      ))}
+                    </select>
+                  </div>
+
                   {/* Search Student */}
-                  <input
-                    type="text"
-                    placeholder="Search student..."
-                    value={plannerSearchQuery}
-                    onChange={(e) => setPlannerSearchQuery(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      borderRadius: '8px',
-                      border: '2px solid var(--border-color)',
-                      marginBottom: '16px',
-                      outline: 'none',
-                      fontSize: '0.8rem'
-                    }}
-                  />
+                  <div style={{ marginBottom: '16px' }}>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-secondary)', marginBottom: '4px' }}>SEARCH BY NAME / EMAIL</label>
+                    <input
+                      type="text"
+                      placeholder="Search student..."
+                      value={plannerSearchQuery}
+                      onChange={(e) => setPlannerSearchQuery(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '8px 12px',
+                        borderRadius: '8px',
+                        border: '2px solid var(--border-color)',
+                        outline: 'none',
+                        fontSize: '0.8rem'
+                      }}
+                    />
+                  </div>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '400px', overflowY: 'auto', paddingRight: '4px' }}>
                     {studentsList
-                      .filter(s => 
-                        s.username.toLowerCase().includes(plannerSearchQuery.toLowerCase()) || 
-                        s.email.toLowerCase().includes(plannerSearchQuery.toLowerCase())
-                      )
+                      .filter(s => {
+                        const matchesBatch = plannerBatchFilter === 'all' || s.batch === plannerBatchFilter;
+                        const matchesSearch = s.username.toLowerCase().includes(plannerSearchQuery.toLowerCase()) || 
+                                              s.email.toLowerCase().includes(plannerSearchQuery.toLowerCase());
+                        return matchesBatch && matchesSearch;
+                      })
                       .map(student => (
                         <button
                           key={student.email}
@@ -1488,29 +1518,57 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                     Select Student
                   </h3>
 
+                  {/* Filter by Batch */}
+                  <div style={{ marginBottom: '12px' }}>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-secondary)', marginBottom: '4px' }}>FILTER BY BATCH</label>
+                    <select
+                      value={notesBatchFilter}
+                      onChange={(e) => setNotesBatchFilter(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '8px 12px',
+                        borderRadius: '8px',
+                        border: '2px solid var(--border-color)',
+                        outline: 'none',
+                        fontSize: '0.8rem',
+                        background: '#ffffff',
+                        fontWeight: '700'
+                      }}
+                    >
+                      <option value="all">All Batches</option>
+                      {Object.keys(BATCH_LABELS).map(key => (
+                        <option key={key} value={key}>{BATCH_LABELS[key]}</option>
+                      ))}
+                    </select>
+                  </div>
+
                   {/* Search Student */}
-                  <input
-                    type="text"
-                    placeholder="Search student..."
-                    value={notesSearchQuery}
-                    onChange={(e) => setNotesSearchQuery(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      borderRadius: '8px',
-                      border: '2px solid var(--border-color)',
-                      marginBottom: '16px',
-                      outline: 'none',
-                      fontSize: '0.8rem'
-                    }}
-                  />
+                  <div style={{ marginBottom: '16px' }}>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-secondary)', marginBottom: '4px' }}>SEARCH BY NAME / EMAIL</label>
+                    <input
+                      type="text"
+                      placeholder="Search student..."
+                      value={notesSearchQuery}
+                      onChange={(e) => setNotesSearchQuery(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '8px 12px',
+                        borderRadius: '8px',
+                        border: '2px solid var(--border-color)',
+                        outline: 'none',
+                        fontSize: '0.8rem'
+                      }}
+                    />
+                  </div>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '400px', overflowY: 'auto', paddingRight: '4px' }}>
                     {studentsList
-                      .filter(s => 
-                        s.username.toLowerCase().includes(notesSearchQuery.toLowerCase()) || 
-                        s.email.toLowerCase().includes(notesSearchQuery.toLowerCase())
-                      )
+                      .filter(s => {
+                        const matchesBatch = notesBatchFilter === 'all' || s.batch === notesBatchFilter;
+                        const matchesSearch = s.username.toLowerCase().includes(notesSearchQuery.toLowerCase()) || 
+                                              s.email.toLowerCase().includes(notesSearchQuery.toLowerCase());
+                        return matchesBatch && matchesSearch;
+                      })
                       .map(student => (
                         <button
                           key={student.email}
