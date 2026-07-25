@@ -10,7 +10,6 @@ import {
   ArrowRight, 
   MessageSquare, 
   Compass, 
-  Play, 
   Users, 
   Smartphone,
   Check,
@@ -428,10 +427,6 @@ export default function App() {
               <Compass size={20} />
               <span>Join Telegram Group</span>
             </a>
-            <a href="https://youtube.com/mocklink" target="_blank" rel="noopener noreferrer" className="social-btn youtube">
-              <Play size={20} />
-              <span>Subscribe YouTube Channel</span>
-            </a>
             <a href="https://wa.me/919999999999?text=Hi" target="_blank" rel="noopener noreferrer" className="social-btn whatsapp-social">
               <Smartphone size={20} />
               <span>Join WhatsApp Updates</span>
@@ -452,17 +447,6 @@ export default function App() {
           </div>
           <div className="footer-right" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
             <span className="copyright">© 2026 RestartClub Mentorship. All rights reserved.</span>
-            <a 
-              href="/admin.html"
-              style={{
-                color: 'var(--text-secondary)',
-                fontSize: '0.75rem',
-                textDecoration: 'underline',
-                padding: '4px 0'
-              }}
-            >
-              🔒 Admin Portal
-            </a>
           </div>
         </div>
       </footer>
