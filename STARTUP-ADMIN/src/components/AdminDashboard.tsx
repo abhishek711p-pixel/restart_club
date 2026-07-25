@@ -64,6 +64,62 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
   const [batchNoticesList, setBatchNoticesList] = useState<Array<{ id: string; message: string; createdAt: string }>>([]);
   const [newNoticeMessage, setNewNoticeMessage] = useState('');
 
+  // Student-wise Planners & Notes States
+  const [plannerMode, setPlannerMode] = useState<'batch' | 'student'>('batch');
+  const [selectedStudentPlanner, setSelectedStudentPlanner] = useState<StudentUser | null>(null);
+  const [studentPlannerTasks, setStudentPlannerTasks] = useState<any[]>([]);
+  const [newStudentPlannerTaskText, setNewStudentPlannerTaskText] = useState('');
+  const [plannerSearchQuery, setPlannerSearchQuery] = useState('');
+
+  const [notesMode, setNotesMode] = useState<'batch' | 'student'>('batch');
+  const [selectedStudentNotes, setSelectedStudentNotes] = useState<StudentUser | null>(null);
+  const [studentNotesList, setStudentNotesList] = useState<Array<{ name: string; size: string; subject?: string }>>([]);
+  const [newStudentNoteName, setNewStudentNoteName] = useState('');
+  const [newStudentNoteSize, setNewStudentNoteSize] = useState('4.5 MB');
+  const [newStudentNoteSubject, setNewStudentNoteSubject] = useState('Physics');
+  const [notesSearchQuery, setNotesSearchQuery] = useState('');
+
+  // Load selected student planner tasks
+  useEffect(() => {
+    const loadStudentPlanner = async () => {
+      if (selectedStudentPlanner) {
+        try {
+          const storedTasks = await api.getTasks(selectedStudentPlanner.email, selectedStudentPlanner.batch);
+          if (Array.isArray(storedTasks)) {
+            setStudentPlannerTasks(storedTasks);
+          } else {
+            setStudentPlannerTasks([]);
+          }
+        } catch (err) {
+          console.error("Failed to load student planner tasks", err);
+          setStudentPlannerTasks([]);
+        }
+      }
+    };
+    loadStudentPlanner();
+  }, [selectedStudentPlanner]);
+
+  // Load selected student notes
+  useEffect(() => {
+    const loadStudentNotes = async () => {
+      if (selectedStudentNotes) {
+        try {
+          const storedNotes = await api.getBatchNotes(selectedStudentNotes.batch, selectedStudentNotes.email, true);
+          if (Array.isArray(storedNotes)) {
+            setStudentNotesList(storedNotes);
+          } else {
+            setStudentNotesList([]);
+          }
+        } catch (err) {
+          console.error("Failed to load student notes", err);
+          setStudentNotesList([]);
+        }
+      }
+    };
+    loadStudentNotes();
+  }, [selectedStudentNotes]);
+
+
   // Load all students on mount
   useEffect(() => {
     loadStudents();
@@ -298,6 +354,53 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
     updated.splice(idx, 1);
     setBatchNotesList(updated);
     await api.updateBatchNotes(selectedBatchNotes, updated);
+  };
+
+  // Student-wise Planner Handlers
+  const handleAddStudentPlannerTask = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedStudentPlanner || !newStudentPlannerTaskText.trim()) return;
+    const newTask = {
+      id: `task-${Date.now()}-${Math.random()}`,
+      text: newStudentPlannerTaskText,
+      completed: false
+    };
+    const updated = [...studentPlannerTasks, newTask];
+    setStudentPlannerTasks(updated);
+    await api.updateTasks(selectedStudentPlanner.email, selectedStudentPlanner.batch, updated);
+    setNewStudentPlannerTaskText('');
+  };
+
+  const handleDeleteStudentPlannerTask = async (id: string) => {
+    if (!selectedStudentPlanner) return;
+    const updated = studentPlannerTasks.filter(t => t.id !== id);
+    setStudentPlannerTasks(updated);
+    await api.updateTasks(selectedStudentPlanner.email, selectedStudentPlanner.batch, updated);
+  };
+
+  // Student-wise Notes Handlers
+  const handleAddStudentNote = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedStudentNotes || !newStudentNoteName.trim()) return;
+    const currentSubjects = BATCH_SUBJECTS[selectedStudentNotes.batch] || ['Physics'];
+    const activeSubject = currentSubjects.includes(newStudentNoteSubject) ? newStudentNoteSubject : currentSubjects[0];
+    const newNote = {
+      name: newStudentNoteName.endsWith('.pdf') ? newStudentNoteName : `${newNoteName}.pdf`,
+      size: newStudentNoteSize || '4.5 MB',
+      subject: activeSubject
+    };
+    const updated = [...studentNotesList, newNote];
+    setStudentNotesList(updated);
+    await api.updateBatchNotes(selectedStudentNotes.batch, updated, selectedStudentNotes.email);
+    setNewStudentNoteName('');
+  };
+
+  const handleDeleteStudentNote = async (index: number) => {
+    if (!selectedStudentNotes) return;
+    const updated = [...studentNotesList];
+    updated.splice(index, 1);
+    setStudentNotesList(updated);
+    await api.updateBatchNotes(selectedStudentNotes.batch, updated, selectedStudentNotes.email);
   };
 
   const filteredStudents = studentsList.filter(s => {
@@ -889,277 +992,684 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
           </div>
         )}
 
-        {/* TAB 2: MANAGE BATCH PLANNER TEMPLATES */}
+        {/* TAB 2: MANAGE BATCH & STUDENT PLANNER */}
         {activeTab === 'planners' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '0.8fr 1.2fr', gap: '30px' }}>
-            
-            {/* Batch Selector */}
-            <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '24px', alignSelf: 'start' }}>
-              <h3 style={{ fontSize: '1.15rem', color: '#111827', marginBottom: '16px', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px' }}>
-                Select Target Batch
-              </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {Object.keys(BATCH_LABELS).map(key => (
-                  <button
-                    key={key}
-                    onClick={() => setSelectedBatchPlanner(key)}
-                    style={{
-                      textAlign: 'left',
-                      padding: '12px 14px',
-                      borderRadius: '8px',
-                      border: '2px solid var(--border-color)',
-                      fontWeight: '700',
-                      cursor: 'pointer',
-                      fontSize: '0.85rem',
-                      background: selectedBatchPlanner === key ? 'var(--accent-color)' : '#fafafa',
-                      color: selectedBatchPlanner === key ? '#ffffff' : '#111827',
-                      boxShadow: selectedBatchPlanner === key ? 'none' : '2px 2px 0px #111827',
-                      transform: selectedBatchPlanner === key ? 'translate(2px, 2px)' : 'none',
-                      transition: 'all 0.1s ease'
-                    }}
-                  >
-                    {BATCH_LABELS[key]}
-                  </button>
-                ))}
-              </div>
+          <div>
+            {/* Planner Mode Toggle */}
+            <div style={{ display: 'flex', gap: '15px', marginBottom: '24px', background: '#fafafa', padding: '10px', borderRadius: '12px', border: '2px solid var(--border-color)', boxShadow: '3px 3px 0px #111827', maxWidth: '400px' }}>
+              <button
+                onClick={() => setPlannerMode('batch')}
+                style={{
+                  flex: 1,
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  fontWeight: '800',
+                  cursor: 'pointer',
+                  fontSize: '0.85rem',
+                  background: plannerMode === 'batch' ? 'var(--accent-color)' : 'transparent',
+                  color: plannerMode === 'batch' ? '#ffffff' : 'var(--text-primary)',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                🏫 Batch-wise Planners
+              </button>
+              <button
+                onClick={() => setPlannerMode('student')}
+                style={{
+                  flex: 1,
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  fontWeight: '800',
+                  cursor: 'pointer',
+                  fontSize: '0.85rem',
+                  background: plannerMode === 'student' ? 'var(--accent-color)' : 'transparent',
+                  color: plannerMode === 'student' ? '#ffffff' : 'var(--text-primary)',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                👤 Student-wise Planners
+              </button>
             </div>
 
-            {/* Template Tasks Editor */}
-            <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '30px' }}>
-              <h3 style={{ fontSize: '1.2rem', marginBottom: '8px', color: '#111827' }}>
-                Default Study Planners: {BATCH_LABELS[selectedBatchPlanner]}
-              </h3>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '24px' }}>
-                These default study checklist goals are automatically assigned to all newly registering students in this batch.
-                <span style={{ display: 'inline-block', marginLeft: '10px', fontSize: '0.75rem', fontWeight: '700', color: '#059669', background: '#d1fae5', padding: '2px 8px', borderRadius: '6px' }}>
-                  ✓ Auto-saved to Cloud Database
-                </span>
-              </p>
+            {plannerMode === 'batch' ? (
+              <div style={{ display: 'grid', gridTemplateColumns: '0.8fr 1.2fr', gap: '30px' }}>
+                {/* Batch Selector */}
+                <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '24px', alignSelf: 'start' }}>
+                  <h3 style={{ fontSize: '1.15rem', color: '#111827', marginBottom: '16px', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px' }}>
+                    Select Target Batch
+                  </h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {Object.keys(BATCH_LABELS).map(key => (
+                      <button
+                        key={key}
+                        onClick={() => setSelectedBatchPlanner(key)}
+                        style={{
+                          textAlign: 'left',
+                          padding: '12px 14px',
+                          borderRadius: '8px',
+                          border: '2px solid var(--border-color)',
+                          fontWeight: '700',
+                          cursor: 'pointer',
+                          fontSize: '0.85rem',
+                          background: selectedBatchPlanner === key ? 'var(--accent-color)' : '#fafafa',
+                          color: selectedBatchPlanner === key ? '#ffffff' : '#111827',
+                          boxShadow: selectedBatchPlanner === key ? 'none' : '2px 2px 0px #111827',
+                          transform: selectedBatchPlanner === key ? 'translate(2px, 2px)' : 'none',
+                          transition: 'all 0.1s ease'
+                        }}
+                      >
+                        {BATCH_LABELS[key]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-              {/* Add template task form */}
-              <form onSubmit={handleAddPlannerTask} style={{ marginBottom: '24px', display: 'flex', gap: '10px' }}>
-                <input 
-                  type="text" 
-                  value={newPlannerTaskText}
-                  onChange={(e) => setNewPlannerTaskText(e.target.value)}
-                  placeholder="Add a new default study goal..."
-                  style={{
-                    flex: 1,
-                    padding: '10px 14px',
-                    borderRadius: '8px',
-                    border: '2px solid var(--border-color)',
-                    outline: 'none',
-                    fontSize: '0.85rem'
-                  }}
-                />
-                <button type="submit" className="btn btn-accent" style={{ padding: '10px 20px', fontSize: '0.85rem', cursor: 'pointer' }}>
-                  Add Task
-                </button>
-              </form>
-
-              {/* List of active template tasks */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {batchPlannerTasks.map((task, idx) => (
-                  <div key={idx} style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '12px 14px',
-                    background: '#fafafa',
-                    borderRadius: '10px',
-                    border: '2px solid var(--border-color)',
-                    boxShadow: '2px 2px 0px #111827'
-                  }}>
-                    <span style={{ fontSize: '0.9rem', fontWeight: '600', color: '#111827' }}>
-                      {task}
+                {/* Template Tasks Editor */}
+                <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '30px' }}>
+                  <h3 style={{ fontSize: '1.2rem', marginBottom: '8px', color: '#111827' }}>
+                    Default Study Planners: {BATCH_LABELS[selectedBatchPlanner]}
+                  </h3>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '24px' }}>
+                    These default study checklist goals are automatically assigned to all newly registering students in this batch.
+                    <span style={{ display: 'inline-block', marginLeft: '10px', fontSize: '0.75rem', fontWeight: '700', color: '#059669', background: '#d1fae5', padding: '2px 8px', borderRadius: '6px' }}>
+                      ✓ Auto-saved to Cloud Database
                     </span>
+                  </p>
+
+                  {/* Add template task form */}
+                  <form onSubmit={handleAddPlannerTask} style={{ marginBottom: '24px', display: 'flex', gap: '10px' }}>
+                    <input 
+                      type="text" 
+                      value={newPlannerTaskText}
+                      onChange={(e) => setNewPlannerTaskText(e.target.value)}
+                      placeholder="Add a new default study goal..."
+                      style={{
+                        flex: 1,
+                        padding: '10px 14px',
+                        borderRadius: '8px',
+                        border: '2px solid var(--border-color)',
+                        outline: 'none',
+                        fontSize: '0.85rem'
+                      }}
+                    />
+                    <button type="submit" className="btn btn-accent" style={{ padding: '10px 20px', fontSize: '0.85rem', cursor: 'pointer' }}>
+                      Add Task
+                    </button>
+                  </form>
+
+                  {/* List of active template tasks */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {batchPlannerTasks.map((task, idx) => (
+                      <div key={idx} style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '12px 14px',
+                        background: '#fafafa',
+                        borderRadius: '10px',
+                        border: '2px solid var(--border-color)',
+                        boxShadow: '2px 2px 0px #111827'
+                      }}>
+                        <span style={{ fontSize: '0.9rem', fontWeight: '600', color: '#111827' }}>
+                          {task}
+                        </span>
+                        <button 
+                          onClick={() => handleDeletePlannerTask(idx)}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', padding: '4px' }}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '2px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <button 
-                      onClick={() => handleDeletePlannerTask(idx)}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', padding: '4px' }}
+                      onClick={async () => {
+                        await api.updateBatchPlanner(selectedBatchPlanner, batchPlannerTasks);
+                        alert("✅ Success! Planner tasks saved and synced to all students in this batch!");
+                      }}
+                      className="btn btn-accent"
+                      style={{ padding: '12px 24px', fontSize: '0.9rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
                     >
-                      <Trash2 size={16} />
+                      💾 Save Planner to All Students
                     </button>
                   </div>
-                ))}
+                </div>
               </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: '0.8fr 1.2fr', gap: '30px' }}>
+                {/* Student Selector */}
+                <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '24px', alignSelf: 'start' }}>
+                  <h3 style={{ fontSize: '1.15rem', color: '#111827', marginBottom: '16px', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px' }}>
+                    Select Student
+                  </h3>
 
-              <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '2px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <button 
-                  onClick={async () => {
-                    await api.updateBatchPlanner(selectedBatchPlanner, batchPlannerTasks);
-                    alert("✅ Success! Planner tasks saved and synced to all students in this batch!");
-                  }}
-                  className="btn btn-accent"
-                  style={{ padding: '12px 24px', fontSize: '0.9rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
-                >
-                  💾 Save Planner to All Students
-                </button>
+                  {/* Search Student */}
+                  <input
+                    type="text"
+                    placeholder="Search student..."
+                    value={plannerSearchQuery}
+                    onChange={(e) => setPlannerSearchQuery(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      border: '2px solid var(--border-color)',
+                      marginBottom: '16px',
+                      outline: 'none',
+                      fontSize: '0.8rem'
+                    }}
+                  />
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '400px', overflowY: 'auto', paddingRight: '4px' }}>
+                    {studentsList
+                      .filter(s => 
+                        s.username.toLowerCase().includes(plannerSearchQuery.toLowerCase()) || 
+                        s.email.toLowerCase().includes(plannerSearchQuery.toLowerCase())
+                      )
+                      .map(student => (
+                        <button
+                          key={student.email}
+                          onClick={() => setSelectedStudentPlanner(student)}
+                          style={{
+                            textAlign: 'left',
+                            padding: '12px 14px',
+                            borderRadius: '8px',
+                            border: '2px solid var(--border-color)',
+                            fontWeight: '700',
+                            cursor: 'pointer',
+                            fontSize: '0.85rem',
+                            background: selectedStudentPlanner?.email === student.email ? 'var(--accent-color)' : '#fafafa',
+                            color: selectedStudentPlanner?.email === student.email ? '#ffffff' : '#111827',
+                            boxShadow: selectedStudentPlanner?.email === student.email ? 'none' : '2px 2px 0px #111827',
+                            transform: selectedStudentPlanner?.email === student.email ? 'translate(2px, 2px)' : 'none',
+                            transition: 'all 0.1s ease'
+                          }}
+                        >
+                          <div style={{ fontWeight: '800' }}>{student.username}</div>
+                          <div style={{ fontSize: '0.75rem', opacity: 0.8, fontWeight: 'normal', marginTop: '2px' }}>{student.email}</div>
+                          <div style={{ fontSize: '0.7rem', opacity: 0.9, marginTop: '4px', textTransform: 'uppercase', display: 'inline-block', background: selectedStudentPlanner?.email === student.email ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.05)', padding: '2px 6px', borderRadius: '4px' }}>
+                            {BATCH_LABELS[student.batch] || student.batch}
+                          </div>
+                        </button>
+                      ))}
+                  </div>
+                </div>
+
+                {/* Student Specific Planner Editor */}
+                <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '30px' }}>
+                  {selectedStudentPlanner ? (
+                    <>
+                      <h3 style={{ fontSize: '1.2rem', marginBottom: '8px', color: '#111827' }}>
+                        Planner Checklist for <span style={{ color: 'var(--accent-color)' }}>{selectedStudentPlanner.username}</span>
+                      </h3>
+                      <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '24px' }}>
+                        Modify checklist items specifically for this student. Updates are automatically synced to the student's dashboard.
+                      </p>
+
+                      <form onSubmit={handleAddStudentPlannerTask} style={{ marginBottom: '24px', display: 'flex', gap: '10px' }}>
+                        <input 
+                          type="text" 
+                          value={newStudentPlannerTaskText}
+                          onChange={(e) => setNewStudentPlannerTaskText(e.target.value)}
+                          placeholder="Add a new custom task for this student..."
+                          style={{
+                            flex: 1,
+                            padding: '10px 14px',
+                            borderRadius: '8px',
+                            border: '2px solid var(--border-color)',
+                            outline: 'none',
+                            fontSize: '0.85rem'
+                          }}
+                        />
+                        <button type="submit" className="btn btn-accent" style={{ padding: '10px 20px', fontSize: '0.85rem', cursor: 'pointer' }}>
+                          Add Task
+                        </button>
+                      </form>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {studentPlannerTasks.map((task) => (
+                          <div key={task.id} style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            padding: '12px 14px',
+                            background: '#fafafa',
+                            borderRadius: '10px',
+                            border: '2px solid var(--border-color)',
+                            boxShadow: '2px 2px 0px #111827'
+                          }}>
+                            <span style={{ 
+                              fontSize: '0.9rem', 
+                              fontWeight: '600', 
+                              color: '#111827',
+                              textDecoration: task.completed ? 'line-through' : 'none',
+                              opacity: task.completed ? 0.6 : 1
+                            }}>
+                              {task.text}
+                            </span>
+                            <button 
+                              onClick={() => handleDeleteStudentPlannerTask(task.id)}
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', padding: '4px' }}
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        ))}
+                        {studentPlannerTasks.length === 0 && (
+                          <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.9rem', margin: '20px 0' }}>
+                            No tasks found for this student. Add some above!
+                          </p>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-secondary)' }}>
+                      <Users size={48} style={{ margin: '0 auto 16px', opacity: 0.5 }} />
+                      <h4 style={{ fontSize: '1.1rem', color: '#111827', marginBottom: '8px' }}>No Student Selected</h4>
+                      <p style={{ fontSize: '0.85rem' }}>Select a student from the left panel to view and modify their planner checklist.</p>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
 
-        {/* TAB 3: MANAGE BATCH REVISION NOTES */}
+        {/* TAB 3: MANAGE BATCH & STUDENT REVISION NOTES */}
         {activeTab === 'notes' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '0.8fr 1.2fr', gap: '30px' }}>
-            
-            {/* Batch Selector */}
-            <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '24px', alignSelf: 'start' }}>
-              <h3 style={{ fontSize: '1.15rem', color: '#111827', marginBottom: '16px', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px' }}>
-                Select Target Batch
-              </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {Object.keys(BATCH_LABELS).map(key => (
-                  <button
-                    key={key}
-                    onClick={() => setSelectedBatchNotes(key)}
-                    style={{
-                      textAlign: 'left',
-                      padding: '12px 14px',
-                      borderRadius: '8px',
-                      border: '2px solid var(--border-color)',
-                      fontWeight: '700',
-                      cursor: 'pointer',
-                      fontSize: '0.85rem',
-                      background: selectedBatchNotes === key ? 'var(--accent-color)' : '#fafafa',
-                      color: selectedBatchNotes === key ? '#ffffff' : '#111827',
-                      boxShadow: selectedBatchNotes === key ? 'none' : '2px 2px 0px #111827',
-                      transform: selectedBatchNotes === key ? 'translate(2px, 2px)' : 'none',
-                      transition: 'all 0.1s ease'
-                    }}
-                  >
-                    {BATCH_LABELS[key]}
-                  </button>
-                ))}
-              </div>
+          <div>
+            {/* Notes Mode Toggle */}
+            <div style={{ display: 'flex', gap: '15px', marginBottom: '24px', background: '#fafafa', padding: '10px', borderRadius: '12px', border: '2px solid var(--border-color)', boxShadow: '3px 3px 0px #111827', maxWidth: '400px' }}>
+              <button
+                onClick={() => setNotesMode('batch')}
+                style={{
+                  flex: 1,
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  fontWeight: '800',
+                  cursor: 'pointer',
+                  fontSize: '0.85rem',
+                  background: notesMode === 'batch' ? 'var(--accent-color)' : 'transparent',
+                  color: notesMode === 'batch' ? '#ffffff' : 'var(--text-primary)',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                🏫 Batch-wise Notes
+              </button>
+              <button
+                onClick={() => setNotesMode('student')}
+                style={{
+                  flex: 1,
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  fontWeight: '800',
+                  cursor: 'pointer',
+                  fontSize: '0.85rem',
+                  background: notesMode === 'student' ? 'var(--accent-color)' : 'transparent',
+                  color: notesMode === 'student' ? '#ffffff' : 'var(--text-primary)',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                👤 Student-wise Notes
+              </button>
             </div>
 
-            {/* Notes editor */}
-            <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '30px' }}>
-              <h3 style={{ fontSize: '1.2rem', marginBottom: '8px', color: '#111827' }}>
-                Topper Revision Notes: {BATCH_LABELS[selectedBatchNotes]}
-              </h3>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '24px' }}>
-                Add and manage study PDFs that students in this batch can download from their dashboards.
-              </p>
-
-              {/* Add Note File form */}
-              <form onSubmit={handleAddNote} style={{ marginBottom: '24px', background: '#fafafa', border: '2px solid var(--border-color)', padding: '20px', borderRadius: '12px', boxShadow: '3px 3px 0px #111827' }}>
-                <h4 style={{ fontSize: '0.9rem', fontWeight: '800', color: '#111827', marginBottom: '12px' }}>
-                  📤 Upload Mock Study PDF
-                </h4>
-                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.9fr 0.6fr', gap: '12px', marginBottom: '12px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#111827', marginBottom: '4px' }}>FILE NAME</label>
-                    <input 
-                      type="text" 
-                      value={newNoteName}
-                      onChange={(e) => setNewNoteName(e.target.value)}
-                      placeholder="e.g. Inorganic Chemistry summary.pdf"
-                      style={{
-                        width: '100%',
-                        padding: '10px 12px',
-                        borderRadius: '8px',
-                        border: '2px solid var(--border-color)',
-                        outline: 'none',
-                        fontSize: '0.85rem'
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#111827', marginBottom: '4px' }}>SUBJECT SECTION</label>
-                    <select
-                      value={newNoteSubject}
-                      onChange={(e) => setNewNoteSubject(e.target.value)}
-                      style={{
-                        width: '100%',
-                        padding: '10px 12px',
-                        borderRadius: '8px',
-                        border: '2px solid var(--border-color)',
-                        outline: 'none',
-                        fontSize: '0.85rem',
-                        background: '#ffffff'
-                      }}
-                    >
-                      {(BATCH_SUBJECTS[selectedBatchNotes] || ['Physics']).map(subj => (
-                        <option key={subj} value={subj}>{subj}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#111827', marginBottom: '4px' }}>FILE SIZE</label>
-                    <input 
-                      type="text" 
-                      value={newNoteSize}
-                      onChange={(e) => setNewNoteSize(e.target.value)}
-                      placeholder="e.g. 5.4 MB"
-                      style={{
-                        width: '100%',
-                        padding: '10px 12px',
-                        borderRadius: '8px',
-                        border: '2px solid var(--border-color)',
-                        outline: 'none',
-                        fontSize: '0.85rem'
-                      }}
-                    />
+            {notesMode === 'batch' ? (
+              <div style={{ display: 'grid', gridTemplateColumns: '0.8fr 1.2fr', gap: '30px' }}>
+                {/* Batch Selector */}
+                <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '24px', alignSelf: 'start' }}>
+                  <h3 style={{ fontSize: '1.15rem', color: '#111827', marginBottom: '16px', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px' }}>
+                    Select Target Batch
+                  </h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {Object.keys(BATCH_LABELS).map(key => (
+                      <button
+                        key={key}
+                        onClick={() => setSelectedBatchNotes(key)}
+                        style={{
+                          textAlign: 'left',
+                          padding: '12px 14px',
+                          borderRadius: '8px',
+                          border: '2px solid var(--border-color)',
+                          fontWeight: '700',
+                          cursor: 'pointer',
+                          fontSize: '0.85rem',
+                          background: selectedBatchNotes === key ? 'var(--accent-color)' : '#fafafa',
+                          color: selectedBatchNotes === key ? '#ffffff' : '#111827',
+                          boxShadow: selectedBatchNotes === key ? 'none' : '2px 2px 0px #111827',
+                          transform: selectedBatchNotes === key ? 'translate(2px, 2px)' : 'none',
+                          transition: 'all 0.1s ease'
+                        }}
+                      >
+                        {BATCH_LABELS[key]}
+                      </button>
+                    ))}
                   </div>
                 </div>
-                <button type="submit" className="btn btn-accent w-full" style={{ padding: '10px', fontSize: '0.85rem', cursor: 'pointer' }}>
-                  Upload Note PDF
-                </button>
-              </form>
 
-              {/* Revision materials download list */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {batchNotesList.map((note, idx) => (
-                  <div key={idx} style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '12px 14px',
-                    background: '#ffffff',
-                    borderRadius: '10px',
-                    border: '2px solid var(--border-color)',
-                    boxShadow: '2px 2px 0px #111827'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <FileText size={18} style={{ color: 'var(--accent-color)' }} />
+                {/* Notes editor */}
+                <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '30px' }}>
+                  <h3 style={{ fontSize: '1.2rem', marginBottom: '8px', color: '#111827' }}>
+                    Topper Revision Notes: {BATCH_LABELS[selectedBatchNotes]}
+                  </h3>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '24px' }}>
+                    Add and manage study PDFs that students in this batch can download from their dashboards.
+                  </p>
+
+                  {/* Add Note File form */}
+                  <form onSubmit={handleAddNote} style={{ marginBottom: '24px', background: '#fafafa', border: '2px solid var(--border-color)', padding: '20px', borderRadius: '12px', boxShadow: '3px 3px 0px #111827' }}>
+                    <h4 style={{ fontSize: '0.9rem', fontWeight: '800', color: '#111827', marginBottom: '12px' }}>
+                      📤 Upload Mock Study PDF
+                    </h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.9fr 0.6fr', gap: '12px', marginBottom: '12px' }}>
                       <div>
-                        <div style={{ fontSize: '0.85rem', fontWeight: '700', color: '#111827', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          {note.name}
-                          <span style={{ fontSize: '0.65rem', padding: '2px 8px', borderRadius: '4px', background: '#e0e7ff', color: '#3730a3', fontWeight: '800' }}>
-                            {note.subject || (BATCH_SUBJECTS[selectedBatchNotes]?.[0] || 'Physics')}
-                          </span>
-                        </div>
-                        <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
-                          PDF Document • {note.size}
-                        </span>
+                        <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#111827', marginBottom: '4px' }}>FILE NAME</label>
+                        <input 
+                          type="text" 
+                          value={newNoteName}
+                          onChange={(e) => setNewNoteName(e.target.value)}
+                          placeholder="e.g. Inorganic Chemistry summary.pdf"
+                          style={{
+                            width: '100%',
+                            padding: '10px 12px',
+                            borderRadius: '8px',
+                            border: '2px solid var(--border-color)',
+                            outline: 'none',
+                            fontSize: '0.85rem'
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#111827', marginBottom: '4px' }}>SUBJECT SECTION</label>
+                        <select
+                          value={newNoteSubject}
+                          onChange={(e) => setNewNoteSubject(e.target.value)}
+                          style={{
+                            width: '100%',
+                            padding: '10px 12px',
+                            borderRadius: '8px',
+                            border: '2px solid var(--border-color)',
+                            outline: 'none',
+                            fontSize: '0.85rem',
+                            background: '#ffffff'
+                          }}
+                        >
+                          {(BATCH_SUBJECTS[selectedBatchNotes] || ['Physics']).map(subj => (
+                            <option key={subj} value={subj}>{subj}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#111827', marginBottom: '4px' }}>FILE SIZE</label>
+                        <input 
+                          type="text" 
+                          value={newNoteSize}
+                          onChange={(e) => setNewNoteSize(e.target.value)}
+                          placeholder="e.g. 5.4 MB"
+                          style={{
+                            width: '100%',
+                            padding: '10px 12px',
+                            borderRadius: '8px',
+                            border: '2px solid var(--border-color)',
+                            outline: 'none',
+                            fontSize: '0.85rem'
+                          }}
+                        />
                       </div>
                     </div>
+                    <button type="submit" className="btn btn-accent w-full" style={{ padding: '10px', fontSize: '0.85rem', cursor: 'pointer' }}>
+                      Upload Note PDF
+                    </button>
+                  </form>
 
+                  {/* Revision materials download list */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {batchNotesList.map((note, idx) => (
+                      <div key={idx} style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '12px 14px',
+                        background: '#ffffff',
+                        borderRadius: '10px',
+                        border: '2px solid var(--border-color)',
+                        boxShadow: '2px 2px 0px #111827'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <FileText size={18} style={{ color: 'var(--accent-color)' }} />
+                          <div>
+                            <div style={{ fontSize: '0.85rem', fontWeight: '700', color: '#111827', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              {note.name}
+                              <span style={{ fontSize: '0.65rem', padding: '2px 8px', borderRadius: '4px', background: '#e0e7ff', color: '#3730a3', fontWeight: '800' }}>
+                                {note.subject || (BATCH_SUBJECTS[selectedBatchNotes]?.[0] || 'Physics')}
+                              </span>
+                            </div>
+                            <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
+                              PDF Document • {note.size}
+                            </span>
+                          </div>
+                        </div>
+
+                        <button 
+                          onClick={() => handleDeleteNote(idx)}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', padding: '4px' }}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '2px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <button 
-                      onClick={() => handleDeleteNote(idx)}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', padding: '4px' }}
+                      onClick={async () => {
+                        await api.updateBatchNotes(selectedBatchNotes, batchNotesList);
+                        alert("✅ Success! Revision notes saved and synced to all students in this batch!");
+                      }}
+                      className="btn btn-accent"
+                      style={{ padding: '12px 24px', fontSize: '0.9rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
                     >
-                      <Trash2 size={16} />
+                      💾 Save Revision Notes to All Students
                     </button>
                   </div>
-                ))}
+                </div>
               </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: '0.8fr 1.2fr', gap: '30px' }}>
+                {/* Student Selector */}
+                <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '24px', alignSelf: 'start' }}>
+                  <h3 style={{ fontSize: '1.15rem', color: '#111827', marginBottom: '16px', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px' }}>
+                    Select Student
+                  </h3>
 
-              <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '2px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <button 
-                  onClick={async () => {
-                    await api.updateBatchNotes(selectedBatchNotes, batchNotesList);
-                    alert("✅ Success! Revision notes saved and synced to all students in this batch!");
-                  }}
-                  className="btn btn-accent"
-                  style={{ padding: '12px 24px', fontSize: '0.9rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
-                >
-                  💾 Save Revision Notes to All Students
-                </button>
+                  {/* Search Student */}
+                  <input
+                    type="text"
+                    placeholder="Search student..."
+                    value={notesSearchQuery}
+                    onChange={(e) => setNotesSearchQuery(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      border: '2px solid var(--border-color)',
+                      marginBottom: '16px',
+                      outline: 'none',
+                      fontSize: '0.8rem'
+                    }}
+                  />
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '400px', overflowY: 'auto', paddingRight: '4px' }}>
+                    {studentsList
+                      .filter(s => 
+                        s.username.toLowerCase().includes(notesSearchQuery.toLowerCase()) || 
+                        s.email.toLowerCase().includes(notesSearchQuery.toLowerCase())
+                      )
+                      .map(student => (
+                        <button
+                          key={student.email}
+                          onClick={() => setSelectedStudentNotes(student)}
+                          style={{
+                            textAlign: 'left',
+                            padding: '12px 14px',
+                            borderRadius: '8px',
+                            border: '2px solid var(--border-color)',
+                            fontWeight: '700',
+                            cursor: 'pointer',
+                            fontSize: '0.85rem',
+                            background: selectedStudentNotes?.email === student.email ? 'var(--accent-color)' : '#fafafa',
+                            color: selectedStudentNotes?.email === student.email ? '#ffffff' : '#111827',
+                            boxShadow: selectedStudentNotes?.email === student.email ? 'none' : '2px 2px 0px #111827',
+                            transform: selectedStudentNotes?.email === student.email ? 'translate(2px, 2px)' : 'none',
+                            transition: 'all 0.1s ease'
+                          }}
+                        >
+                          <div style={{ fontWeight: '800' }}>{student.username}</div>
+                          <div style={{ fontSize: '0.75rem', opacity: 0.8, fontWeight: 'normal', marginTop: '2px' }}>{student.email}</div>
+                          <div style={{ fontSize: '0.7rem', opacity: 0.9, marginTop: '4px', textTransform: 'uppercase', display: 'inline-block', background: selectedStudentNotes?.email === student.email ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.05)', padding: '2px 6px', borderRadius: '4px' }}>
+                            {BATCH_LABELS[student.batch] || student.batch}
+                          </div>
+                        </button>
+                      ))}
+                  </div>
+                </div>
+
+                {/* Student Specific Notes Editor */}
+                <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '30px' }}>
+                  {selectedStudentNotes ? (
+                    <>
+                      <h3 style={{ fontSize: '1.2rem', marginBottom: '8px', color: '#111827' }}>
+                        Revision Notes for <span style={{ color: 'var(--accent-color)' }}>{selectedStudentNotes.username}</span>
+                      </h3>
+                      <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '24px' }}>
+                        Manage study notes assigned specifically to this student.
+                      </p>
+
+                      {/* Add Student Note Form */}
+                      <form onSubmit={handleAddStudentNote} style={{ marginBottom: '24px', background: '#fafafa', border: '2px solid var(--border-color)', padding: '20px', borderRadius: '12px', boxShadow: '3px 3px 0px #111827' }}>
+                        <h4 style={{ fontSize: '0.9rem', fontWeight: '800', color: '#111827', marginBottom: '12px' }}>
+                          📤 Upload PDF for Student
+                        </h4>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.9fr 0.6fr', gap: '12px', marginBottom: '12px' }}>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#111827', marginBottom: '4px' }}>FILE NAME</label>
+                            <input 
+                              type="text" 
+                              value={newStudentNoteName}
+                              onChange={(e) => setNewStudentNoteName(e.target.value)}
+                              placeholder="e.g. Personal feedback.pdf"
+                              style={{
+                                width: '100%',
+                                padding: '10px 12px',
+                                borderRadius: '8px',
+                                border: '2px solid var(--border-color)',
+                                outline: 'none',
+                                fontSize: '0.85rem'
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#111827', marginBottom: '4px' }}>SUBJECT SECTION</label>
+                            <select
+                              value={newStudentNoteSubject}
+                              onChange={(e) => setNewStudentNoteSubject(e.target.value)}
+                              style={{
+                                width: '100%',
+                                padding: '10px 12px',
+                                borderRadius: '8px',
+                                border: '2px solid var(--border-color)',
+                                outline: 'none',
+                                fontSize: '0.85rem',
+                                background: '#ffffff'
+                              }}
+                            >
+                              {(BATCH_SUBJECTS[selectedStudentNotes.batch] || ['Physics']).map(subj => (
+                                <option key={subj} value={subj}>{subj}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#111827', marginBottom: '4px' }}>FILE SIZE</label>
+                            <input 
+                              type="text" 
+                              value={newStudentNoteSize}
+                              onChange={(e) => setNewStudentNoteSize(e.target.value)}
+                              placeholder="e.g. 5.4 MB"
+                              style={{
+                                width: '100%',
+                                padding: '10px 12px',
+                                borderRadius: '8px',
+                                border: '2px solid var(--border-color)',
+                                outline: 'none',
+                                fontSize: '0.85rem'
+                              }}
+                            />
+                          </div>
+                        </div>
+                        <button type="submit" className="btn btn-accent w-full" style={{ padding: '10px', fontSize: '0.85rem', cursor: 'pointer' }}>
+                          Upload Note PDF
+                        </button>
+                      </form>
+
+                      {/* Revision materials download list */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {studentNotesList.map((note, idx) => (
+                          <div key={idx} style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            padding: '12px 14px',
+                            background: '#ffffff',
+                            borderRadius: '10px',
+                            border: '2px solid var(--border-color)',
+                            boxShadow: '2px 2px 0px #111827'
+                          }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                              <FileText size={18} style={{ color: 'var(--accent-color)' }} />
+                              <div>
+                                <div style={{ fontSize: '0.85rem', fontWeight: '700', color: '#111827', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  {note.name}
+                                  <span style={{ fontSize: '0.65rem', padding: '2px 8px', borderRadius: '4px', background: '#e0e7ff', color: '#3730a3', fontWeight: '800' }}>
+                                    {note.subject || (BATCH_SUBJECTS[selectedStudentNotes.batch]?.[0] || 'Physics')}
+                                  </span>
+                                </div>
+                                <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
+                                  PDF Document • {note.size}
+                                </span>
+                              </div>
+                            </div>
+
+                            <button 
+                              onClick={() => handleDeleteStudentNote(idx)}
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', padding: '4px' }}
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        ))}
+                        {studentNotesList.length === 0 && (
+                          <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.9rem', margin: '20px 0' }}>
+                            No custom notes uploaded for this student yet. Upload one above!
+                          </p>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-secondary)' }}>
+                      <FileText size={48} style={{ margin: '0 auto 16px', opacity: 0.5 }} />
+                      <h4 style={{ fontSize: '1.1rem', color: '#111827', marginBottom: '8px' }}>No Student Selected</h4>
+                      <p style={{ fontSize: '0.85rem' }}>Select a student from the left panel to manage their specific revision notes.</p>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
 

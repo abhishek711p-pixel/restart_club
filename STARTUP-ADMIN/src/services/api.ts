@@ -133,15 +133,20 @@ export const api = {
   },
 
   // Notes (Templates)
-  getBatchNotes: async (batch: string) => {
-    const res = await fetch(`${API_BASE_URL}/templates/notes/${batch}`);
+  getBatchNotes: async (batch: string, email?: string, onlyStudent?: boolean) => {
+    let url = `${API_BASE_URL}/templates/notes/${batch}`;
+    const params = [];
+    if (email) params.push(`email=${encodeURIComponent(email)}`);
+    if (onlyStudent) params.push(`onlyStudent=true`);
+    if (params.length > 0) url += `?${params.join('&')}`;
+    const res = await fetch(url);
     try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   },
-  updateBatchNotes: async (batch: string, notes: any[]) => {
+  updateBatchNotes: async (batch: string, notes: any[], email?: string) => {
     const res = await fetch(`${API_BASE_URL}/templates/notes/${batch}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ notes })
+      body: JSON.stringify({ notes, email })
     });
     try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   },

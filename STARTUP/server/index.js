@@ -425,6 +425,14 @@ app.post('/api/payments/create-order', async (req, res) => {
   res.json({ id: "client_only", amount, currency: "INR" });
 });
 
+const BATCH_LABELS = {
+  '10': 'Class 10 (Foundation)',
+  '11': 'Class 11 (Aarambh)',
+  '12': 'Class 12 (Sankalp)',
+  'jee-dropper': 'JEE Dropper',
+  'neet-dropper': 'NEET Dropper'
+};
+
 app.post('/api/payments/verify', async (req, res) => {
   const { razorpay_order_id, razorpay_payment_id, razorpay_signature, email, batch, tier = 'premium' } = req.body;
   
@@ -459,6 +467,103 @@ app.post('/api/payments/verify', async (req, res) => {
           where: { email },
           data: { purchasedBatches: updatedBatches }
         });
+
+        // Send Email Notifications
+        const readableBatch = BATCH_LABELS[batch] || batch;
+        const uppercaseTier = tier.charAt(0).toUpperCase() + tier.slice(1);
+
+        // 1. Admin notification email
+        const adminMailOptions = {
+          from: `"RestartClub Billing" <${process.env.SMTP_EMAIL || 'dummy@gmail.com'}>`,
+          to: 'rstartclub@gmail.com',
+          cc: process.env.SMTP_EMAIL && process.env.SMTP_EMAIL !== 'rstartclub@gmail.com' ? process.env.SMTP_EMAIL : undefined,
+          subject: `🚨 New Enrollment: ${user.username} (${readableBatch})`,
+          text: `A new student has joined RestartClub!\n\nDetails:\n- Name: ${user.username}\n- Email: ${user.email}\n- Batch: ${readableBatch}\n- Plan: ${uppercaseTier}\n- Payment ID: ${razorpay_payment_id}\n- Order ID: ${razorpay_order_id || 'N/A'}\n- Date: ${new Date().toLocaleString()}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; line-height: 1.6;">
+              <h2 style="color: #ea580c; border-bottom: 2px solid #ea580c; padding-bottom: 8px;">New Student Enrollment Alert</h2>
+              <p>A new student has successfully completed their payment and joined a batch!</p>
+              <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold; width: 150px;">Student Name</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">${user.username}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Student Email</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">${user.email}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Batch</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">${readableBatch}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Plan Tier</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;"><span style="background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 4px; font-weight: bold;">${uppercaseTier}</span></td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Payment ID</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; font-family: monospace;">${razorpay_payment_id}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Order ID</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; font-family: monospace;">${razorpay_order_id || 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Enrollment Date</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">${new Date().toLocaleString()}</td>
+                </tr>
+              </table>
+              <br/>
+              <p>Best regards,<br/>The RestartClub Platform</p>
+            </div>
+          `
+        };
+
+        // 2. Student welcome/receipt email
+        const studentMailOptions = {
+          from: `"RestartClub" <${process.env.SMTP_EMAIL || 'dummy@gmail.com'}>`,
+          to: user.email,
+          subject: `Welcome to RestartClub! 🎉 ${readableBatch} Enrollment Confirmed`,
+          text: `Hi ${user.username},\n\nWelcome to the RestartClub family!\n\nYour enrollment for ${readableBatch} (${uppercaseTier} Plan) is confirmed. Payment ID: ${razorpay_payment_id}.\n\nYour dashboard is now fully unlocked. You can log in and start tracking your study goals. Your dedicated personal mentor will reach out to you on WhatsApp within the next 24 hours to schedule your onboarding call!\n\nIf you have any questions, feel free to contact us at rstartclub@gmail.com.\n\nHappy learning!\n- The RestartClub Team`,
+          html: `
+            <div style="font-family: Arial, sans-serif; padding: 25px; color: #333; line-height: 1.6; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px;">
+              <div style="text-align: center; margin-bottom: 20px;">
+                <h1 style="color: #ea580c; margin: 0;">RestartClub</h1>
+                <p style="font-size: 1.1rem; color: #666; margin-top: 5px;">Dedicated Mentorship & Guidance</p>
+              </div>
+              <hr style="border: 0; border-top: 1px solid #eee;" />
+              <p>Hi <strong>${user.username}</strong>,</p>
+              <p>Welcome to the <strong>RestartClub Family</strong>! 🎉 We are thrilled to have you join us on this preparation journey.</p>
+              <p>Your enrollment has been successfully processed and verified.</p>
+              
+              <div style="background-color: #f9fafb; padding: 15px; border-radius: 6px; margin: 20px 0;">
+                <h3 style="margin-top: 0; color: #111827;">Enrollment Details:</h3>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                  <li style="margin-bottom: 8px;"><strong>Batch:</strong> ${readableBatch}</li>
+                  <li style="margin-bottom: 8px;"><strong>Plan:</strong> ${uppercaseTier}</li>
+                  <li style="margin-bottom: 8px;"><strong>Payment Status:</strong> Successful (Paid)</li>
+                  <li style="margin-bottom: 8px;"><strong>Payment ID:</strong> <span style="font-family: monospace;">${razorpay_payment_id}</span></li>
+                </ul>
+              </div>
+
+              <h3 style="color: #111827;">What happens next?</h3>
+              <ol style="padding-left: 20px;">
+                <li style="margin-bottom: 10px;"><strong>Dashboard Access:</strong> Your student dashboard is now fully unlocked. Log in at your portal to check your weekly planners, track mock scores, and view resources.</li>
+                <li style="margin-bottom: 10px;"><strong>Mentor Connection:</strong> Your dedicated personal mentor will contact you on <strong>WhatsApp within the next 24 hours</strong> to introduce themselves and set up your introductory strategy call.</li>
+                <li style="margin-bottom: 10px;"><strong>24/7 AI Helper:</strong> You can interact with our AI doubt-solving assistant on WhatsApp anytime.</li>
+              </ol>
+              
+              <br/>
+              <p>If you face any issues or have questions, please reach out to us at <a href="mailto:rstartclub@gmail.com" style="color: #ea580c; text-decoration: underline;">rstartclub@gmail.com</a>.</p>
+              <p style="margin-top: 30px;">Let's restart and ace your goals together! 💪</p>
+              <p>Best regards,<br/><strong>The RestartClub Team</strong></p>
+            </div>
+          `
+        };
+
+        // Send emails asynchronously without blocking response
+        transporter.sendMail(adminMailOptions).catch(err => console.error("Failed to send admin payment notification email:", err));
+        transporter.sendMail(studentMailOptions).catch(err => console.error("Failed to send student welcome email:", err));
       }
       return res.json({ success: true, message: "Payment verified successfully" });
     } catch (err) {
@@ -626,25 +731,81 @@ app.post('/api/templates/planner/:batch', async (req, res) => {
   }
 });
 
-// 5. Revision Notes Templates (Admin Settings)
+// 5. Revision Notes Templates (Admin Settings & Student Dashboard)
 app.get('/api/templates/notes/:batch', async (req, res) => {
   const { batch } = req.params;
-  const notes = await prisma.note.findMany({ where: { batch } });
-  res.json(notes.map(n => ({ name: n.name, size: n.size, subject: n.subject || 'Physics' })));
+  const { email, onlyStudent } = req.query;
+  try {
+    let notes = [];
+    if (email) {
+      if (onlyStudent === 'true') {
+        notes = await prisma.note.findMany({
+          where: { batch, email }
+        });
+      } else {
+        notes = await prisma.note.findMany({
+          where: {
+            batch,
+            OR: [
+              { email: null },
+              { email: email }
+            ]
+          }
+        });
+      }
+    } else {
+      notes = await prisma.note.findMany({
+        where: {
+          batch,
+          email: null
+        }
+      });
+    }
+    res.json(notes.map(n => ({ name: n.name, size: n.size, subject: n.subject || 'Physics' })));
+  } catch (err) {
+    console.error("Failed to fetch notes:", err);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 app.post('/api/templates/notes/:batch', async (req, res) => {
   const { batch } = req.params;
-  const { notes } = req.body;
+  const { notes, email } = req.body;
   try {
-    await prisma.note.deleteMany({ where: { batch } });
-    if (notes && notes.length > 0) {
-      await prisma.note.createMany({
-        data: notes.map(n => ({ batch, name: n.name, size: n.size || '4.5 MB', subject: n.subject || 'Physics' }))
+    if (email) {
+      await prisma.note.deleteMany({
+        where: { batch, email }
       });
+      if (notes && notes.length > 0) {
+        await prisma.note.createMany({
+          data: notes.map(n => ({
+            batch,
+            email,
+            name: n.name,
+            size: n.size || '4.5 MB',
+            subject: n.subject || 'Physics'
+          }))
+        });
+      }
+    } else {
+      await prisma.note.deleteMany({
+        where: { batch, email: null }
+      });
+      if (notes && notes.length > 0) {
+        await prisma.note.createMany({
+          data: notes.map(n => ({
+            batch,
+            email: null,
+            name: n.name,
+            size: n.size || '4.5 MB',
+            subject: n.subject || 'Physics'
+          }))
+        });
+      }
     }
     res.json({ success: true });
   } catch (err) {
+    console.error("Failed to update notes:", err);
     res.status(500).json({ error: 'Server error' });
   }
 });

@@ -159,8 +159,11 @@ export const api = {
   },
 
   // Notes (Templates)
-  getBatchNotes: async (batch: string) => {
-    const res = await fetch(`${API_BASE_URL}/templates/notes/${batch}`);
+  getBatchNotes: async (batch: string, email?: string) => {
+    const url = email 
+      ? `${API_BASE_URL}/templates/notes/${batch}?email=${encodeURIComponent(email)}`
+      : `${API_BASE_URL}/templates/notes/${batch}`;
+    const res = await fetch(url);
     try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   },
   updateBatchNotes: async (batch: string, notes: any[]) => {

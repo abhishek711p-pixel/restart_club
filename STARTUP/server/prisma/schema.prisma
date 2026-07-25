@@ -58,6 +58,7 @@ model Planner {
 model Note {
   id      String  @id @default(uuid())
   batch   String
+  email   String?
   name    String
   size    String
   subject String? @default("General")

@@ -364,7 +364,7 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
           ]);
         }
 
-        const notes = await api.getBatchNotes(activeBatch);
+        const notes = await api.getBatchNotes(activeBatch, user.email);
         if (Array.isArray(notes)) {
           setActiveNotes(notes);
         }
