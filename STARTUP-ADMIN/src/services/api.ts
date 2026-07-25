@@ -98,6 +98,26 @@ export const api = {
     try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   },
 
+  // Notices
+  getNotices: async (batch: string) => {
+    const res = await fetch(`${API_BASE_URL}/notices/${batch}`);
+    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
+  },
+  createNotice: async (batch: string, message: string) => {
+    const res = await fetch(`${API_BASE_URL}/notices/${batch}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message })
+    });
+    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
+  },
+  deleteNotice: async (id: string) => {
+    const res = await fetch(`${API_BASE_URL}/notices/${id}`, {
+      method: 'DELETE'
+    });
+    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
+  },
+
   // Planners (Templates)
   getBatchPlanner: async (batch: string) => {
     const res = await fetch(`${API_BASE_URL}/templates/planner/${batch}`);

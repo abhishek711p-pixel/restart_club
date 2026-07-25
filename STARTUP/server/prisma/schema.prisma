@@ -77,3 +77,10 @@ model StudyHour {
 
   @@unique([email, batch])
 }
+
+model Notice {
+  id        String   @id @default(uuid())
+  batch     String
+  message   String
+  createdAt DateTime @default(now())
+}

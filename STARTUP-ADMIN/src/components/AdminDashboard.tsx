@@ -24,7 +24,7 @@ const BATCH_LABELS: Record<string, string> = {
 };
 
 export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
-  const [activeTab, setActiveTab] = useState<'students' | 'scores' | 'planners' | 'notes'>('students');
+  const [activeTab, setActiveTab] = useState<'students' | 'scores' | 'planners' | 'notes' | 'communication'>('students');
   const [studentsList, setStudentsList] = useState<StudentUser[]>([]);
   const [selectedBatchFilter, setSelectedBatchFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -58,6 +58,11 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
   const [newNoteName, setNewNoteName] = useState('');
   const [newNoteSize, setNewNoteSize] = useState('4.5 MB');
   const [newNoteSubject, setNewNoteSubject] = useState<string>('Physics');
+
+  // Notices State
+  const [selectedBatchNotices, setSelectedBatchNotices] = useState<string>('12');
+  const [batchNoticesList, setBatchNoticesList] = useState<Array<{ id: string; message: string; createdAt: string }>>([]);
+  const [newNoticeMessage, setNewNoticeMessage] = useState('');
 
   // Load all students on mount
   useEffect(() => {
@@ -144,6 +149,40 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
     };
     loadNotes();
   }, [selectedBatchNotes]);
+
+  // Load selected batch notices
+  useEffect(() => {
+    const loadNotices = async () => {
+      try {
+        const storedNotices = await api.getNotices(selectedBatchNotices);
+        if (Array.isArray(storedNotices)) {
+          setBatchNoticesList(storedNotices);
+        }
+      } catch (err) {
+        console.error("Failed to load notices", err);
+      }
+    };
+    loadNotices();
+  }, [selectedBatchNotices]);
+
+  // Handle Notices
+  const handleAddNotice = async () => {
+    if (!newNoticeMessage.trim()) return;
+    try {
+      const newNotice = await api.createNotice(selectedBatchNotices, newNoticeMessage);
+      if (newNotice && !newNotice.error) {
+        setBatchNoticesList([newNotice, ...batchNoticesList]);
+        setNewNoticeMessage('');
+      }
+    } catch (err) {}
+  };
+
+  const handleDeleteNotice = async (id: string) => {
+    try {
+      await api.deleteNotice(id);
+      setBatchNoticesList(batchNoticesList.filter(n => n.id !== id));
+    } catch (err) {}
+  };
 
   // Toggle user payment status
   const handleTogglePayment = async (email: string, batch: string, tier: 'standard' | 'premium') => {
@@ -370,6 +409,23 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
             }}
           >
             📂 Manage Revision Notes
+          </button>
+          <button 
+            onClick={() => setActiveTab('communication')}
+            className="btn" 
+            style={{
+              padding: '8px 20px',
+              border: 'none',
+              fontSize: '0.9rem',
+              fontWeight: '700',
+              background: activeTab === 'communication' ? '#ef4444' : 'transparent',
+              color: activeTab === 'communication' ? '#ffffff' : 'var(--text-primary)',
+              boxShadow: 'none',
+              transform: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            💬 Manage Communication
           </button>
         </div>
       </div>
@@ -1103,6 +1159,91 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                   💾 Save Revision Notes to All Students
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Manage Communication Tab */}
+        {activeTab === 'communication' && (
+          <div className="glass-card" style={{ background: '#ffffff', padding: '40px', maxWidth: '800px', margin: '0 auto', textAlign: 'left' }}>
+            <h2 style={{ fontSize: '1.8rem', color: '#111827', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              💬 Manage Important Notices
+            </h2>
+            <div style={{ marginBottom: '30px' }}>
+              <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: '700', marginBottom: '8px', color: 'var(--text-secondary)' }}>Select Batch to Manage</label>
+              <select 
+                value={selectedBatchNotices}
+                onChange={(e) => setSelectedBatchNotices(e.target.value)}
+                style={{
+                  padding: '12px 16px',
+                  borderRadius: '10px',
+                  border: '2px solid var(--border-color)',
+                  fontSize: '1rem',
+                  outline: 'none',
+                  width: '100%',
+                  fontFamily: 'var(--sans-font)',
+                  background: '#f9fafb'
+                }}
+              >
+                {Object.entries(BATCH_SUBJECTS).map(([key, label]) => (
+                  <option key={key} value={key}>{label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ background: '#f9fafb', border: '2px solid var(--border-color)', borderRadius: '12px', padding: '24px', marginBottom: '30px' }}>
+              <h3 style={{ fontSize: '1.2rem', marginBottom: '16px', color: '#111827' }}>Post New Notice</h3>
+              <textarea 
+                placeholder="Type your notice here..."
+                value={newNoticeMessage}
+                onChange={(e) => setNewNoticeMessage(e.target.value)}
+                rows={4}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  border: '2px solid var(--border-color)',
+                  fontSize: '0.95rem',
+                  fontFamily: 'var(--sans-font)',
+                  resize: 'vertical',
+                  marginBottom: '16px'
+                }}
+              />
+              <button 
+                onClick={handleAddNotice}
+                disabled={!newNoticeMessage.trim()}
+                className="btn btn-accent"
+                style={{ padding: '10px 20px', fontSize: '0.9rem', fontWeight: '800', cursor: newNoticeMessage.trim() ? 'pointer' : 'not-allowed', opacity: newNoticeMessage.trim() ? 1 : 0.6 }}
+              >
+                📢 Post Notice
+              </button>
+            </div>
+
+            <div>
+              <h3 style={{ fontSize: '1.2rem', marginBottom: '16px', color: '#111827' }}>Previous Notices</h3>
+              {batchNoticesList.length === 0 ? (
+                <p style={{ color: 'var(--text-secondary)' }}>No notices posted for this batch yet.</p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {batchNoticesList.map((notice) => (
+                    <div key={notice.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', background: '#ffffff', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-color)', boxShadow: '2px 2px 0px rgba(0,0,0,0.05)' }}>
+                      <div>
+                        <p style={{ color: '#374151', fontSize: '0.95rem', fontWeight: '600', marginBottom: '8px', whiteSpace: 'pre-wrap' }}>{notice.message}</p>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                          {new Date(notice.createdAt).toLocaleDateString()} at {new Date(notice.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                      <button 
+                        onClick={() => handleDeleteNotice(notice.id)}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', padding: '4px' }}
+                        title="Delete Notice"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}

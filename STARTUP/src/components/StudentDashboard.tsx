@@ -259,6 +259,7 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
     { day: 'Sat', hrs: 0 },
     { day: 'Sun', hrs: 0 }
   ]);
+  const [notices, setNotices] = useState<Array<{ id: string; message: string; createdAt: string }>>([]);
 
   const BATCH_SUBJECTS_MAP: Record<string, { label: string; subjects: string[] }> = {
     '10': {
@@ -363,6 +364,11 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
         const notes = await api.getBatchNotes(activeBatch);
         if (Array.isArray(notes)) {
           setActiveNotes(notes);
+        }
+
+        const fetchedNotices = await api.getNotices(activeBatch);
+        if (Array.isArray(fetchedNotices)) {
+          setNotices(fetchedNotices);
         }
       } catch (err) {
         console.error("Failed to load initial data", err);
@@ -559,6 +565,24 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
                   7568864993
                 </span>
               </div>
+              
+              {notices.length > 0 && (
+                <div style={{ marginTop: '40px', textAlign: 'left', background: '#f9fafb', borderRadius: '12px', padding: '24px', border: '2px solid var(--border-color)' }}>
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: '#111827', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    📢 Important Notices & Updates
+                  </h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {notices.map((notice) => (
+                      <div key={notice.id} style={{ background: '#ffffff', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-color)', boxShadow: '2px 2px 0px rgba(0,0,0,0.05)' }}>
+                        <p style={{ color: '#374151', fontSize: '0.95rem', fontWeight: '600', marginBottom: '8px', whiteSpace: 'pre-wrap' }}>{notice.message}</p>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                          {new Date(notice.createdAt).toLocaleDateString()} at {new Date(notice.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </main>
         ) : activeTab === 'chatbot' ? (

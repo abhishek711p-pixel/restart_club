@@ -612,7 +612,45 @@ app.post('/api/chat/:email', async (req, res) => {
   }
 });
 
+// 5. Notices (Communication)
+app.get('/api/notices/:batch', async (req, res) => {
+  const { batch } = req.params;
+  try {
+    const notices = await prisma.notice.findMany({
+      where: { batch },
+      orderBy: { createdAt: 'desc' }
+    });
+    res.json(notices);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.post('/api/notices/:batch', async (req, res) => {
+  const { batch } = req.params;
+  const { message } = req.body;
+  if (!message) return res.status(400).json({ error: 'Message is required' });
+  try {
+    const notice = await prisma.notice.create({
+      data: { batch, message }
+    });
+    res.json(notice);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.delete('/api/notices/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await prisma.notice.delete({ where: { id } });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 app.listen(PORT, () => {
-  console.log(`🚀 Live RestartClub API Server active on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
 module.exports = app;
