@@ -97,13 +97,17 @@ export default function App() {
               Study under real dedicated mentors who track your progress, with our 24/7 custom Hinglish AI assistant feature on WhatsApp for daily doubts & study planners. Tailored for Classes 10–12 and JEE/NEET.
             </p>
             
-            <div className="hero-actions">
+            <div className="hero-actions" style={{ marginBottom: '16px' }}>
               <a href="#simulator" className="btn btn-primary">
                 Try WhatsApp Demo <MessageSquare size={16} />
               </a>
               <button onClick={() => setView('auth')} className="btn btn-secondary" style={{ cursor: 'pointer' }}>
                 Join the Family <ArrowRight size={16} />
               </button>
+            </div>
+            
+            <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: '600', marginBottom: '24px' }}>
+              💡 Facing any issues? Contact support at: <a href="mailto:rstartclub@gmail.com" style={{ color: 'var(--accent-color)', fontWeight: '700', textDecoration: 'underline' }}>rstartclub@gmail.com</a>
             </div>
 
             <div className="hero-social-proof">
@@ -413,14 +417,17 @@ export default function App() {
           <p className="section-description max-w-md mx-auto">
             Stay updated with free study notes, formula cheatsheets, and live board strategy announcements.
           </p>
-
           <button 
             onClick={() => setView('auth')} 
             className="btn btn-accent"
-            style={{ marginTop: '24px', marginBottom: '32px', padding: '14px 32px', fontSize: '1rem', fontWeight: '800', cursor: 'pointer' }}
+            style={{ marginTop: '24px', marginBottom: '16px', padding: '14px 32px', fontSize: '1rem', fontWeight: '800', cursor: 'pointer' }}
           >
             Register / Login to Your Account <ArrowRight size={16} />
           </button>
+          
+          <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: '600', marginBottom: '32px' }}>
+            ⚠️ Facing any issues? Contact support directly at: <a href="mailto:rstartclub@gmail.com" style={{ color: 'var(--accent-color)', fontWeight: '700', textDecoration: 'underline' }}>rstartclub@gmail.com</a>
+          </div>
           
           <div className="social-links-grid">
             <a href="https://t.me/mocklink" target="_blank" rel="noopener noreferrer" className="social-btn telegram">
