@@ -413,7 +413,7 @@ export default function App() {
           </button>
           
           <div className="social-links-grid">
-            <a href="https://t.me/mocklink" target="_blank" rel="noopener noreferrer" className="social-btn telegram">
+            <a href="https://t.me/+qUnxBGBGFHFiNjdl" target="_blank" rel="noopener noreferrer" className="social-btn telegram">
               <Compass size={20} />
               <span>Join Telegram Group</span>
             </a>
