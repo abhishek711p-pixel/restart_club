@@ -199,6 +199,11 @@ app.delete('/api/users/:email/batch/:batch', async (req, res) => {
 app.post('/api/users/register', async (req, res) => {
   const { username, email, password, batch } = req.body;
   
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !emailRegex.test(email.trim())) {
+    return res.status(400).json({ error: 'Invalid email address format' });
+  }
+
   try {
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {

@@ -32,6 +32,14 @@ export default function AuthScreen({ onSuccess, onBack, defaultBatch }: AuthScre
       (mode === 'register' && !username)
     ) {
       setError('Please fill in all required fields.');
+      setIsLoading(false);
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      setError('Please enter a valid email address.');
+      setIsLoading(false);
       return;
     }
 
