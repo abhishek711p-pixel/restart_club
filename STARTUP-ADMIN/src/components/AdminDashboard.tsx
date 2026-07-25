@@ -405,12 +405,14 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
     await api.updateBatchNotes(selectedStudentNotes.batch, updated, selectedStudentNotes.email);
   };
 
-  const filteredStudents = studentsList.filter(s => {
-    const matchesBatch = selectedBatchFilter === 'all' || s.batch === selectedBatchFilter;
-    const matchesSearch = s.username.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          s.email.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesBatch && matchesSearch;
-  });
+  const filteredStudents = studentsList
+    .filter(s => {
+      const matchesBatch = selectedBatchFilter === 'all' || s.batch === selectedBatchFilter;
+      const matchesSearch = s.username.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                            s.email.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesBatch && matchesSearch;
+    })
+    .sort((a, b) => a.username.localeCompare(b.username));
 
   return (
     <div style={{ background: 'var(--bg-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -1200,6 +1202,7 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                                               s.email.toLowerCase().includes(plannerSearchQuery.toLowerCase());
                         return matchesBatch && matchesSearch;
                       })
+                      .sort((a, b) => a.username.localeCompare(b.username))
                       .map(student => (
                         <button
                           key={student.email}
@@ -1569,6 +1572,7 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                                               s.email.toLowerCase().includes(notesSearchQuery.toLowerCase());
                         return matchesBatch && matchesSearch;
                       })
+                      .sort((a, b) => a.username.localeCompare(b.username))
                       .map(student => (
                         <button
                           key={student.email}
