@@ -558,8 +558,11 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
           <main className="container" style={{ flex: 1, padding: '60px 24px', maxWidth: '800px', margin: '0 auto', width: '100%', textAlign: 'center' }}>
             <div className="glass-card" style={{ background: '#ffffff', padding: '60px' }}>
               <h2 style={{ fontSize: '2.5rem', color: '#111827', marginBottom: '16px' }}>💬 Welcome to RestartClub!</h2>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem', marginBottom: '30px' }}>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem', marginBottom: '20px' }}>
                 Every student who joins this batch <strong>must message "Hello"</strong> to the given phone number to get connected.
+              </p>
+              <p style={{ color: '#d97706', fontSize: '1rem', fontWeight: '700', marginBottom: '30px' }}>
+                ⏳ Note: After sending your message, please wait. Our team will contact you within 12 hours!
               </p>
               <div style={{ background: '#f9fafb', border: '2px dashed var(--border-color)', borderRadius: '12px', padding: '20px', display: 'inline-block' }}>
                 <span style={{ fontSize: '1rem', fontWeight: '700', color: '#6b7280', display: 'block', marginBottom: '8px' }}>OFFICIAL MENTOR NUMBER</span>
