@@ -241,9 +241,9 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
     }
   };
 
-  const [activeTab, setActiveTab] = useState<'workspace' | 'progress' | 'test' | 'chatbot' | 'notes'>(() => {
+  const [activeTab, setActiveTab] = useState<'workspace' | 'progress' | 'test' | 'chatbot' | 'notes' | 'communication'>(() => {
     const saved = localStorage.getItem('drona_active_tab');
-    return (saved === 'progress' || saved === 'workspace' || saved === 'test' || saved === 'chatbot' || saved === 'notes') ? saved as any : 'workspace';
+    return (saved === 'progress' || saved === 'workspace' || saved === 'test' || saved === 'chatbot' || saved === 'notes' || saved === 'communication') ? saved as any : 'communication';
   });
 
   useEffect(() => {
@@ -505,6 +505,23 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
               📝 Test
             </button>
             <button 
+              onClick={() => setActiveTab('communication')}
+              className="btn" 
+              style={{
+                padding: '8px 20px',
+                border: 'none',
+                fontSize: '0.9rem',
+                fontWeight: '700',
+                background: activeTab === 'communication' ? 'var(--accent-color)' : 'transparent',
+                color: activeTab === 'communication' ? '#ffffff' : 'var(--text-primary)',
+                boxShadow: 'none',
+                transform: 'none',
+                cursor: 'pointer'
+              }}
+            >
+              💬 Communication
+            </button>
+            <button 
               onClick={() => setActiveTab('chatbot')}
               className="btn" 
               style={{
@@ -529,7 +546,22 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
       )}
 
       {hasAccess ? (
-        activeTab === 'chatbot' ? (
+        activeTab === 'communication' ? (
+          <main className="container" style={{ flex: 1, padding: '60px 24px', maxWidth: '800px', margin: '0 auto', width: '100%', textAlign: 'center' }}>
+            <div className="glass-card" style={{ background: '#ffffff', padding: '60px' }}>
+              <h2 style={{ fontSize: '2.5rem', color: '#111827', marginBottom: '16px' }}>💬 Welcome to RestartClub!</h2>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem', marginBottom: '30px' }}>
+                Every student who joins this batch <strong>must message "Hello"</strong> to the given phone number to get connected.
+              </p>
+              <div style={{ background: '#f9fafb', border: '2px dashed var(--border-color)', borderRadius: '12px', padding: '20px', display: 'inline-block' }}>
+                <span style={{ fontSize: '1rem', fontWeight: '700', color: '#6b7280', display: 'block', marginBottom: '8px' }}>OFFICIAL MENTOR NUMBER</span>
+                <span style={{ fontSize: '2.5rem', fontWeight: '800', color: 'var(--accent-color)' }}>
+                  7568864993
+                </span>
+              </div>
+            </div>
+          </main>
+        ) : activeTab === 'chatbot' ? (
           <main className="container" style={{ flex: 1, padding: '60px 24px', maxWidth: '800px', margin: '0 auto', width: '100%', textAlign: 'center' }}>
             <div className="glass-card" style={{ background: '#ffffff', padding: '60px' }}>
               {activeTab === 'chatbot' && !hasPremiumAccess ? (

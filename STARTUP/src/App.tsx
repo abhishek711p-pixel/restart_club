@@ -43,6 +43,7 @@ export default function App() {
       <AuthScreen 
         onSuccess={(user) => {
           localStorage.setItem('studentSession', JSON.stringify(user));
+          localStorage.setItem('drona_active_tab', 'communication');
           setCurrentUser(user);
           setView('dashboard');
         }}
