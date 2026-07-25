@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Compass, Mail, Lock, User, ArrowLeft, BookOpen, Key } from 'lucide-react';
+import { Mail, Lock, User, ArrowLeft, BookOpen, Key } from 'lucide-react';
 import { api } from '../services/api';
 
 interface AuthScreenProps {
@@ -135,9 +135,7 @@ export default function AuthScreen({ onSuccess, onBack, defaultBatch }: AuthScre
         textAlign: 'center'
       }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
-          <div className="logo-icon-wrapper">
-            <Compass className="logo-icon animate-spin-slow" />
-          </div>
+          <img src="/logo.png" alt="RestartClub Logo" style={{ height: '42px', width: 'auto', objectFit: 'contain', borderRadius: '4px' }} />
           <span className="logo-text">Restart <span className="logo-highlight">Club</span></span>
         </div>
 

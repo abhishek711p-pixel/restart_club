@@ -440,7 +440,7 @@ export default function App() {
         <div className="container footer-container">
           <div className="footer-left">
             <div className="logo-section">
-              <Compass className="logo-icon text-indigo" />
+              <img src="/logo.png" alt="RestartClub Logo" style={{ height: '36px', width: 'auto', objectFit: 'contain', borderRadius: '4px' }} />
               <span className="logo-text">Restart <span className="logo-highlight">Club</span></span>
             </div>
             <p className="footer-desc">Empowering Tier 2 & Tier 3 students to ace their Class 10-12 boards and JEE/NEET exams with personalized Hinglish AI guides.</p>

@@ -1,4 +1,3 @@
-import { Compass } from 'lucide-react';
 
 interface NavbarProps {
   onSelectBatch: (batchKey: '10' | '11' | '12' | 'jee-dropper' | 'neet-dropper') => void;
@@ -10,9 +9,7 @@ export default function Navbar({ onSelectBatch, onJoinClick }: NavbarProps) {
     <header className="navbar-header">
       <div className="container navbar-container">
         <div className="logo-section">
-          <div className="logo-icon-wrapper">
-            <Compass className="logo-icon animate-spin-slow" />
-          </div>
+          <img src="/logo.png" alt="RestartClub Logo" style={{ height: '38px', width: 'auto', objectFit: 'contain', borderRadius: '4px' }} />
           <span className="logo-text">Restart <span className="logo-highlight">Club</span></span>
         </div>
         

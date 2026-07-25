@@ -1872,4 +1872,28 @@ p {
     padding-top: 20px !important;
     padding-bottom: 20px !important;
   }
+
+  /* High Performance Mobile Speed & Rendering Optimizations */
+  * {
+    /* Disable costly backdrop filters on mobile GPUs for silky smooth 60 FPS scroll */
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  
+  /* Instant tap reaction without touch delays */
+  button, a, input, select, textarea {
+    touch-action: manipulation;
+  }
+
+  /* Hardware acceleration for containers and cards */
+  .glass-card, .tab-switcher, .navbar-header, .student-dashboard {
+    transform: translateZ(0);
+    will-change: transform;
+  }
+
+  /* Fast font and layout rendering */
+  body {
+    text-rendering: optimizeSpeed;
+    -webkit-overflow-scrolling: touch;
+  }
 }

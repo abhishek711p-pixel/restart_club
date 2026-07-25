@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Compass, LogOut, Download, Award, Calendar, CheckSquare, Users, Check, FileText } from 'lucide-react';
+import { LogOut, Download, Award, Calendar, CheckSquare, Users, Check, FileText } from 'lucide-react';
 import { api } from '../services/api';
 
 interface StudentDashboardProps {
@@ -413,9 +413,7 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
       <header className="navbar-header" style={{ background: '#ffffff', borderBottom: '2px solid var(--border-color)', padding: '16px 0' }}>
         <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div className="logo-icon-wrapper">
-              <Compass className="logo-icon animate-spin-slow" />
-            </div>
+            <img src="/logo.png" alt="RestartClub Logo" style={{ height: '38px', width: 'auto', objectFit: 'contain', borderRadius: '4px' }} />
             <span className="logo-text">Restart <span className="logo-highlight">Club</span></span>
           </div>
 
