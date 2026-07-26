@@ -29,6 +29,7 @@ export default function Navbar({ onSelectBatch, onJoinClick }: NavbarProps) {
           <a href="#simulator" className="nav-link">AI Simulator</a>
           <a href="#pricing" className="nav-link">Pricing</a>
           <a href="#about" className="nav-link">Compare & Choose</a>
+          <a href="https://chat.whatsapp.com/Ex2TyD2lP5aJGPvwUVT4tS?s=cl&p=a&ilr=1&amv=2" target="_blank" rel="noopener noreferrer" className="nav-link">Community</a>
         </nav>
         
         <div className="nav-cta">
