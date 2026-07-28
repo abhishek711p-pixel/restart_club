@@ -50,6 +50,56 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+// Helper function to send email via Resend API (high-deliverability, avoids Spam folder) or Nodemailer SMTP fallback
+async function sendEmail({ from, to, subject, text, html }) {
+  if (process.env.RESEND_API_KEY) {
+    try {
+      let fromAddress = from;
+      // Resend requires verified custom domain senders. If none is set, or if it uses a free Gmail domain,
+      // fall back to a default custom sender address from environment variables or onboarding@resend.dev.
+      if (!fromAddress || fromAddress.includes('gmail.com') || fromAddress.includes('dummy@')) {
+        fromAddress = process.env.RESEND_FROM_EMAIL || 'RestartClub <onboarding@resend.dev>';
+      }
+
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: fromAddress,
+          to: [to],
+          subject,
+          text,
+          html
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || 'Resend API Error');
+      }
+      console.log(`[Resend Email] Email sent successfully to ${to}. ID: ${data.id}`);
+      return { success: true, provider: 'resend' };
+    } catch (err) {
+      console.error('[Resend Email Error]:', err.message);
+      // Fall through to Nodemailer SMTP if Resend fails
+    }
+  }
+
+  console.log(`[Nodemailer Fallback] Sending email to ${to} via SMTP...`);
+  const mailOptions = {
+    from: from || `"RestartClub" <${process.env.SMTP_EMAIL}>`,
+    to,
+    subject,
+    text,
+    html
+  };
+  await transporter.sendMail(mailOptions);
+  return { success: true, provider: 'nodemailer' };
+}
+
 // ENDPOINTS
 
 // 1. Users Directory (Admin & Auth)
@@ -99,11 +149,7 @@ app.post('/api/users/forgot-password', async (req, res) => {
   };
 
   try {
-    if (process.env.SMTP_EMAIL && process.env.SMTP_EMAIL !== 'dummy@gmail.com') {
-      await transporter.sendMail(mailOptions);
-    } else {
-      console.log(`[DUMMY SMTP] Would send OTP ${otp} to ${email}`);
-    }
+    await sendEmail(mailOptions);
     res.json({ success: true, message: 'OTP sent to email' });
   } catch (error) {
     console.error('Error sending email:', error);
@@ -233,11 +279,7 @@ app.post('/api/users/send-register-otp', async (req, res) => {
       `
     };
 
-    if (process.env.SMTP_EMAIL && process.env.SMTP_EMAIL !== 'dummy@gmail.com') {
-      await transporter.sendMail(mailOptions);
-    } else {
-      console.log(`[DUMMY SMTP] Registration OTP for ${email}: ${otp}`);
-    }
+    await sendEmail(mailOptions);
     res.json({ success: true, message: 'Verification OTP sent to your email' });
   } catch (err) {
     console.error('Error sending registration OTP:', err);
@@ -562,8 +604,8 @@ app.post('/api/payments/verify', async (req, res) => {
         };
 
         // Send emails asynchronously without blocking response
-        transporter.sendMail(adminMailOptions).catch(err => console.error("Failed to send admin payment notification email:", err));
-        transporter.sendMail(studentMailOptions).catch(err => console.error("Failed to send student welcome email:", err));
+        sendEmail(adminMailOptions).catch(err => console.error("Failed to send admin payment notification email:", err));
+        sendEmail(studentMailOptions).catch(err => console.error("Failed to send student welcome email:", err));
       }
       return res.json({ success: true, message: "Payment verified successfully" });
     } catch (err) {
