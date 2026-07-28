@@ -90,7 +90,7 @@ async function sendEmail({ from, to, subject, text, html }) {
 
   console.log(`[Nodemailer Fallback] Sending email to ${to} via SMTP...`);
   const mailOptions = {
-    from: from || `"RestartClub" <${process.env.SMTP_EMAIL}>`,
+    from: process.env.SMTP_EMAIL, // Send directly from the authenticated SMTP account to prevent Spam flagging
     to,
     subject,
     text,

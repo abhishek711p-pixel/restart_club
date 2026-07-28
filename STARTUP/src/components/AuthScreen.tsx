@@ -265,6 +265,9 @@ export default function AuthScreen({ onSuccess, onBack, defaultBatch }: AuthScre
                     }}
                   />
                 </div>
+                <p style={{ fontSize: '0.75rem', color: '#ea580c', marginTop: '6px', fontWeight: '500' }}>
+                  💡 Can't find the email? Please check your <strong>Spam / Junk</strong> folder.
+                </p>
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', marginBottom: '6px', color: '#111827' }}>
@@ -401,6 +404,9 @@ export default function AuthScreen({ onSuccess, onBack, defaultBatch }: AuthScre
                   }}
                 />
               </div>
+              <p style={{ fontSize: '0.75rem', color: '#ea580c', marginTop: '6px', fontWeight: '500' }}>
+                💡 Can't find the email? Please check your <strong>Spam / Junk</strong> folder.
+              </p>
             </div>
           )}
 
