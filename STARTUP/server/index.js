@@ -288,24 +288,11 @@ app.post('/api/users/send-register-otp', async (req, res) => {
 });
 
 app.post('/api/users/register', async (req, res) => {
-  const { username, email, password, batch, otp } = req.body;
+  const { username, email, password, batch } = req.body;
   
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!email || !emailRegex.test(email.trim())) {
     return res.status(400).json({ error: 'Invalid email address format' });
-  }
-
-  // Verify registration OTP
-  const record = registerOtpStore[email];
-  if (!record) {
-    return res.status(400).json({ error: 'Please request an OTP for email verification first.' });
-  }
-  if (Date.now() > record.expiresAt) {
-    delete registerOtpStore[email];
-    return res.status(400).json({ error: 'Verification OTP has expired. Please request a new code.' });
-  }
-  if (record.otp !== otp) {
-    return res.status(400).json({ error: 'Invalid verification OTP code' });
   }
 
   try {
@@ -313,8 +300,6 @@ app.post('/api/users/register', async (req, res) => {
     if (existing) {
       return res.status(400).json({ error: 'User already exists' });
     }
-
-    delete registerOtpStore[email];
 
     const user = await prisma.user.create({
       data: { username, email, password, batch, purchasedBatches: [] }
