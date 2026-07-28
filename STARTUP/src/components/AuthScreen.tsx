@@ -8,6 +8,7 @@ interface AuthScreenProps {
   defaultBatch: string;
 }
 
+// Reverted to Email OTP authentication flow
 export default function AuthScreen({ onSuccess, onBack, defaultBatch }: AuthScreenProps) {
   const [mode, setMode] = useState<'login' | 'register' | 'register-otp' | 'forgot-email' | 'forgot-otp'>('register');
   const [username, setUsername] = useState('');
