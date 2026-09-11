@@ -33,13 +33,7 @@ export default function Navbar({ onSelectBatch, onJoinClick, onAdminClick }: Nav
           </div>
           <a href="#simulator" className="nav-link">AI Simulator</a>
           <a href="#pricing" className="nav-link">Pricing</a>
-          <a href="#about" className="nav-link">Compare & Choose</a>
           <a href="https://chat.whatsapp.com/Ex2TyD2lP5aJGPvwUVT4tS?s=cl&p=a&ilr=1&amv=2" target="_blank" rel="noopener noreferrer" className="nav-link">Community</a>
-          {onAdminClick && (
-            <button onClick={onAdminClick} className="nav-link" style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
-              Admin Portal
-            </button>
-          )}
         </nav>
         
         <div className="nav-cta" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -73,13 +67,7 @@ export default function Navbar({ onSelectBatch, onJoinClick, onAdminClick }: Nav
 
           <a href="#simulator" onClick={() => setMobileMenuOpen(false)} className="mobile-drawer-link">🤖 AI Simulator</a>
           <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="mobile-drawer-link">💳 Pricing Plans</a>
-          <a href="#about" onClick={() => setMobileMenuOpen(false)} className="mobile-drawer-link">⚖️ Compare & Choose</a>
           <a href="https://chat.whatsapp.com/Ex2TyD2lP5aJGPvwUVT4tS" target="_blank" rel="noopener noreferrer" onClick={() => setMobileMenuOpen(false)} className="mobile-drawer-link">💬 WhatsApp Community</a>
-          {onAdminClick && (
-            <button onClick={() => { onAdminClick(); setMobileMenuOpen(false); }} className="mobile-drawer-link" style={{ background: 'none', border: 'none', textTransform: 'none', cursor: 'pointer', textAlign: 'left', width: '100%' }}>
-              🔐 Admin Portal
-            </button>
-          )}
         </div>
       )}
     </header>
