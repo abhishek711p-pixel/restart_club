@@ -16,8 +16,9 @@ import {
   Trash2, 
   ShieldCheck, 
   BookOpen, 
-  Send,
-  Bot
+  Bot,
+  Zap,
+  CheckCircle2
 } from 'lucide-react';
 import { api } from '../services/api';
 
@@ -150,13 +151,6 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
   const [profileSuccess, setProfileSuccess] = useState('');
   const [isChangingBatch, setIsChangingBatch] = useState(false);
   const [pendingBatch, setPendingBatch] = useState(activeBatch);
-
-  // Chatbot simulator interactive state
-  const [chatMessages, setChatMessages] = useState<Array<{ role: 'user' | 'bot'; text: string; time: string }>>([
-    { role: 'bot', text: `Hi ${user.username}! I am your 24/7 AI Academic Assistant. Ask me any JEE/NEET formula, NCERT concept, or problem doubt!`, time: 'Just now' }
-  ]);
-  const [chatInput, setChatInput] = useState('');
-  const [isChatThinking, setIsChatThinking] = useState(false);
 
   useEffect(() => {
     setPendingBatch(activeBatch);
@@ -488,31 +482,6 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
     setTimeout(() => setCopiedNumber(false), 2000);
   };
 
-  const handleSendChatMessage = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!chatInput.trim() || isChatThinking) return;
-
-    const userMsg = chatInput.trim();
-    const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    setChatMessages(prev => [...prev, { role: 'user', text: userMsg, time: nowTime }]);
-    setChatInput('');
-    setIsChatThinking(true);
-
-    setTimeout(() => {
-      let botReply = "Here is a quick concept breakdown: Keep your fundamental definitions clear and practice with standard PYQ variations. For detailed derivations, check your Revision Notes tab!";
-      const lower = userMsg.toLowerCase();
-      if (lower.includes('formula') || lower.includes('physics')) {
-        botReply = "⚡ Key Formula Tip: For Work-Energy theorem, remember W_net = ΔK. Always check if conservative forces are doing path-independent work!";
-      } else if (lower.includes('backlog') || lower.includes('plan')) {
-        botReply = "🎯 Backlog Strategy: Dedicate 1.5 hours daily before main study blocks to clearing 1 high-weightage chapter from your study desk tracker.";
-      } else if (lower.includes('neet') || lower.includes('biology')) {
-        botReply = "🩺 NCERT High-Yield: Focus on Genetics & Ecology first — they constitute over 35% of the Botany/Zoology questions in recent NEET papers.";
-      }
-      setChatMessages(prev => [...prev, { role: 'bot', text: botReply, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
-      setIsChatThinking(false);
-    }, 900);
-  };
-
   const completedCount = tasks.filter(t => t.completed).length;
   const progressPercent = tasks.length > 0 ? Math.round((completedCount / tasks.length) * 100) : 0;
   const avgMockScore = mockScores.length > 0 ? Math.round(mockScores.reduce((acc, curr) => acc + curr.score, 0) / mockScores.length) : 0;
@@ -776,18 +745,17 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
               >
                 <Bot size={15} style={{ color: activeTab === 'chatbot' ? '#09090b' : '#38bdf8' }} />
                 <span>AI Doubt Solver</span>
-                {!hasPremiumAccess && (
-                  <span style={{ 
-                    fontSize: '0.65rem', 
-                    padding: '2px 6px', 
-                    borderRadius: '6px', 
-                    background: 'rgba(255, 255, 255, 0.1)', 
-                    color: '#e4e4e7',
-                    fontWeight: '700'
-                  }}>
-                    PRO
-                  </span>
-                )}
+                <span style={{ 
+                  fontSize: '0.62rem', 
+                  padding: '2px 7px', 
+                  borderRadius: '6px', 
+                  background: activeTab === 'chatbot' ? '#09090b' : 'rgba(56, 189, 248, 0.15)', 
+                  color: activeTab === 'chatbot' ? '#38bdf8' : '#38bdf8',
+                  fontWeight: '800',
+                  border: '1px solid rgba(56, 189, 248, 0.3)'
+                }}>
+                  SOON
+                </span>
               </button>
 
             </div>
@@ -1588,193 +1556,148 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
             </div>
           ) : 
 
-          /* TAB 6: AI DOUBT SOLVER / CHATBOT */
+          /* TAB 6: AI DOUBT SOLVER — COMING SOON */
           activeTab === 'chatbot' ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               
-              {!hasPremiumAccess ? (
-                /* Upgrade State for Standard Users */
+              <div style={{
+                background: 'linear-gradient(135deg, rgba(18, 18, 21, 0.95), rgba(24, 24, 27, 0.95))',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '20px',
+                padding: '56px 32px',
+                textAlign: 'center',
+                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6)',
+                position: 'relative',
+                overflow: 'hidden'
+              }}>
+                {/* Glowing cyan ambient aura */}
                 <div style={{
-                  background: 'linear-gradient(135deg, #121215, #18181b)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  position: 'absolute',
+                  top: '-40px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '320px',
+                  height: '200px',
+                  background: 'radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, transparent 70%)',
+                  filter: 'blur(35px)',
+                  pointerEvents: 'none'
+                }}></div>
+
+                {/* Coming Soon Pill */}
+                <div style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '6px 18px',
+                  background: 'rgba(56, 189, 248, 0.1)',
+                  border: '1px solid rgba(56, 189, 248, 0.3)',
+                  borderRadius: '100px',
+                  fontSize: '0.82rem',
+                  color: '#38bdf8',
+                  fontWeight: '800',
+                  marginBottom: '24px'
+                }}>
+                  <Sparkles size={15} style={{ color: '#38bdf8' }} />
+                  <span>FEATURE IN ACTIVE DEVELOPMENT • COMING SOON</span>
+                </div>
+
+                <div style={{
+                  width: '72px',
+                  height: '72px',
                   borderRadius: '20px',
-                  padding: '48px 32px',
-                  textAlign: 'center',
-                  boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6)'
-                }}>
-                  <div style={{ width: '60px', height: '60px', borderRadius: '16px', background: 'rgba(56, 189, 248, 0.1)', border: '1px solid rgba(56, 189, 248, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
-                    <Sparkles size={30} style={{ color: '#38bdf8' }} />
-                  </div>
-                  <h2 style={{ fontSize: '1.8rem', fontWeight: '900', color: '#ffffff', marginBottom: '10px' }}>
-                    Unlock 24/7 AI Doubt Solver
-                  </h2>
-                  <p style={{ color: '#a1a1aa', fontSize: '1rem', maxWidth: '520px', margin: '0 auto 28px', lineHeight: 1.6 }}>
-                    Upgrade your batch subscription to the Premium Tier for just ₹100 and get unlimited 24/7 WhatsApp & Web AI concept solving.
-                  </p>
-                  <button 
-                    onClick={async () => {
-                      const resLoad = await loadRazorpayScript();
-                      if (!resLoad) {
-                        alert("Failed to load Razorpay SDK. Check your connection.");
-                        return;
-                      }
-
-                      const options = {
-                        key: "rzp_live_THckRb4GLCahES",
-                        amount: 10000,
-                        currency: "INR",
-                        name: "RestartClub Education",
-                        description: `Upgrade to Premium for ${currentBatchDetails?.name}`,
-                        handler: async function (response: any) {
-                          try {
-                            const verification = await api.verifyPayment({
-                              razorpay_order_id: response?.razorpay_order_id || "client_success_order",
-                              razorpay_payment_id: response?.razorpay_payment_id || "client_success_payment",
-                              razorpay_signature: response?.razorpay_signature || "client_success_signature",
-                              email: user.email,
-                              batch: activeBatch,
-                              tier: 'premium'
-                            });
-                            if (verification.success) {
-                              const users = await api.getUsers();
-                              if (users[user.email]) {
-                                setUser(users[user.email]);
-                                localStorage.setItem('studentSession', JSON.stringify(users[user.email]));
-                                alert("🎉 Upgrade successful! You now have full Premium access with AI solver.");
-                              }
-                            }
-                          } catch (err) {
-                            console.error("Verification failed", err);
-                          }
-                        },
-                        prefill: {
-                          name: user.username,
-                          email: user.email,
-                        },
-                        theme: {
-                          color: "#22c55e",
-                        },
-                      };
-                      const rzp1 = new (window as any).Razorpay(options);
-                      rzp1.open();
-                    }}
-                    style={{
-                      padding: '14px 32px',
-                      background: 'linear-gradient(135deg, #22c55e, #16a34a)',
-                      color: '#ffffff',
-                      borderRadius: '12px',
-                      border: 'none',
-                      fontSize: '1rem',
-                      fontWeight: '800',
-                      cursor: 'pointer',
-                      boxShadow: '0 8px 25px rgba(34, 197, 94, 0.3)'
-                    }}
-                  >
-                    Pay ₹100 to Upgrade to Premium
-                  </button>
-                </div>
-              ) : (
-                /* Active Interactive AI Chat Console */
-                <div style={{
-                  background: '#121215',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  borderRadius: '16px',
+                  background: 'rgba(56, 189, 248, 0.1)',
+                  border: '1.5px solid rgba(56, 189, 248, 0.35)',
                   display: 'flex',
-                  flexDirection: 'column',
-                  height: '560px',
-                  overflow: 'hidden'
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 24px',
+                  boxShadow: '0 0 25px rgba(56, 189, 248, 0.2)'
                 }}>
-                  {/* Console Header */}
-                  <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#18181b' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(56, 189, 248, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Bot size={18} style={{ color: '#38bdf8' }} />
-                      </div>
-                      <div>
-                        <div style={{ fontSize: '0.9rem', fontWeight: '800', color: '#ffffff' }}>RestartClub AI Study Assistant</div>
-                        <span style={{ fontSize: '0.72rem', color: '#22c55e', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e' }}></span>
-                          Active & Ready
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Messages Scroll Area */}
-                  <div style={{ flex: 1, padding: '20px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                    {chatMessages.map((msg, idx) => (
-                      <div 
-                        key={idx}
-                        style={{
-                          alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                          maxWidth: '80%',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: '4px'
-                        }}
-                      >
-                        <div style={{
-                          padding: '12px 16px',
-                          borderRadius: msg.role === 'user' ? '14px 14px 2px 14px' : '14px 14px 14px 2px',
-                          background: msg.role === 'user' ? '#ffffff' : '#18181b',
-                          color: msg.role === 'user' ? '#09090b' : '#e4e4e7',
-                          fontSize: '0.9rem',
-                          lineHeight: 1.5,
-                          border: msg.role === 'bot' ? '1px solid rgba(255, 255, 255, 0.08)' : 'none'
-                        }}>
-                          {msg.text}
-                        </div>
-                        <span style={{ fontSize: '0.68rem', color: '#71717a', alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start', padding: '0 4px' }}>
-                          {msg.time}
-                        </span>
-                      </div>
-                    ))}
-                    {isChatThinking && (
-                      <div style={{ alignSelf: 'flex-start', padding: '10px 16px', borderRadius: '12px', background: '#18181b', color: '#a1a1aa', fontSize: '0.85rem' }}>
-                        Thinking...
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Chat Input Bar */}
-                  <form onSubmit={handleSendChatMessage} style={{ padding: '14px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', background: '#18181b', display: 'flex', gap: '10px' }}>
-                    <input
-                      type="text"
-                      value={chatInput}
-                      onChange={(e) => setChatInput(e.target.value)}
-                      placeholder="Ask any JEE/NEET doubt or concept clarification..."
-                      style={{
-                        flex: 1,
-                        padding: '10px 14px',
-                        background: '#09090b',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        borderRadius: '10px',
-                        color: '#ffffff',
-                        fontSize: '0.88rem',
-                        outline: 'none'
-                      }}
-                    />
-                    <button
-                      type="submit"
-                      disabled={!chatInput.trim() || isChatThinking}
-                      style={{
-                        padding: '10px 16px',
-                        background: '#22c55e',
-                        border: 'none',
-                        borderRadius: '10px',
-                        color: '#ffffff',
-                        fontWeight: '700',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                    >
-                      <Send size={15} />
-                    </button>
-                  </form>
+                  <Bot size={36} style={{ color: '#38bdf8' }} />
                 </div>
-              )}
+
+                <h1 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: '900', color: '#ffffff', letterSpacing: '-0.03em', marginBottom: '14px' }}>
+                  24/7 AI Doubt Solver is Coming Soon!
+                </h1>
+
+                <p style={{ color: '#a1a1aa', fontSize: '1.05rem', maxWidth: '620px', margin: '0 auto 36px', lineHeight: 1.6 }}>
+                  We are currently fine-tuning our specialized AI Solver with verified JEE Main/Advanced and NEET question banks, formula derivations, and NCERT diagrams to provide instant step-by-step guidance.
+                </p>
+
+                {/* Feature Previews Grid */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+                  gap: '16px',
+                  maxWidth: '860px',
+                  margin: '0 auto 32px',
+                  textAlign: 'left'
+                }}>
+                  
+                  <div style={{
+                    background: '#18181b',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    borderRadius: '14px',
+                    padding: '20px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                      <Zap size={18} style={{ color: '#38bdf8' }} />
+                      <h4 style={{ fontSize: '0.95rem', fontWeight: '800', color: '#ffffff', margin: 0 }}>Instant Step-by-Step Solutions</h4>
+                    </div>
+                    <p style={{ fontSize: '0.82rem', color: '#71717a', margin: 0, lineHeight: 1.5 }}>
+                      Break down difficult Physics & Maths numericals with clear first-principles explanations.
+                    </p>
+                  </div>
+
+                  <div style={{
+                    background: '#18181b',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    borderRadius: '14px',
+                    padding: '20px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                      <CheckCircle2 size={18} style={{ color: '#22c55e' }} />
+                      <h4 style={{ fontSize: '0.95rem', fontWeight: '800', color: '#ffffff', margin: 0 }}>NCERT Line-by-Line Bio Mapping</h4>
+                    </div>
+                    <p style={{ fontSize: '0.82rem', color: '#71717a', margin: 0, lineHeight: 1.5 }}>
+                      Instant fact-checking for Biology statements, diagrams, and assertion-reason questions.
+                    </p>
+                  </div>
+
+                  <div style={{
+                    background: '#18181b',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    borderRadius: '14px',
+                    padding: '20px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                      <MessageCircle size={18} style={{ color: '#a78bfa' }} />
+                      <h4 style={{ fontSize: '0.95rem', fontWeight: '800', color: '#ffffff', margin: 0 }}>Direct WhatsApp AI Sync</h4>
+                    </div>
+                    <p style={{ fontSize: '0.82rem', color: '#71717a', margin: 0, lineHeight: 1.5 }}>
+                      Snap photos of doubts directly in WhatsApp chat for automated instant step guidance.
+                    </p>
+                  </div>
+
+                </div>
+
+                {/* Status SLA Notice */}
+                <div style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  padding: '10px 20px',
+                  borderRadius: '12px',
+                  color: '#e4e4e7',
+                  fontSize: '0.85rem'
+                }}>
+                  <Clock size={16} style={{ color: '#38bdf8' }} />
+                  <span>In the meantime, feel free to send all academic doubts directly to your dedicated mentor via WhatsApp!</span>
+                </div>
+
+              </div>
 
             </div>
           ) : null
