@@ -918,6 +918,10 @@ if (fs.existsSync(distPath)) {
     if (req.path.startsWith('/api')) return next();
     res.sendFile(path.join(distPath, 'index.html'));
   });
+} else {
+  app.get('/', (req, res) => {
+    res.redirect('https://restart-club-n4ou.vercel.app');
+  });
 }
 
 app.listen(PORT, () => {
