@@ -266,5 +266,66 @@ export const api = {
       body: JSON.stringify({ chat })
     });
     try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
+  },
+
+  // Demo Call / Strategy Requests
+  getDemoCalls: async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/demo-calls`);
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) return data;
+      }
+    } catch {
+      // fallback to localStorage
+    }
+    try {
+      const local = JSON.parse(localStorage.getItem('rc_leads') || '[]');
+      return Array.isArray(local) ? local : [];
+    } catch {
+      return [];
+    }
+  },
+  saveDemoCall: async (lead: { name: string; number: string; batch: string; class: string }) => {
+    const newEntry = {
+      id: `call_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      name: lead.name,
+      number: lead.number,
+      batch: lead.batch,
+      class: lead.class,
+      timestamp: new Date().toISOString()
+    };
+    try {
+      const existing = JSON.parse(localStorage.getItem('rc_leads') || '[]');
+      existing.unshift(newEntry);
+      localStorage.setItem('rc_leads', JSON.stringify(existing));
+    } catch (e) {
+      console.error(e);
+    }
+    try {
+      await fetch(`${API_BASE_URL}/demo-calls`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newEntry)
+      });
+    } catch {
+      // ignore
+    }
+    return { success: true, lead: newEntry };
+  },
+  deleteDemoCall: async (idOrTimestamp: string) => {
+    try {
+      const existing = JSON.parse(localStorage.getItem('rc_leads') || '[]');
+      const filtered = existing.filter((l: any) => l.id !== idOrTimestamp && l.timestamp !== idOrTimestamp);
+      localStorage.setItem('rc_leads', JSON.stringify(filtered));
+    } catch (e) {
+      console.error(e);
+    }
+    try {
+      await fetch(`${API_BASE_URL}/demo-calls/${idOrTimestamp}`, { method: 'DELETE' });
+    } catch {
+      // ignore
+    }
+    return { success: true };
   }
 };

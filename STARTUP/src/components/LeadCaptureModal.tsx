@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { X, CheckCircle, MessageSquare, User, ArrowRight, Sparkles } from 'lucide-react';
+import { X, CheckCircle, User, ArrowRight, Sparkles, MessageSquare } from 'lucide-react';
+import { api } from '../services/api';
 
 interface LeadCaptureModalProps {
   isOpen: boolean;
@@ -18,7 +19,7 @@ export default function LeadCaptureModal({
   const [currentClass, setCurrentClass] = useState<'10' | '11' | '12' | 'dropper'>('12');
   const [phoneError, setPhoneError] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [whatsappUrl, setWhatsappUrl] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
 
@@ -49,10 +50,12 @@ export default function LeadCaptureModal({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
     if (!validatePhone(phone)) return;
+
+    setIsSubmitting(true);
 
     const classNameMap = {
       '10': 'Class 10',
@@ -62,34 +65,30 @@ export default function LeadCaptureModal({
     };
 
     const targetExamLabel = track === 'neet' ? 'NEET Aspirant' : 'JEE Main + Adv';
-    const message = `Hello RestartClub Mentor Team! 👋\n\nI want to book my Free 1-on-1 Strategy Call:\nname = ${name.trim()}\nnumber = +91 ${phone}\nbatch = ${targetExamLabel}\nclass = ${classNameMap[currentClass]}`;
-
-    const encoded = encodeURIComponent(message);
-    const link = `https://wa.me/917568864993?text=${encoded}`;
-    setWhatsappUrl(link);
-    setIsSubmitted(true);
-
-    // Automatically trigger WhatsApp direct message link
-    try {
-      window.open(link, '_blank');
-    } catch {
-      // Handled by modal CTA button fallback
-    }
 
     try {
-      const existingLeads = JSON.parse(localStorage.getItem('rc_leads') || '[]');
-      existingLeads.push({
+      await api.saveDemoCall({
         name: name.trim(),
-        phone: `+91 ${phone}`,
+        number: `+91 ${phone}`,
         batch: targetExamLabel,
-        currentClass: classNameMap[currentClass],
-        timestamp: new Date().toISOString()
+        class: classNameMap[currentClass]
       });
-      localStorage.setItem('rc_leads', JSON.stringify(existingLeads));
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error("Failed to save demo call", err);
+    } finally {
+      setIsSubmitting(false);
+      setIsSubmitted(true);
     }
   };
+
+  const classNameMap = {
+    '10': 'Class 10',
+    '11': 'Class 11',
+    '12': 'Class 12',
+    'dropper': 'Dropper'
+  };
+  const targetExamLabel = track === 'neet' ? 'NEET Aspirant' : 'JEE Main + Adv';
+  const whatsappDmUrl = `https://wa.me/917568864993?text=${encodeURIComponent(`Hello RestartClub Mentor Team! 👋\n\nI want to book my Free 1-on-1 Strategy Call:\nname = ${name.trim()}\nnumber = +91 ${phone}\nbatch = ${targetExamLabel}\nclass = ${classNameMap[currentClass]}`)}`;
 
   return (
     <div className="lead-modal-overlay" onClick={onClose}>
@@ -188,43 +187,59 @@ export default function LeadCaptureModal({
               </div>
 
               {/* Submit CTA */}
-              <button type="submit" className="lead-submit-btn">
-                <span>Claim Free Strategy Call</span>
+              <button type="submit" disabled={isSubmitting} className="lead-submit-btn">
+                <span>{isSubmitting ? 'Submitting Request...' : 'Claim Free Strategy Call'}</span>
                 <ArrowRight size={16} />
               </button>
 
               <div className="lead-trust-line">
-                <span>🔒 100% Free • No Spam • Instant WhatsApp Connection</span>
+                <span>🔒 100% Free • No Spam • We Connect on WhatsApp</span>
               </div>
             </form>
           </div>
         ) : (
-          <div className="lead-success-state">
-            <div className="success-icon-wrap">
-              <CheckCircle size={46} className="text-emerald" />
+          <div className="lead-success-state" style={{ textAlign: 'center', padding: '16px 8px' }}>
+            <div className="success-icon-wrap" style={{ margin: '0 auto 16px', width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(34, 197, 94, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <CheckCircle size={40} className="text-emerald" style={{ color: '#22c55e' }} />
             </div>
-            <h3 className="lead-success-title">Call Request Received! 🎉</h3>
-            <p className="lead-success-desc">
-              Hi <strong>{name}</strong>, our senior mentor is ready to connect with you. Click below to start on WhatsApp.
+            <h3 className="lead-success-title" style={{ fontSize: '1.4rem', fontWeight: '900', color: '#ffffff', marginBottom: '8px' }}>
+              Strategy Call Request Received! 🎉
+            </h3>
+            <p className="lead-success-desc" style={{ color: '#a1a1aa', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '24px' }}>
+              Thank you, <strong style={{ color: '#ffffff' }}>{name}</strong>! Your request for <strong style={{ color: '#22c55e' }}>{targetExamLabel} ({classNameMap[currentClass]})</strong> has been submitted. Our senior mentor team will reach out to you on WhatsApp (<strong style={{ color: '#ffffff' }}>+91 {phone}</strong>) within 12 hours!
             </p>
 
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="lead-whatsapp-btn"
-            >
-              <MessageSquare size={18} />
-              <span>Continue on WhatsApp Now</span>
-            </a>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <button
+                type="button"
+                className="lead-submit-btn"
+                style={{ width: '100%', padding: '12px', background: '#22c55e', color: '#ffffff', fontWeight: '800', border: 'none', borderRadius: '12px', cursor: 'pointer' }}
+                onClick={onClose}
+              >
+                Done / Back to Website
+              </button>
 
-            <button
-              type="button"
-              className="lead-close-secondary"
-              onClick={onClose}
-            >
-              Close & Return to Website
-            </button>
+              <a
+                href={whatsappDmUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  color: '#a1a1aa',
+                  fontSize: '0.82rem',
+                  textDecoration: 'none',
+                  padding: '8px',
+                  borderRadius: '8px',
+                  transition: 'color 0.2s ease'
+                }}
+              >
+                <MessageSquare size={14} style={{ color: '#22c55e' }} />
+                <span>Want faster response? Chat directly with Mentor on WhatsApp →</span>
+              </a>
+            </div>
           </div>
         )}
       </div>
