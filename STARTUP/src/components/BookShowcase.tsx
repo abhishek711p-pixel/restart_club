@@ -18,36 +18,43 @@ export default function BookShowcase({ compact = false }: BookShowcaseProps) {
   useEffect(() => {
     if (compact) return;
 
+    let ticking = false;
     const handleScroll = () => {
-      if (!sectionRef.current) return;
-      const rect = sectionRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          if (sectionRef.current) {
+            const rect = sectionRef.current.getBoundingClientRect();
+            const windowHeight = window.innerHeight;
 
-      // Calculate scroll progress through the section (0 to 1)
-      const totalScrollable = rect.height - windowHeight;
-      if (totalScrollable <= 0) return;
+            const totalScrollable = rect.height - windowHeight;
+            if (totalScrollable > 0) {
+              const currentScroll = -rect.top;
+              const progress = Math.max(0, Math.min(1, currentScroll / totalScrollable));
+              
+              setScrollProgress(prev => (Math.abs(prev - progress) > 0.03 ? progress : prev));
 
-      const currentScroll = -rect.top;
-      const progress = Math.max(0, Math.min(1, currentScroll / totalScrollable));
-      setScrollProgress(progress);
+              if (progress > 0.15 && !isOpen) {
+                setIsOpen(true);
+              }
 
-      // Auto flip pages based on scroll progress
-      if (progress > 0.15 && !isOpen) {
-        setIsOpen(true);
-      }
-
-      if (progress >= 0.25 && progress < 0.55 && currentPage !== 1) {
-        setCurrentPage(1);
-      } else if (progress >= 0.55 && progress < 0.85 && currentPage !== 2) {
-        setCurrentPage(2);
-      } else if (progress >= 0.85 && currentPage !== 3) {
-        setCurrentPage(3);
+              if (progress >= 0.25 && progress < 0.55) {
+                setCurrentPage(1);
+              } else if (progress >= 0.55 && progress < 0.85) {
+                setCurrentPage(2);
+              } else if (progress >= 0.85) {
+                setCurrentPage(3);
+              }
+            }
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [compact, isOpen, currentPage]);
+  }, [compact, isOpen]);
 
   const handleNextPage = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();

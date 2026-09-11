@@ -248,6 +248,8 @@ p {
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid #27272a;
   padding: 12px 0;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 .navbar-container {

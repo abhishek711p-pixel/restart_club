@@ -295,8 +295,16 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        const users = await api.getUsers();
-        const updatedUser = users[user.email];
+        const [users, initialTasksResult, initialScores, initialHours, notes, fetchedNotices] = await Promise.all([
+          api.getUsers(),
+          api.getTasks(user.email, activeBatch),
+          api.getScores(user.email, activeBatch),
+          api.getStudyHours(user.email, activeBatch),
+          api.getBatchNotes(activeBatch, user.email),
+          api.getNotices(activeBatch)
+        ]);
+
+        const updatedUser = users && !users.error ? users[user.email] : null;
 
         if (!updatedUser) {
           // Account completely erased by Admin -> Redirect to Landing Page!
@@ -332,26 +340,25 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
         setUser(updatedUser);
         localStorage.setItem('studentSession', JSON.stringify(updatedUser));
 
-        const initialTasks = await api.getTasks(user.email, activeBatch);
-        if (initialTasks && initialTasks.length > 0) {
-          setTasks(initialTasks);
+        if (Array.isArray(initialTasksResult) && initialTasksResult.length > 0) {
+          setTasks(initialTasksResult);
         } else {
           const planners = await api.getBatchPlanner(activeBatch);
-          const defaultTasks = planners.map((t: string, idx: number) => ({
+          const defaultTasks = Array.isArray(planners) ? planners.map((t: string, idx: number) => ({
             id: `task-${idx}-${Date.now()}`,
             text: t,
             completed: false
-          }));
+          })) : [];
           setTasks(defaultTasks);
-          if (hasAccess) {
-             await api.updateTasks(user.email, activeBatch, defaultTasks);
+          if (hasAccess && defaultTasks.length > 0) {
+             api.updateTasks(user.email, activeBatch, defaultTasks).catch(() => {});
           }
         }
         
-        const initialScores = await api.getScores(user.email, activeBatch);
-        setMockScores(initialScores || []);
+        if (Array.isArray(initialScores)) {
+          setMockScores(initialScores);
+        }
 
-        const initialHours = await api.getStudyHours(user.email, activeBatch);
         if (initialHours && !initialHours.error) {
           setStudyHours([
             { day: 'Mon', hrs: initialHours.mon || 0 },
@@ -364,12 +371,10 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
           ]);
         }
 
-        const notes = await api.getBatchNotes(activeBatch, user.email);
         if (Array.isArray(notes)) {
           setActiveNotes(notes);
         }
 
-        const fetchedNotices = await api.getNotices(activeBatch);
         if (Array.isArray(fetchedNotices)) {
           setNotices(fetchedNotices);
         }

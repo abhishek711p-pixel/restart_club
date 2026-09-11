@@ -2,11 +2,48 @@ let RAW_URL = import.meta.env.VITE_API_URL || '/api';
 if (RAW_URL.startsWith('ttps://')) RAW_URL = 'h' + RAW_URL;
 const API_BASE_URL = RAW_URL.replace(/\/+$/, '');
 
+// Fast in-memory cache for GET requests with 3s TTL to deduplicate rapid queries
+const cache = new Map<string, { timestamp: number; data: any }>();
+const CACHE_TTL_MS = 3000;
+
+async function fetchWithCache(url: string, options?: RequestInit): Promise<any> {
+  const cacheKey = url;
+  const now = Date.now();
+  const cached = cache.get(cacheKey);
+
+  if (cached && (now - cached.timestamp < CACHE_TTL_MS)) {
+    return cached.data;
+  }
+
+  try {
+    const res = await fetch(url, options);
+    if (!res.ok) {
+      return { error: `Server responded with status ${res.status}` };
+    }
+    const data = await res.json();
+    cache.set(cacheKey, { timestamp: now, data });
+    return data;
+  } catch (e) {
+    return { error: "Network or Server Error" };
+  }
+}
+
+function invalidateCache(urlSubstring?: string) {
+  if (!urlSubstring) {
+    cache.clear();
+    return;
+  }
+  for (const key of cache.keys()) {
+    if (key.includes(urlSubstring)) {
+      cache.delete(key);
+    }
+  }
+}
+
 export const api = {
   // Users
   getUsers: async () => {
-    const res = await fetch(`${API_BASE_URL}/users`);
-    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
+    return fetchWithCache(`${API_BASE_URL}/users`);
   },
   sendRegisterOtp: async (data: { email: string }) => {
     const res = await fetch(`${API_BASE_URL}/users/send-register-otp`, {
@@ -17,6 +54,7 @@ export const api = {
     try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   },
   registerUser: async (data: any) => {
+    invalidateCache('users');
     const res = await fetch(`${API_BASE_URL}/users/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -57,6 +95,7 @@ export const api = {
     try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   },
   updateUserBatch: async (data: { email: string, batch: string }) => {
+    invalidateCache();
     const res = await fetch(`${API_BASE_URL}/users/update-batch`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -65,6 +104,7 @@ export const api = {
     try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   },
   togglePayment: async (email: string) => {
+    invalidateCache();
     const res = await fetch(`${API_BASE_URL}/users/toggle-payment`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -86,6 +126,7 @@ export const api = {
   },
 
   verifyPayment: async (data: { razorpay_order_id: string, razorpay_payment_id: string, razorpay_signature: string, email: string, batch: string, tier?: 'standard' | 'premium' }) => {
+    invalidateCache();
     const res = await fetch(`${API_BASE_URL}/payments/verify`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -97,10 +138,10 @@ export const api = {
 
   // Tasks
   getTasks: async (email: string, batch: string) => {
-    const res = await fetch(`${API_BASE_URL}/tasks/${email}/${batch}`);
-    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
+    return fetchWithCache(`${API_BASE_URL}/tasks/${email}/${batch}`);
   },
   updateTasks: async (email: string, batch: string, tasks: any[]) => {
+    invalidateCache(`tasks/${email}/${batch}`);
     const res = await fetch(`${API_BASE_URL}/tasks/${email}/${batch}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -111,10 +152,10 @@ export const api = {
 
   // Scores
   getScores: async (email: string, batch: string) => {
-    const res = await fetch(`${API_BASE_URL}/scores/${email}/${batch}`);
-    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
+    return fetchWithCache(`${API_BASE_URL}/scores/${email}/${batch}`);
   },
   updateScores: async (email: string, batch: string, scores: any[]) => {
+    invalidateCache(`scores/${email}/${batch}`);
     const res = await fetch(`${API_BASE_URL}/scores/${email}/${batch}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -125,10 +166,10 @@ export const api = {
 
   // Study Hours
   getStudyHours: async (email: string, batch: string) => {
-    const res = await fetch(`${API_BASE_URL}/study-hours/${email}/${batch}`);
-    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
+    return fetchWithCache(`${API_BASE_URL}/study-hours/${email}/${batch}`);
   },
   updateStudyHours: async (email: string, batch: string, hours: any) => {
+    invalidateCache(`study-hours/${email}/${batch}`);
     const res = await fetch(`${API_BASE_URL}/study-hours/${email}/${batch}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -139,16 +180,15 @@ export const api = {
 
   // Notices
   getNotices: async (batch: string) => {
-    const res = await fetch(`${API_BASE_URL}/notices/${batch}`);
-    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
+    return fetchWithCache(`${API_BASE_URL}/notices/${batch}`);
   },
 
   // Planners (Templates)
   getBatchPlanner: async (batch: string) => {
-    const res = await fetch(`${API_BASE_URL}/templates/planner/${batch}`);
-    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
+    return fetchWithCache(`${API_BASE_URL}/templates/planner/${batch}`);
   },
   updateBatchPlanner: async (batch: string, planners: any[]) => {
+    invalidateCache(`templates/planner/${batch}`);
     const res = await fetch(`${API_BASE_URL}/templates/planner/${batch}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -162,10 +202,10 @@ export const api = {
     const url = email 
       ? `${API_BASE_URL}/templates/notes/${batch}?email=${encodeURIComponent(email)}`
       : `${API_BASE_URL}/templates/notes/${batch}`;
-    const res = await fetch(url);
-    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
+    return fetchWithCache(url);
   },
   updateBatchNotes: async (batch: string, notes: any[]) => {
+    invalidateCache(`templates/notes/${batch}`);
     const res = await fetch(`${API_BASE_URL}/templates/notes/${batch}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -176,10 +216,10 @@ export const api = {
 
   // Chat
   getChat: async (email: string) => {
-    const res = await fetch(`${API_BASE_URL}/chat/${email}`);
-    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
+    return fetchWithCache(`${API_BASE_URL}/chat/${email}`);
   },
   updateChat: async (email: string, chat: any[]) => {
+    invalidateCache(`chat/${email}`);
     const res = await fetch(`${API_BASE_URL}/chat/${email}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
