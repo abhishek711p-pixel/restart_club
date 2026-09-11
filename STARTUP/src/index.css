@@ -336,12 +336,21 @@ p {
   color: #ffffff;
 }
 
+.navbar-header,
+.navbar-container,
+.nav-links,
+.nav-dropdown-container {
+  overflow: visible !important;
+}
+
 /* Batches Nav Dropdown styles */
 .nav-dropdown-container {
   position: relative;
   display: inline-flex;
   align-items: center;
   height: 38px;
+  padding-bottom: 8px;
+  margin-bottom: -8px;
 }
 
 .nav-dropdown-trigger {
@@ -356,14 +365,25 @@ p {
   gap: 6px;
   font-family: var(--sans-font);
   white-space: nowrap;
-  padding: 0;
-  height: 38px;
+  padding: 6px 12px;
+  border-radius: 6px;
   line-height: 1;
   transition: var(--transition-smooth);
+  outline: none !important;
 }
 
-.nav-dropdown-trigger:hover {
+.nav-dropdown-trigger:focus,
+.nav-dropdown-trigger:focus-visible,
+.nav-dropdown-trigger:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.nav-dropdown-container:hover .nav-dropdown-trigger,
+.nav-dropdown-container:focus-within .nav-dropdown-trigger,
+.nav-dropdown-container.active .nav-dropdown-trigger {
   color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .dropdown-arrow {
@@ -373,6 +393,7 @@ p {
 }
 
 .nav-dropdown-container:hover .dropdown-arrow,
+.nav-dropdown-container:focus-within .dropdown-arrow,
 .nav-dropdown-container.active .dropdown-arrow,
 .dropdown-arrow.open {
   transform: rotate(180deg);
@@ -380,41 +401,31 @@ p {
 
 .dropdown-menu {
   position: absolute;
-  top: calc(100% + 4px);
-  left: 50%;
-  transform: translateX(-50%) translateY(6px);
+  top: 100%;
+  left: 0;
   background: #121214;
   border: 2px solid #ffffff;
   border-radius: 12px;
-  box-shadow: 4px 4px 0px #ffffff;
-  min-width: 220px;
-  z-index: 9999;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.9), 4px 4px 0px #ffffff;
+  min-width: 230px;
+  z-index: 999999;
   opacity: 0;
   visibility: hidden;
   display: flex;
   flex-direction: column;
   padding: 8px 0;
-  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
   pointer-events: none;
 }
 
-/* Hover bridge to bridge spacing between trigger and dropdown menu */
-.dropdown-menu::before {
-  content: '';
-  position: absolute;
-  top: -14px;
-  left: 0;
-  right: 0;
-  height: 16px;
-}
-
+/* Open dropdown on hover, focus-within, active, or open class */
 .nav-dropdown-container:hover .dropdown-menu,
+.nav-dropdown-container:focus-within .dropdown-menu,
 .nav-dropdown-container.active .dropdown-menu,
 .dropdown-menu.open {
-  opacity: 1;
-  visibility: visible;
-  transform: translateX(-50%) translateY(0);
-  pointer-events: auto;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
 }
 
 .dropdown-item {

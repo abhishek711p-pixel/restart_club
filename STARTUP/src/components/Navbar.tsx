@@ -41,8 +41,9 @@ export default function Navbar({ onSelectBatch, onJoinClick }: NavbarProps) {
           >
             <button 
               className="nav-dropdown-trigger"
-              onClick={() => setBatchesOpen(!batchesOpen)}
+              onClick={() => setBatchesOpen(prev => !prev)}
               type="button"
+              aria-expanded={batchesOpen}
             >
               Batches <span className={`dropdown-arrow ${batchesOpen ? 'open' : ''}`}>▼</span>
             </button>
