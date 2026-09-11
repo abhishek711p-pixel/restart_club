@@ -1,16 +1,19 @@
-import { ArrowRight, Calendar, Zap } from 'lucide-react';
+import { ArrowRight, Calendar, LogIn } from 'lucide-react';
 
 interface HeroProps {
   activeTrack: 'neet' | 'jee';
   onTrackChange: (track: 'neet' | 'jee') => void;
   onBookCall: () => void;
+  onLoginClick?: () => void;
   onJoinClick?: () => void;
 }
 
 export default function Hero({
   activeTrack,
   onTrackChange,
-  onBookCall
+  onBookCall,
+  onLoginClick,
+  onJoinClick
 }: HeroProps) {
   return (
     <section className="hero-section hero-section-centered">
@@ -56,10 +59,16 @@ export default function Hero({
             <span>Claim Free Mentorship Call</span>
             <ArrowRight size={16} />
           </button>
-          <a href="#simulator" className="hero-secondary-btn">
-            <Zap size={17} className="text-amber" />
-            <span>Try WhatsApp AI Solver ⚡</span>
-          </a>
+          
+          <button 
+            onClick={onLoginClick || onJoinClick} 
+            className="hero-secondary-btn"
+            type="button"
+          >
+            <LogIn size={17} className="text-emerald" />
+            <span>Student Login / Sign Up</span>
+            <ArrowRight size={14} />
+          </button>
         </div>
 
         {/* Single-Line Social Proof */}

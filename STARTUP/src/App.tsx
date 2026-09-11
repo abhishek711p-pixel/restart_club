@@ -217,6 +217,7 @@ export default function App() {
           activeTrack={activeTrack}
           onTrackChange={handleTrackChange}
           onBookCall={() => setIsLeadModalOpen(true)}
+          onLoginClick={() => setView('auth')}
         />
 
         {/* 2. Interactive WhatsApp AI Simulator (Immediate User Engagement) */}
