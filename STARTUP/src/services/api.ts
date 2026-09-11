@@ -1,4 +1,11 @@
-let RAW_URL = import.meta.env.VITE_API_URL || '/api';
+let RAW_URL = import.meta.env.VITE_API_URL;
+if (!RAW_URL) {
+  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    RAW_URL = '/api';
+  } else {
+    RAW_URL = 'https://restart-club.vercel.app/api';
+  }
+}
 if (RAW_URL.startsWith('ttps://')) RAW_URL = 'h' + RAW_URL;
 const API_BASE_URL = RAW_URL.replace(/\/+$/, '');
 
