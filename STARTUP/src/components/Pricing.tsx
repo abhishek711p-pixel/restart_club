@@ -137,7 +137,7 @@ export default function Pricing({ selectedClass, setSelectedClass, onJoinClick }
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                 <BookOpen size={18} style={{ color: '#a1a1aa' }} />
                 <span style={{ fontSize: '0.8rem', color: '#a1a1aa', fontWeight: '800', textTransform: 'uppercase' }}>
-                  Standard Mentorship
+                  Mentor Access
                 </span>
               </div>
               
@@ -206,7 +206,7 @@ export default function Pricing({ selectedClass, setSelectedClass, onJoinClick }
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                 <Sparkles size={18} style={{ color: '#22c55e' }} />
                 <span style={{ fontSize: '0.8rem', color: '#22c55e', fontWeight: '800', textTransform: 'uppercase' }}>
-                  Full AI + Mentor Access
+                  AI + Mentor Access
                 </span>
               </div>
               
