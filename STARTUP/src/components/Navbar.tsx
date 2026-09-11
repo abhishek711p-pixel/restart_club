@@ -7,8 +7,9 @@ interface NavbarProps {
   onAdminClick?: () => void;
 }
 
-export default function Navbar({ onSelectBatch, onJoinClick, onAdminClick }: NavbarProps) {
+export default function Navbar({ onSelectBatch, onJoinClick }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [batchesOpen, setBatchesOpen] = useState(false);
 
   return (
     <header className="navbar-header">
@@ -19,16 +20,24 @@ export default function Navbar({ onSelectBatch, onJoinClick, onAdminClick }: Nav
         </div>
         
         <nav className="nav-links">
-          <div className="nav-dropdown-container">
-            <button className="nav-dropdown-trigger">
-              Batches <span className="dropdown-arrow">▼</span>
+          <div 
+            className={`nav-dropdown-container ${batchesOpen ? 'active' : ''}`}
+            onMouseEnter={() => setBatchesOpen(true)}
+            onMouseLeave={() => setBatchesOpen(false)}
+          >
+            <button 
+              className="nav-dropdown-trigger"
+              onClick={() => setBatchesOpen(!batchesOpen)}
+              type="button"
+            >
+              Batches <span className={`dropdown-arrow ${batchesOpen ? 'open' : ''}`}>▼</span>
             </button>
-            <div className="dropdown-menu">
-              <button onClick={() => onSelectBatch('10')} className="dropdown-item">Class 10 (Foundation)</button>
-              <button onClick={() => onSelectBatch('11')} className="dropdown-item">Class 11 (Aarambh)</button>
-              <button onClick={() => onSelectBatch('12')} className="dropdown-item">Class 12 (Sankalp)</button>
-              <button onClick={() => onSelectBatch('jee-dropper')} className="dropdown-item">JEE Dropper</button>
-              <button onClick={() => onSelectBatch('neet-dropper')} className="dropdown-item">NEET Dropper</button>
+            <div className={`dropdown-menu ${batchesOpen ? 'open' : ''}`}>
+              <button onClick={() => { onSelectBatch('10'); setBatchesOpen(false); }} className="dropdown-item">Class 10 (Foundation)</button>
+              <button onClick={() => { onSelectBatch('11'); setBatchesOpen(false); }} className="dropdown-item">Class 11 (Aarambh)</button>
+              <button onClick={() => { onSelectBatch('12'); setBatchesOpen(false); }} className="dropdown-item">Class 12 (Sankalp)</button>
+              <button onClick={() => { onSelectBatch('jee-dropper'); setBatchesOpen(false); }} className="dropdown-item">JEE Dropper</button>
+              <button onClick={() => { onSelectBatch('neet-dropper'); setBatchesOpen(false); }} className="dropdown-item">NEET Dropper</button>
             </div>
           </div>
           <a href="#simulator" className="nav-link">AI Simulator</a>
