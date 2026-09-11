@@ -23,6 +23,8 @@ const allowedOrigins = [
   'https://restart-club-n4ou.vercel.app',
   'http://localhost:5173',
   'http://localhost:5174',
+  'http://localhost:5175',
+  'http://localhost:5176',
   'http://localhost:3000'
 ];
 
@@ -906,6 +908,17 @@ app.delete('/api/notices/:id', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+
+const path = require('path');
+const fs = require('fs');
+const distPath = path.join(__dirname, '../dist');
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) return next();
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+}
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

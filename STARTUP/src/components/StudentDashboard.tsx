@@ -1072,12 +1072,12 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
 
             {/* Visual Seat Filled Progress Tracker */}
             <div className="seat-filled-tracker" style={{
-              background: '#faf6ee',
-              border: '2px solid var(--border-color)',
+              background: '#121214',
+              border: '2px solid #ffffff',
               borderRadius: '12px',
               padding: '14px 18px',
               marginBottom: '24px',
-              boxShadow: '3px 3px 0px #111827',
+              boxShadow: '3px 3px 0px #ffffff',
               textAlign: 'left'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>

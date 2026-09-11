@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Lock, User, ArrowLeft, BookOpen } from 'lucide-react';
+import { Mail, Lock, User, ArrowLeft, BookOpen, X } from 'lucide-react';
 import { api } from '../services/api';
 
 interface AuthScreenProps {
@@ -95,34 +95,81 @@ export default function AuthScreen({ onSuccess, onBack, defaultBatch }: AuthScre
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '40px 20px',
+      padding: '24px 16px',
       background: 'var(--bg-primary)',
       position: 'relative'
     }}>
+      {/* Top Floating Back Button */}
       <button 
         onClick={onBack}
         className="btn btn-secondary"
         style={{
-          position: 'absolute',
-          top: '24px',
-          left: '24px',
+          position: 'fixed',
+          top: '16px',
+          left: '16px',
           padding: '8px 16px',
-          borderRadius: '10px',
-          fontSize: '0.85rem'
+          fontSize: '0.85rem',
+          zIndex: 1000,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+          cursor: 'pointer'
         }}
       >
-        <ArrowLeft size={14} /> Back
+        <ArrowLeft size={16} /> Back to Website
       </button>
 
       <div className="glass-card" style={{
         width: '100%',
         maxWidth: '420px',
-        padding: '40px 32px',
+        padding: '32px 24px',
         background: '#ffffff',
-        textAlign: 'center'
+        textAlign: 'center',
+        position: 'relative',
+        borderRadius: '16px',
+        marginTop: '40px'
       }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
-          <img src="/logo.png" alt="RestartClub Logo" style={{ height: '42px', width: 'auto', objectFit: 'contain', borderRadius: '4px' }} />
+        {/* Card Header Top Close Cross Button (X) */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <button 
+            onClick={onBack} 
+            style={{
+              background: '#f3f4f6',
+              border: '1.5px solid #d1d5db',
+              color: '#111827',
+              borderRadius: '8px',
+              padding: '6px 12px',
+              fontSize: '0.8rem',
+              fontWeight: '700',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+          >
+            <ArrowLeft size={14} /> Back
+          </button>
+
+          <button 
+            onClick={onBack}
+            aria-label="Close modal"
+            style={{
+              background: '#fee2e2',
+              border: '1.5px solid #fca5a5',
+              color: '#b91c1c',
+              borderRadius: '50%',
+              width: '32px',
+              height: '32px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer'
+            }}
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
+          <img src="/logo.png" alt="RestartClub Logo" style={{ height: '36px', width: 'auto', objectFit: 'contain', borderRadius: '4px' }} />
           <span className="logo-text">Restart <span className="logo-highlight">Club</span></span>
         </div>
 
