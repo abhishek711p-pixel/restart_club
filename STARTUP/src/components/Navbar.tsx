@@ -14,9 +14,23 @@ export default function Navbar({ onSelectBatch, onJoinClick }: NavbarProps) {
   return (
     <header className="navbar-header">
       <div className="container navbar-container">
-        <div className="logo-section" style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/'}>
-          <img src="/logo.png" alt="RestartClub Logo" style={{ height: '32px', width: 'auto', objectFit: 'contain', borderRadius: '4px' }} />
-          <span className="logo-text">Restart <span className="logo-highlight">Club</span></span>
+        <div className="logo-section" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }} onClick={() => window.location.href = '/'}>
+          <div style={{
+            width: '42px',
+            height: '42px',
+            borderRadius: '10px',
+            background: '#ffffff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
+            boxShadow: '0 2px 10px rgba(255,255,255,0.2)',
+            border: '2px solid #ffffff',
+            flexShrink: 0
+          }}>
+            <img src="/logo.png" alt="RestartClub Logo" style={{ width: '92%', height: '92%', objectFit: 'contain' }} />
+          </div>
+          <span className="logo-text" style={{ fontSize: '1.45rem' }}>Restart <span className="logo-highlight">Club</span></span>
         </div>
         
         <nav className="nav-links">

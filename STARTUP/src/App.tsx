@@ -340,8 +340,22 @@ export default function App() {
       <footer className="app-footer">
         <div className="container footer-container">
           <div className="footer-left">
-            <div className="logo-section">
-              <img src="/logo.png" alt="RestartClub Logo" style={{ height: '32px', width: 'auto', objectFit: 'contain', borderRadius: '4px' }} />
+            <div className="logo-section" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '10px',
+                background: '#ffffff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                overflow: 'hidden',
+                boxShadow: '0 2px 8px rgba(255,255,255,0.15)',
+                border: '1.5px solid #ffffff',
+                flexShrink: 0
+              }}>
+                <img src="/logo.png" alt="RestartClub Logo" style={{ width: '92%', height: '92%', objectFit: 'contain' }} />
+              </div>
               <span className="logo-text">Restart <span className="logo-highlight">Club</span></span>
             </div>
             <p className="footer-desc">Empowering Class 10–12, JEE & NEET students with dedicated mentors and 24/7 Hinglish AI WhatsApp guides.</p>

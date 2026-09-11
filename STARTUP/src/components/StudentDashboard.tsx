@@ -412,8 +412,22 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
       
       <header className="navbar-header" style={{ background: '#ffffff', borderBottom: '2px solid var(--border-color)', padding: '16px 0' }}>
         <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <img src="/logo.png" alt="RestartClub Logo" style={{ height: '38px', width: 'auto', objectFit: 'contain', borderRadius: '4px' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{
+              width: '42px',
+              height: '42px',
+              borderRadius: '10px',
+              background: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'hidden',
+              border: '2px solid #111827',
+              boxShadow: '2px 2px 0px #111827',
+              flexShrink: 0
+            }}>
+              <img src="/logo.png" alt="RestartClub Logo" style={{ width: '92%', height: '92%', objectFit: 'contain' }} />
+            </div>
             <span className="logo-text">Restart <span className="logo-highlight">Club</span></span>
           </div>
 
