@@ -931,7 +931,7 @@ if (fs.existsSync(distPath)) {
         req.path.startsWith('/payments')) {
       return next();
     }
-    res.redirect('https://restart-club-n4ou.vercel.app');
+    res.redirect('https://restart-club-joam.vercel.app');
   });
 }
 
