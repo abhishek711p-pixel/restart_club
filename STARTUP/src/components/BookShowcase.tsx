@@ -10,7 +10,6 @@ export default function BookShowcase({ compact = false }: BookShowcaseProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [isFlipping, setIsFlipping] = useState(false);
   const [isZooming, setIsZooming] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
   const sectionRef = useRef<HTMLDivElement>(null);
 
   const totalPages = 3;
@@ -18,43 +17,23 @@ export default function BookShowcase({ compact = false }: BookShowcaseProps) {
   useEffect(() => {
     if (compact) return;
 
-    let ticking = false;
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          if (sectionRef.current) {
-            const rect = sectionRef.current.getBoundingClientRect();
-            const windowHeight = window.innerHeight;
-
-            const totalScrollable = rect.height - windowHeight;
-            if (totalScrollable > 0) {
-              const currentScroll = -rect.top;
-              const progress = Math.max(0, Math.min(1, currentScroll / totalScrollable));
-              
-              setScrollProgress(prev => (Math.abs(prev - progress) > 0.03 ? progress : prev));
-
-              if (progress > 0.15 && !isOpen) {
-                setIsOpen(true);
-              }
-
-              if (progress >= 0.25 && progress < 0.55) {
-                setCurrentPage(1);
-              } else if (progress >= 0.55 && progress < 0.85) {
-                setCurrentPage(2);
-              } else if (progress >= 0.85) {
-                setCurrentPage(3);
-              }
-            }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsOpen(true);
           }
-          ticking = false;
         });
-        ticking = true;
-      }
-    };
+      },
+      { threshold: 0.2 }
+    );
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [compact, isOpen]);
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [compact]);
 
   const handleNextPage = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
@@ -124,9 +103,6 @@ export default function BookShowcase({ compact = false }: BookShowcaseProps) {
           <div 
             className={`book-3d ${isOpen ? 'open' : ''} ${isZooming ? 'book-zoom-active' : ''}`} 
             onClick={() => !isZooming && setIsOpen(!isOpen)}
-            style={{
-              transform: !compact && !isZooming ? `rotateY(${Math.min(0, -15 + scrollProgress * 15)}deg) rotateX(${Math.max(0, 10 - scrollProgress * 10)}deg)` : undefined
-            }}
           >
             
             {/* Front Cover */}

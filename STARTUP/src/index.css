@@ -1360,6 +1360,8 @@ p {
 /* Simulator Section */
 .simulator-section {
   padding: 100px 0;
+  content-visibility: auto;
+  contain-intrinsic-size: auto none auto 600px;
 }
 
 .simulator-container {
@@ -1473,10 +1475,6 @@ p {
 
 .note-text strong {
   color: #ffffff !important;
-}
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  text-align: left;
 }
 
 /* WhatsApp Device Mockup */
@@ -1745,6 +1743,8 @@ p {
   padding: 100px 0;
   background: var(--bg-secondary);
   border-top: 2px solid var(--border-color);
+  content-visibility: auto;
+  contain-intrinsic-size: auto none auto 700px;
 }
 
 .pricing-header {
@@ -1872,6 +1872,8 @@ p {
   padding: 100px 0;
   background: var(--bg-primary);
   border-top: 2px solid var(--border-color);
+  content-visibility: auto;
+  contain-intrinsic-size: auto none auto 400px;
 }
 
 .social-links-grid {
@@ -1977,7 +1979,6 @@ p {
 .copyright {
   font-size: 0.85rem;
   color: #a1a1aa !important;
-}
 }
 
 /* Keyframe animations and extras */
@@ -2198,6 +2199,8 @@ p {
   border-bottom: 1px solid #27272a;
   position: relative;
   overflow: hidden;
+  content-visibility: auto;
+  contain-intrinsic-size: auto none auto 600px;
 }
 
 .book-wrapper {
@@ -2205,6 +2208,7 @@ p {
   margin: 0 auto;
   perspective: 1200px;
   position: relative;
+  transform: translateZ(0);
 }
 
 .book-3d {
@@ -2216,8 +2220,11 @@ p {
   border-radius: 20px;
   box-shadow: 8px 8px 0px #ffffff;
   cursor: pointer;
-  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform;
 }
 
 .book-3d:hover {
