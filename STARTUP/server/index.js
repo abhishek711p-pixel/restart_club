@@ -919,7 +919,18 @@ if (fs.existsSync(distPath)) {
     res.sendFile(path.join(distPath, 'index.html'));
   });
 } else {
-  app.get('/', (req, res) => {
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api') || 
+        req.path.startsWith('/users') || 
+        req.path.startsWith('/tasks') || 
+        req.path.startsWith('/scores') || 
+        req.path.startsWith('/study-hours') || 
+        req.path.startsWith('/notices') || 
+        req.path.startsWith('/templates') || 
+        req.path.startsWith('/chat') || 
+        req.path.startsWith('/payments')) {
+      return next();
+    }
     res.redirect('https://restart-club-n4ou.vercel.app');
   });
 }
