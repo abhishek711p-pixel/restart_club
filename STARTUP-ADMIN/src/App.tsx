@@ -22,13 +22,6 @@ export default function App() {
   const [view, setView] = useState<'landing' | 'auth' | 'dashboard'>('landing');
   const [currentUser, setCurrentUser] = useState<{ username: string; email: string; batch: string } | null>(null);
 
-  const handleSelectBatch = (batchKey: BatchKey) => {
-    setSelectedClass(batchKey);
-    const element = document.getElementById('pricing');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
 
   if (view === 'auth') {
     return (
@@ -59,7 +52,7 @@ export default function App() {
 
   return (
     <div className="app-wrapper">
-      <Navbar onSelectBatch={handleSelectBatch} onJoinClick={() => setView('auth')} />
+      <Navbar onJoinClick={() => setView('auth')} onBookCallClick={() => {}} />
       
       {/* Decorative Glow Elements */}
       <div className="glow-glow glow-indigo"></div>

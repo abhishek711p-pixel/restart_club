@@ -287,6 +287,7 @@ export default function App() {
       <StickyMobileBar 
         activeTrack={activeTrack} 
         onBookCall={() => setIsLeadModalOpen(true)} 
+        onLoginClick={() => setView('auth')}
       />
 
       {/* Free Sample Preview Drawer / Modal */}
