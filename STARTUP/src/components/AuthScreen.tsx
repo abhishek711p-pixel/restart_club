@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Lock, User, ArrowLeft, BookOpen, X } from 'lucide-react';
+import { Mail, Lock, User, ArrowLeft, BookOpen, X, ChevronDown } from 'lucide-react';
 import { api } from '../services/api';
 
 interface AuthScreenProps {
@@ -8,15 +8,14 @@ interface AuthScreenProps {
   defaultBatch: string;
 }
 
-// Reverted to Email OTP authentication flow
 export default function AuthScreen({ onSuccess, onBack, defaultBatch }: AuthScreenProps) {
-  const [mode, setMode] = useState<'login' | 'register' | 'register-otp' | 'forgot-email' | 'forgot-otp'>('register');
+  const [mode, setMode] = useState<'login' | 'register' | 'forgot-email' | 'forgot-otp'>('register');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
-  const [batch, setBatch] = useState(defaultBatch);
+  const [batch, setBatch] = useState(defaultBatch || '12');
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -90,264 +89,176 @@ export default function AuthScreen({ onSuccess, onBack, defaultBatch }: AuthScre
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '24px 16px',
-      background: 'var(--bg-primary)',
-      position: 'relative'
-    }}>
-      {/* Top Floating Back Button */}
+    <div className="auth-page-container">
+      {/* Floating Back button top left */}
       <button 
         onClick={onBack}
-        className="btn btn-secondary"
-        style={{
-          position: 'fixed',
-          top: '16px',
-          left: '16px',
-          padding: '8px 16px',
-          fontSize: '0.85rem',
-          zIndex: 1000,
-          boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
-          cursor: 'pointer'
-        }}
+        className="auth-floating-back"
+        type="button"
       >
         <ArrowLeft size={16} /> Back to Website
       </button>
 
-      <div className="glass-card" style={{
-        width: '100%',
-        maxWidth: '420px',
-        padding: '32px 24px',
-        background: '#ffffff',
-        textAlign: 'center',
-        position: 'relative',
-        borderRadius: '16px',
-        marginTop: '40px'
-      }}>
-        {/* Card Header Top Close Cross Button (X) */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <button 
-            onClick={onBack} 
-            style={{
-              background: '#f3f4f6',
-              border: '1.5px solid #d1d5db',
-              color: '#111827',
-              borderRadius: '8px',
-              padding: '6px 12px',
-              fontSize: '0.8rem',
-              fontWeight: '700',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '4px'
-            }}
-          >
-            <ArrowLeft size={14} /> Back
-          </button>
+      {/* Main Glassmorphic Auth Card */}
+      <div className="auth-modal-card">
+        {/* Top Close Button */}
+        <button 
+          onClick={onBack}
+          className="auth-close-btn"
+          aria-label="Close"
+          type="button"
+        >
+          <X size={16} />
+        </button>
 
-          <button 
-            onClick={onBack}
-            aria-label="Close modal"
-            style={{
-              background: '#fee2e2',
-              border: '1.5px solid #fca5a5',
-              color: '#b91c1c',
-              borderRadius: '50%',
-              width: '32px',
-              height: '32px',
+        {/* Brand Header */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '20px' }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            marginBottom: '14px',
+            cursor: 'pointer'
+          }} onClick={onBack}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '10px',
+              background: '#ffffff',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              cursor: 'pointer'
-            }}
-          >
-            <X size={18} />
-          </button>
-        </div>
-
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
-          <div style={{
-            width: '42px',
-            height: '42px',
-            borderRadius: '10px',
-            background: '#ffffff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            overflow: 'hidden',
-            border: '2px solid #111827',
-            boxShadow: '2px 2px 0px #111827',
-            flexShrink: 0
-          }}>
-            <img src="/logo.png" alt="RestartClub Logo" style={{ width: '92%', height: '92%', objectFit: 'contain' }} />
+              overflow: 'hidden',
+              boxShadow: '0 2px 10px rgba(255,255,255,0.15)',
+              border: '1.5px solid #ffffff',
+              flexShrink: 0
+            }}>
+              <img src="/logo.png" alt="RestartClub Logo" style={{ width: '90%', height: '90%', objectFit: 'contain' }} />
+            </div>
+            <span style={{ fontSize: '1.35rem', fontWeight: '900', color: '#ffffff', letterSpacing: '-0.02em' }}>
+              Restart <span style={{ color: '#22c55e' }}>Club</span>
+            </span>
           </div>
-          <span className="logo-text">Restart <span className="logo-highlight">Club</span></span>
+
+          <h2 style={{ fontSize: '1.45rem', fontWeight: '900', color: '#ffffff', marginBottom: '4px' }}>
+            {mode === 'register' ? 'Create Your Account' : 
+             mode === 'login' ? 'Welcome Back' : 
+             mode === 'forgot-email' ? 'Reset Password' : 'Verify OTP'}
+          </h2>
+          <p style={{ color: '#a1a1aa', fontSize: '0.85rem', fontWeight: '500', textAlign: 'center' }}>
+            {mode === 'register' ? 'Start your preparation with dedicated topper mentors.' : 
+             mode === 'login' ? 'Sign in to access your study planner, notes & dashboard.' : 
+             mode === 'forgot-email' ? 'Enter your registered email to receive a password reset OTP.' : 
+             'Enter the 6-digit OTP code and choose your new password.'}
+          </p>
         </div>
 
-        <h2 style={{
-          fontSize: '1.75rem',
-          fontWeight: '800',
-          color: '#111827',
-          marginBottom: '8px'
-        }}>
-          {mode === 'register' ? 'Join RestartClub' : 
-           mode === 'register-otp' ? 'Verify Your Email' :
-           mode === 'login' ? 'Welcome Back' : 
-           mode === 'forgot-email' ? 'Reset Password' : 'Enter OTP'}
-        </h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-          {mode === 'register' ? 'Start your journey to top ranks today.' : 
-           mode === 'register-otp' ? `We sent a 6-digit OTP code to ${email}` :
-           mode === 'login' ? 'Resume your preparation.' : 
-           mode === 'forgot-email' ? 'Enter your email to receive an OTP.' : 'Enter the 6-digit OTP and your new password.'}
-        </p>
-
-        {error && (
-          <div style={{
-            padding: '12px',
-            background: '#fee2e2',
-            color: '#b91c1c',
-            borderRadius: '8px',
-            fontSize: '0.85rem',
-            marginBottom: '20px',
-            textAlign: 'center',
-            fontWeight: '600'
-          }}>
-            {error}
+        {/* Mode Selector Tabs (Sign Up / Sign In) */}
+        {(mode === 'register' || mode === 'login') && (
+          <div className="auth-mode-tabs">
+            <button 
+              type="button"
+              className={`auth-mode-tab ${mode === 'register' ? 'active' : ''}`}
+              onClick={() => { setMode('register'); setError(''); setMessage(''); }}
+            >
+              Sign Up
+            </button>
+            <button 
+              type="button"
+              className={`auth-mode-tab ${mode === 'login' ? 'active' : ''}`}
+              onClick={() => { setMode('login'); setError(''); setMessage(''); }}
+            >
+              Sign In
+            </button>
           </div>
         )}
 
-        {message && (
-          <div style={{
-            padding: '12px',
-            background: '#d1fae5',
-            color: '#065f46',
-            borderRadius: '8px',
-            fontSize: '0.85rem',
-            marginBottom: '20px',
-            textAlign: 'center',
-            fontWeight: '600'
-          }}>
-            {message}
-          </div>
-        )}
+        {/* Status Alerts */}
+        {error && <div className="auth-alert-error">⚠️ {error}</div>}
+        {message && <div className="auth-alert-success">✅ {message}</div>}
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'left' }}>
+        {/* Auth Form */}
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {/* User Name */}
           {mode === 'register' && (
-            <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', marginBottom: '6px', color: '#111827' }}>
-                USER NAME
-              </label>
-              <div style={{ position: 'relative' }}>
-                <User size={16} style={{ position: 'absolute', left: '14px', top: '14px', color: '#9ca3af' }} />
+            <div className="auth-field-group">
+              <label className="auth-field-label">Full Name</label>
+              <div className="auth-input-wrapper">
+                <User size={16} className="auth-input-icon" />
                 <input 
                   type="text" 
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="Enter your name"
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px 12px 40px',
-                    borderRadius: '10px',
-                    border: '2px solid var(--border-color)',
-                    fontSize: '0.9rem',
-                    outline: 'none',
-                    fontFamily: 'var(--sans-font)'
-                  }}
+                  className="auth-text-input"
+                  required
                 />
               </div>
             </div>
           )}
 
+          {/* Email Address */}
           {(mode === 'register' || mode === 'login' || mode === 'forgot-email') && (
-            <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', marginBottom: '6px', color: '#111827' }}>
-                EMAIL ADDRESS
-              </label>
-              <div style={{ position: 'relative' }}>
-                <Mail size={16} style={{ position: 'absolute', left: '14px', top: '14px', color: '#9ca3af' }} />
+            <div className="auth-field-group">
+              <label className="auth-field-label">Email Address</label>
+              <div className="auth-input-wrapper">
+                <Mail size={16} className="auth-input-icon" />
                 <input 
                   type="email" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="student@example.com"
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px 12px 40px',
-                    borderRadius: '10px',
-                    border: '2px solid var(--border-color)',
-                    fontSize: '0.9rem',
-                    outline: 'none',
-                    fontFamily: 'var(--sans-font)'
-                  }}
+                  className="auth-text-input"
+                  required
                 />
               </div>
             </div>
           )}
 
+          {/* Forgot Password OTP and New Password */}
           {mode === 'forgot-otp' && (
             <>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', marginBottom: '6px', color: '#111827' }}>
-                  6-DIGIT OTP
-                </label>
-                <div style={{ position: 'relative' }}>
-                  <Lock size={16} style={{ position: 'absolute', left: '14px', top: '14px', color: '#9ca3af' }} />
+              <div className="auth-field-group">
+                <label className="auth-field-label">6-Digit OTP Code</label>
+                <div className="auth-input-wrapper">
+                  <Lock size={16} className="auth-input-icon" />
                   <input 
                     type="text" 
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
                     placeholder="123456"
-                    style={{
-                      width: '100%',
-                      padding: '12px 14px 12px 40px',
-                      borderRadius: '10px',
-                      border: '2px solid var(--border-color)',
-                      fontSize: '0.9rem',
-                      outline: 'none',
-                      fontFamily: 'var(--sans-font)'
-                    }}
+                    className="auth-text-input"
+                    maxLength={6}
+                    required
                   />
                 </div>
-                <p style={{ fontSize: '0.75rem', color: '#ea580c', marginTop: '6px', fontWeight: '500' }}>
+                <p style={{ fontSize: '0.75rem', color: '#f59e0b', marginTop: '4px', fontWeight: '500' }}>
                   💡 Can't find the email? Please check your <strong>Spam / Junk</strong> folder.
                 </p>
               </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', marginBottom: '6px', color: '#111827' }}>
-                  NEW PASSWORD
-                </label>
-                <div style={{ position: 'relative' }}>
-                  <Lock size={16} style={{ position: 'absolute', left: '14px', top: '14px', color: '#9ca3af' }} />
+
+              <div className="auth-field-group">
+                <label className="auth-field-label">New Password</label>
+                <div className="auth-input-wrapper">
+                  <Lock size={16} className="auth-input-icon" />
                   <input 
                     type="password" 
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="••••••••"
-                    style={{
-                      width: '100%',
-                      padding: '12px 14px 12px 40px',
-                      borderRadius: '10px',
-                      border: '2px solid var(--border-color)',
-                      fontSize: '0.9rem',
-                      outline: 'none',
-                      fontFamily: 'var(--sans-font)'
-                    }}
+                    placeholder="Minimum 6 characters"
+                    className="auth-text-input"
+                    required
                   />
                 </div>
               </div>
             </>
           )}
 
+          {/* Password (Register & Login) */}
           {(mode === 'register' || mode === 'login') && (
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: '#111827' }}>
-                  PASSWORD
-                </label>
+            <div className="auth-field-group">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <label className="auth-field-label">Password</label>
                 {mode === 'login' && (
                   <button
                     type="button"
@@ -359,7 +270,7 @@ export default function AuthScreen({ onSuccess, onBack, defaultBatch }: AuthScre
                     style={{
                       background: 'none',
                       border: 'none',
-                      color: 'var(--accent-color)',
+                      color: '#22c55e',
                       fontSize: '0.75rem',
                       fontWeight: '700',
                       cursor: 'pointer'
@@ -369,49 +280,30 @@ export default function AuthScreen({ onSuccess, onBack, defaultBatch }: AuthScre
                   </button>
                 )}
               </div>
-              <div style={{ position: 'relative' }}>
-                <Lock size={16} style={{ position: 'absolute', left: '14px', top: '14px', color: '#9ca3af' }} />
+              <div className="auth-input-wrapper">
+                <Lock size={16} className="auth-input-icon" />
                 <input 
                   type="password" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px 12px 40px',
-                    borderRadius: '10px',
-                    border: '2px solid var(--border-color)',
-                    fontSize: '0.9rem',
-                    outline: 'none',
-                    fontFamily: 'var(--sans-font)'
-                  }}
+                  placeholder="Enter your password"
+                  className="auth-text-input"
+                  required
                 />
               </div>
             </div>
           )}
 
+          {/* Batch Selector (Register) */}
           {mode === 'register' && (
-            <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', marginBottom: '6px', color: '#111827' }}>
-                SELECT YOUR BATCH
-              </label>
-              <div style={{ position: 'relative' }}>
-                <BookOpen size={16} style={{ position: 'absolute', left: '14px', top: '14px', color: '#9ca3af' }} />
+            <div className="auth-field-group">
+              <label className="auth-field-label">Select Your Batch</label>
+              <div className="auth-input-wrapper">
+                <BookOpen size={16} className="auth-input-icon" />
                 <select 
                   value={batch}
                   onChange={(e) => setBatch(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px 12px 40px',
-                    borderRadius: '10px',
-                    border: '2px solid var(--border-color)',
-                    fontSize: '0.9rem',
-                    outline: 'none',
-                    background: '#ffffff',
-                    fontFamily: 'var(--sans-font)',
-                    appearance: 'none',
-                    fontWeight: '700'
-                  }}
+                  className="auth-select-input"
                 >
                   <option value="10">Class 10 (Foundation)</option>
                   <option value="11">Class 11 (Aarambh)</option>
@@ -419,31 +311,24 @@ export default function AuthScreen({ onSuccess, onBack, defaultBatch }: AuthScre
                   <option value="jee-dropper">JEE Dropper</option>
                   <option value="neet-dropper">NEET Dropper</option>
                 </select>
+                <ChevronDown size={16} style={{ position: 'absolute', right: '14px', color: '#71717a', pointerEvents: 'none' }} />
               </div>
             </div>
           )}
 
-
-
+          {/* Submit Button */}
           <button 
             type="submit" 
-            className="btn btn-accent w-full"
+            className="auth-submit-btn"
             disabled={isLoading}
-            style={{
-              padding: '14px',
-              fontSize: '1rem',
-              fontWeight: '800',
-              marginTop: '10px',
-              opacity: isLoading ? 0.7 : 1,
-              cursor: isLoading ? 'not-allowed' : 'pointer'
-            }}
           >
             {isLoading ? 'Processing...' :
              mode === 'register' ? 'Join RestartClub' : 
-             mode === 'login' ? 'Sign In' : 
-             mode === 'forgot-email' ? 'Send OTP' : 'Reset Password'}
+             mode === 'login' ? 'Sign In to Dashboard' : 
+             mode === 'forgot-email' ? 'Send OTP Code' : 'Update Password & Sign In'}
           </button>
 
+          {/* Resend OTP Button */}
           {mode === 'forgot-otp' && (
             <button 
               type="button"
@@ -461,65 +346,41 @@ export default function AuthScreen({ onSuccess, onBack, defaultBatch }: AuthScre
                   setError('Failed to resend OTP.');
                 }
               }}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: 'var(--accent-color)',
-                fontWeight: '700',
-                fontSize: '0.85rem',
-                cursor: 'pointer',
-                textDecoration: 'underline',
-                marginTop: '8px'
-              }}
+              className="auth-footer-link"
+              style={{ marginTop: '4px' }}
             >
-              Didn't receive the OTP? Resend it
+              Didn't receive the OTP? Click to Resend
             </button>
           )}
         </form>
 
-        <div style={{ marginTop: '24px', borderTop: '2px solid var(--border-color)', paddingTop: '16px' }}>
-          <button 
-            onClick={() => {
-              setMode(mode === 'register' ? 'login' : 'register');
-              setError('');
-              setMessage('');
-            }}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--accent-color)',
-              fontWeight: '700',
-              fontSize: '0.85rem',
-              cursor: 'pointer',
-              textDecoration: 'underline'
-            }}
-          >
-            {mode === 'register' 
-              ? 'Already have an account? Sign In' 
-              : 'New to RestartClub? Join the Family'}
-          </button>
-          
-          {(mode === 'forgot-email' || mode === 'forgot-otp') && (
+        {/* Bottom Switcher */}
+        <div style={{ marginTop: '24px', borderTop: '1px solid #27272a', paddingTop: '16px', textAlign: 'center' }}>
+          {(mode === 'register' || mode === 'login') ? (
             <button 
+              type="button"
+              onClick={() => {
+                setMode(mode === 'register' ? 'login' : 'register');
+                setError('');
+                setMessage('');
+              }}
+              className="auth-footer-link"
+            >
+              {mode === 'register' 
+                ? 'Already have an account? Sign In' 
+                : "Don't have an account? Create one"}
+            </button>
+          ) : (
+            <button 
+              type="button"
               onClick={() => {
                 setMode('login');
                 setError('');
                 setMessage('');
               }}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: 'var(--text-secondary)',
-                fontWeight: '700',
-                fontSize: '0.85rem',
-                cursor: 'pointer',
-                textDecoration: 'underline',
-                display: 'block',
-                marginTop: '10px',
-                width: '100%'
-              }}
+              className="auth-footer-link"
             >
-              Back to Login
+              ← Back to Sign In
             </button>
           )}
         </div>
