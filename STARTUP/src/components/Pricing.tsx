@@ -25,6 +25,7 @@ const BATCH_DETAILS = {
     name: "Class 12 (Sankalp)",
     tagline: "Class 12 Boards + JEE/NEET Cracker",
     features: [
+      "Full Counselling Help and Guidance (Home to College)",
       "1-on-1 Dedicated IIT/NEET Topper Mentor",
       "Class 12 Board & Entrance Handwritten Notes",
       "Pre-Board & Revision Checklists",
@@ -35,6 +36,7 @@ const BATCH_DETAILS = {
     name: "JEE Dropper",
     tagline: "Full JEE Main & Advanced Coverage",
     features: [
+      "Full Counselling Help and Guidance (Home to College)",
       "1-on-1 Dedicated IITian Mentor",
       "JEE Core Formula Cheatsheets & Short Notes",
       "Daily Practice Problem (DPP) Tracker",
@@ -45,6 +47,7 @@ const BATCH_DETAILS = {
     name: "NEET Dropper",
     tagline: "Full NEET-UG Coverage + NCERT Tracker",
     features: [
+      "Full Counselling Help and Guidance (Home to College)",
       "1-on-1 Dedicated NEET AIR Topper Mentor",
       "NEET Biology NCERT Line-by-Line Short Notes",
       "Physics Formula Logs & Reaction Maps",

@@ -45,6 +45,7 @@ const BATCH_DETAILS = {
     tagline: "Class 12 Board preparation + JEE/NEET Cracker",
     filled: 91,
     features: [
+      "Full Counselling Help and Guidance (Home to College)",
       "1-on-1 Dedicated Mentor & Guidance",
       "Class 12 Boards & JEE/NEET handwritten notes & formula sheets",
       "Boards Pre-Board & Revision revision checklists",
@@ -58,6 +59,7 @@ const BATCH_DETAILS = {
     tagline: "Full JEE Main & Advanced coverage + Backlog tracker",
     filled: 83,
     features: [
+      "Full Counselling Help and Guidance (Home to College)",
       "1-on-1 Dedicated Mentor & Guidance",
       "JEE Core Formula cheatsheets & short revision notes",
       "Dropper Backlog & Daily Practice Problem tracker",
@@ -71,6 +73,7 @@ const BATCH_DETAILS = {
     tagline: "Full NEET-UG coverage + NCERT line-by-line tracker",
     filled: 87,
     features: [
+      "Full Counselling Help and Guidance (Home to College)",
       "1-on-1 Dedicated Mentor & Guidance",
       "NEET Biology NCERT-blueprint short notes & Physics formula sheets",
       "Dropper Backlog & Biology NCERT mapping",
