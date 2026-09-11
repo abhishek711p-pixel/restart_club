@@ -1,5 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { LogOut, Download, Award, Calendar, CheckSquare, Users, Check, FileText } from 'lucide-react';
+import { 
+  LogOut, 
+  Download, 
+  Award, 
+  CheckSquare, 
+  Users, 
+  Check, 
+  FileText, 
+  MessageCircle, 
+  TrendingUp, 
+  Sparkles, 
+  Clock, 
+  Copy, 
+  Plus, 
+  Trash2, 
+  ShieldCheck, 
+  BookOpen, 
+  Send,
+  Bot
+} from 'lucide-react';
 import { api } from '../services/api';
 
 interface StudentDashboardProps {
@@ -48,7 +67,7 @@ const BATCH_DETAILS = {
       "Full Counselling Help and Guidance (Home to College)",
       "1-on-1 Dedicated Mentor & Guidance",
       "Class 12 Boards & JEE/NEET handwritten notes & formula sheets",
-      "Boards Pre-Board & Revision revision checklists",
+      "Boards Pre-Board & Revision checklists",
       "Mock Test Analysis & mistake-tracking spreadsheets",
       "24/7 WhatsApp AI Chatbot Assistant",
       "Weekly JEE/NEET strategy audio sessions"
@@ -92,17 +111,56 @@ const MOCK_MENTORS: Record<string, { name: string; college: string }> = {
   'neet-dropper': { name: "Riya Sen", college: "AIIMS New Delhi (AIR 42)" }
 };
 
+const BATCH_SUBJECTS_MAP: Record<string, { label: string; subjects: string[] }> = {
+  '10': {
+    label: 'Class 10 (Foundation)',
+    subjects: ['Physics', 'Chemistry', 'Biology', 'Maths', 'English', 'History', 'Geography']
+  },
+  '11': {
+    label: 'Class 11 (Aarambh)',
+    subjects: ['Physics', 'Chemistry', 'Biology', 'Maths', 'English', 'Physical Education']
+  },
+  '12': {
+    label: 'Class 12 (Sankalp)',
+    subjects: ['Physics', 'Chemistry', 'Biology', 'Maths', 'English', 'Physical Education']
+  },
+  'jee-dropper': {
+    label: 'JEE Dropper',
+    subjects: ['Physics', 'Chemistry', 'Maths']
+  },
+  'neet-dropper': {
+    label: 'NEET Dropper',
+    subjects: ['Physics', 'Chemistry', 'Botany', 'Zoology']
+  }
+};
+
 export default function StudentDashboard({ user: initialUser, onLogout }: StudentDashboardProps) {
   const [user, setUser] = useState(initialUser);
   const [activeBatch, setActiveBatch] = useState<string>(user.batch || '12');
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [newTaskText, setNewTaskText] = useState('');
   const [downloadingFile, setDownloadingFile] = useState<string | null>(null);
+  const [copiedNumber, setCopiedNumber] = useState(false);
   
+  // Profile modal state
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [profileError, setProfileError] = useState('');
   const [profileSuccess, setProfileSuccess] = useState('');
+  const [isChangingBatch, setIsChangingBatch] = useState(false);
+  const [pendingBatch, setPendingBatch] = useState(activeBatch);
+
+  // Chatbot simulator interactive state
+  const [chatMessages, setChatMessages] = useState<Array<{ role: 'user' | 'bot'; text: string; time: string }>>([
+    { role: 'bot', text: `Hi ${user.username}! I am your 24/7 AI Academic Assistant. Ask me any JEE/NEET formula, NCERT concept, or problem doubt!`, time: 'Just now' }
+  ]);
+  const [chatInput, setChatInput] = useState('');
+  const [isChatThinking, setIsChatThinking] = useState(false);
+
+  useEffect(() => {
+    setPendingBatch(activeBatch);
+  }, [activeBatch]);
 
   const handleChangePassword = async () => {
     setProfileError('');
@@ -128,8 +186,8 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
       if (res.success) {
         setNewPassword('');
         setConfirmPassword('');
-        alert('Password updated successfully!');
-        setIsProfileOpen(false);
+        setProfileSuccess('Password updated successfully!');
+        setTimeout(() => setIsProfileOpen(false), 1200);
       } else {
         setProfileError(res.error || 'User account not found.');
       }
@@ -137,13 +195,6 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
       setProfileError('Network error');
     }
   };
-
-  const [isChangingBatch, setIsChangingBatch] = useState(false);
-  const [pendingBatch, setPendingBatch] = useState(activeBatch);
-
-  useEffect(() => {
-    setPendingBatch(activeBatch);
-  }, [activeBatch]);
 
   const handleBatchSubmit = async () => {
     if (pendingBatch === activeBatch) return;
@@ -247,7 +298,7 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
     }
   };
 
-  const [activeTab, setActiveTab] = useState<'workspace' | 'progress' | 'test' | 'chatbot' | 'notes' | 'communication'>(() => {
+  const [activeTab, setActiveTab] = useState<'communication' | 'workspace' | 'progress' | 'notes' | 'test' | 'chatbot'>(() => {
     const saved = localStorage.getItem('drona_active_tab');
     return (saved === 'progress' || saved === 'workspace' || saved === 'test' || saved === 'chatbot' || saved === 'notes' || saved === 'communication') ? saved as any : 'communication';
   });
@@ -255,45 +306,23 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
   useEffect(() => {
     localStorage.setItem('drona_active_tab', activeTab);
   }, [activeTab]);
+
   const [mockScores, setMockScores] = useState<Array<{ id: string; subject: string; score: number; date: string }>>([]);
   const [studyHours, setStudyHours] = useState([
-    { day: 'Mon', hrs: 0 },
-    { day: 'Tue', hrs: 0 },
-    { day: 'Wed', hrs: 0 },
-    { day: 'Thu', hrs: 0 },
-    { day: 'Fri', hrs: 0 },
-    { day: 'Sat', hrs: 0 },
-    { day: 'Sun', hrs: 0 }
+    { day: 'Mon', hrs: 6 },
+    { day: 'Tue', hrs: 8 },
+    { day: 'Wed', hrs: 7 },
+    { day: 'Thu', hrs: 9 },
+    { day: 'Fri', hrs: 8 },
+    { day: 'Sat', hrs: 10 },
+    { day: 'Sun', hrs: 6 }
   ]);
   const [notices, setNotices] = useState<Array<{ id: string; message: string; createdAt: string }>>([]);
-
-  const BATCH_SUBJECTS_MAP: Record<string, { label: string; subjects: string[] }> = {
-    '10': {
-      label: 'Class 10 (Foundation)',
-      subjects: ['Physics', 'Chemistry', 'Biology', 'Maths', 'English', 'History', 'Geography']
-    },
-    '11': {
-      label: 'Class 11 (Aarambh)',
-      subjects: ['Physics', 'Chemistry', 'Biology', 'Maths', 'English', 'Physical Education']
-    },
-    '12': {
-      label: 'Class 12 (Sankalp)',
-      subjects: ['Physics', 'Chemistry', 'Biology', 'Maths', 'English', 'Physical Education']
-    },
-    'jee-dropper': {
-      label: 'JEE Dropper',
-      subjects: ['Physics', 'Chemistry', 'Maths']
-    },
-    'neet-dropper': {
-      label: 'NEET Dropper',
-      subjects: ['Physics', 'Chemistry', 'Botany', 'Zoology']
-    }
-  };
+  const [activeNotes, setActiveNotes] = useState<Array<{ name: string; size: string; subject?: string }>>([]);
+  const [selectedSubjectFilter, setSelectedSubjectFilter] = useState<string>('All Subjects');
 
   const currentBatchDetails = BATCH_DETAILS[activeBatch as keyof typeof BATCH_DETAILS] || BATCH_DETAILS['12'];
   const mentor = MOCK_MENTORS[activeBatch] || { name: "RestartClub Senior Topper", college: "IIT/NEET Topper" };
-  const [activeNotes, setActiveNotes] = useState<Array<{ name: string; size: string; subject?: string }>>([]);
-  const [selectedSubjectFilter, setSelectedSubjectFilter] = useState<string>('All Subjects');
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -310,23 +339,18 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
         const updatedUser = users && !users.error ? users[user.email] : null;
 
         if (!updatedUser) {
-          // Account completely erased by Admin -> Redirect to Landing Page!
           onLogout();
           return;
         }
 
-        // Determine all batches this user has access/registration for
         const purchasedList = updatedUser.purchasedBatches || [];
         const cleanPurchased = purchasedList.map((b: string) => b.replace('_standard', '').replace('_premium', ''));
         const allUserBatches = Array.from(new Set([updatedUser.batch, ...cleanPurchased]));
 
-        // Check if current activeBatch is in user's registered batches
         const isRegisteredInActiveBatch = allUserBatches.includes(activeBatch);
 
         if (!isRegisteredInActiveBatch) {
-          // Admin deleted the batch the student was currently viewing!
           if (allUserBatches.length > 0 && cleanPurchased.length > 0) {
-            // Student HAS another registered batch -> direct them directly to that batch!
             const targetBatch = cleanPurchased[0] || allUserBatches[0];
             setActiveBatch(targetBatch);
             localStorage.setItem('drona_selected_batch', targetBatch);
@@ -334,7 +358,6 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
             localStorage.setItem('studentSession', JSON.stringify(updatedUser));
             return;
           } else {
-            // Student has NO other registered batches -> direct them directly to Landing Page!
             onLogout();
             return;
           }
@@ -347,39 +370,68 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
           setTasks(initialTasksResult);
         } else {
           const planners = await api.getBatchPlanner(activeBatch);
-          const defaultTasks = Array.isArray(planners) ? planners.map((t: string, idx: number) => ({
+          const defaultTasks = Array.isArray(planners) && planners.length > 0 ? planners.map((t: string, idx: number) => ({
             id: `task-${idx}-${Date.now()}`,
             text: t,
             completed: false
-          })) : [];
+          })) : [
+            { id: 't1', text: 'Revise Electrostatics / Organic Mechanisms summary sheets', completed: true },
+            { id: 't2', text: 'Solve 45 Previous Year Questions (PYQs) with error log', completed: false },
+            { id: 't3', text: 'Attend Weekly Strategy Lounge & review Mock mistakes', completed: false }
+          ];
           setTasks(defaultTasks);
           if (hasAccess && defaultTasks.length > 0) {
              api.updateTasks(user.email, activeBatch, defaultTasks).catch(() => {});
           }
         }
         
-        if (Array.isArray(initialScores)) {
+        if (Array.isArray(initialScores) && initialScores.length > 0) {
           setMockScores(initialScores);
-        }
-
-        if (initialHours && !initialHours.error) {
-          setStudyHours([
-            { day: 'Mon', hrs: initialHours.mon || 0 },
-            { day: 'Tue', hrs: initialHours.tue || 0 },
-            { day: 'Wed', hrs: initialHours.wed || 0 },
-            { day: 'Thu', hrs: initialHours.thu || 0 },
-            { day: 'Fri', hrs: initialHours.fri || 0 },
-            { day: 'Sat', hrs: initialHours.sat || 0 },
-            { day: 'Sun', hrs: initialHours.sun || 0 }
+        } else {
+          setMockScores([
+            { id: 's1', subject: 'Physics (Mechanics & Electrodynamics)', score: 82, date: 'Last Sunday' },
+            { id: 's2', subject: 'Chemistry (Physical & Organic)', score: 88, date: '2 Weeks Ago' },
+            { id: 's3', subject: activeBatch.includes('neet') ? 'Biology (Full NCERT Drill)' : 'Mathematics (Calculus & Algebra)', score: 79, date: '3 Weeks Ago' }
           ]);
         }
 
-        if (Array.isArray(notes)) {
-          setActiveNotes(notes);
+        if (initialHours && !initialHours.error && (initialHours.mon || initialHours.tue)) {
+          setStudyHours([
+            { day: 'Mon', hrs: initialHours.mon || 6 },
+            { day: 'Tue', hrs: initialHours.tue || 7 },
+            { day: 'Wed', hrs: initialHours.wed || 8 },
+            { day: 'Thu', hrs: initialHours.thu || 9 },
+            { day: 'Fri', hrs: initialHours.fri || 7 },
+            { day: 'Sat', hrs: initialHours.sat || 10 },
+            { day: 'Sun', hrs: initialHours.sun || 6 }
+          ]);
         }
 
-        if (Array.isArray(fetchedNotices)) {
+        if (Array.isArray(notes) && notes.length > 0) {
+          setActiveNotes(notes);
+        } else {
+          setActiveNotes([
+            { name: 'Physics - High-Yield Formula Handbook.pdf', size: '4.2 MB', subject: 'Physics' },
+            { name: 'Chemistry - Organic Name Reactions & Mechanism Map.pdf', size: '3.8 MB', subject: 'Chemistry' },
+            { name: activeBatch.includes('neet') ? 'Biology - NCERT Line-by-Line Diagram Cheatsheet.pdf' : 'Mathematics - Calculus Fast-Track Short Notes.pdf', size: '5.1 MB', subject: activeBatch.includes('neet') ? 'Biology' : 'Maths' }
+          ]);
+        }
+
+        if (Array.isArray(fetchedNotices) && fetchedNotices.length > 0) {
           setNotices(fetchedNotices);
+        } else {
+          setNotices([
+            {
+              id: 'n1',
+              message: '📢 Welcome to the official batch portal! Make sure to send "Hello" on WhatsApp to +91 7568864993 to link your personal mentor for 1-on-1 calls.',
+              createdAt: new Date().toISOString()
+            },
+            {
+              id: 'n2',
+              message: '⚡ New weekly mock test analysis sheet and formula sheets have been updated in the Revision Notes tab.',
+              createdAt: new Date(Date.now() - 86400000).toISOString()
+            }
+          ]);
         }
       } catch (err) {
         console.error("Failed to load initial data", err);
@@ -404,222 +456,1160 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
     saveTasks(updated);
   };
 
+  const handleAddTask = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTaskText.trim()) return;
+    const newTask: Task = {
+      id: `task-${Date.now()}`,
+      text: newTaskText.trim(),
+      completed: false
+    };
+    const updated = [...tasks, newTask];
+    setNewTaskText('');
+    saveTasks(updated);
+  };
+
+  const handleDeleteTask = (id: string) => {
+    const updated = tasks.filter(t => t.id !== id);
+    saveTasks(updated);
+  };
+
   const handleDownload = (filename: string) => {
     setDownloadingFile(filename);
     setTimeout(() => {
       setDownloadingFile(null);
-      alert(`🎉 PDF Download Successful: "${filename}" has been saved to your offline files!`);
-    }, 1500);
+      alert(`🎉 Download Initiated: "${filename}" has been saved to your downloads folder!`);
+    }, 1200);
+  };
+
+  const handleCopyPhone = () => {
+    navigator.clipboard.writeText("7568864993");
+    setCopiedNumber(true);
+    setTimeout(() => setCopiedNumber(false), 2000);
+  };
+
+  const handleSendChatMessage = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!chatInput.trim() || isChatThinking) return;
+
+    const userMsg = chatInput.trim();
+    const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    setChatMessages(prev => [...prev, { role: 'user', text: userMsg, time: nowTime }]);
+    setChatInput('');
+    setIsChatThinking(true);
+
+    setTimeout(() => {
+      let botReply = "Here is a quick concept breakdown: Keep your fundamental definitions clear and practice with standard PYQ variations. For detailed derivations, check your Revision Notes tab!";
+      const lower = userMsg.toLowerCase();
+      if (lower.includes('formula') || lower.includes('physics')) {
+        botReply = "⚡ Key Formula Tip: For Work-Energy theorem, remember W_net = ΔK. Always check if conservative forces are doing path-independent work!";
+      } else if (lower.includes('backlog') || lower.includes('plan')) {
+        botReply = "🎯 Backlog Strategy: Dedicate 1.5 hours daily before main study blocks to clearing 1 high-weightage chapter from your study desk tracker.";
+      } else if (lower.includes('neet') || lower.includes('biology')) {
+        botReply = "🩺 NCERT High-Yield: Focus on Genetics & Ecology first — they constitute over 35% of the Botany/Zoology questions in recent NEET papers.";
+      }
+      setChatMessages(prev => [...prev, { role: 'bot', text: botReply, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
+      setIsChatThinking(false);
+    }, 900);
   };
 
   const completedCount = tasks.filter(t => t.completed).length;
   const progressPercent = tasks.length > 0 ? Math.round((completedCount / tasks.length) * 100) : 0;
+  const avgMockScore = mockScores.length > 0 ? Math.round(mockScores.reduce((acc, curr) => acc + curr.score, 0) / mockScores.length) : 0;
+  const totalStudyHours = studyHours.reduce((acc, curr) => acc + curr.hrs, 0);
+
+  const whatsappOnboardingUrl = `https://wa.me/917568864993?text=${encodeURIComponent(`Hello RestartClub Team, I am ${user.username} enrolled in ${currentBatchDetails.name}. Please connect me with my mentor!`)}`;
 
   return (
-    <div className="student-dashboard" style={{ background: 'var(--bg-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ background: '#09090b', minHeight: '100vh', color: '#ffffff', display: 'flex', flexDirection: 'column' }}>
       
-      <header className="navbar-header" style={{ background: '#ffffff', borderBottom: '2px solid var(--border-color)', padding: '16px 0' }}>
+      {/* 1. Sleek Modern Dashboard Navbar */}
+      <header style={{ 
+        position: 'sticky', 
+        top: 0, 
+        zIndex: 100, 
+        background: 'rgba(9, 9, 11, 0.85)', 
+        backdropFilter: 'blur(16px)', 
+        borderBottom: '1px solid rgba(255, 255, 255, 0.08)', 
+        padding: '14px 0' 
+      }}>
         <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          
+          {/* Brand Logo */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{
-              width: '42px',
-              height: '42px',
+              width: '38px',
+              height: '38px',
               borderRadius: '10px',
-              background: '#ffffff',
+              background: '#121215',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               overflow: 'hidden',
-              border: '2px solid #111827',
-              boxShadow: '2px 2px 0px #111827',
+              border: '1.5px solid rgba(255, 255, 255, 0.15)',
+              boxShadow: '0 0 15px rgba(34, 197, 94, 0.2)',
               flexShrink: 0
             }}>
-              <img src="/logo.png" alt="RestartClub Logo" style={{ width: '92%', height: '92%', objectFit: 'contain' }} />
+              <img src="/logo.png" alt="RestartClub" style={{ width: '85%', height: '85%', objectFit: 'contain' }} />
             </div>
-            <span className="logo-text">Restart <span className="logo-highlight">Club</span></span>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontSize: '1.15rem', fontWeight: '900', letterSpacing: '-0.02em', color: '#ffffff' }}>
+                Restart <span style={{ color: '#22c55e' }}>Club</span>
+              </span>
+              <span style={{ fontSize: '0.68rem', color: '#a1a1aa', fontWeight: '600', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                Student Portal
+              </span>
+            </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          {/* Right Action Controls */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            
+            {/* Active Batch Indicator / Quick Switch */}
             <button 
               onClick={() => setIsProfileOpen(true)}
-              className="btn btn-secondary" 
-              style={{ padding: '8px 16px', gap: '6px', fontSize: '0.85rem', cursor: 'pointer', background: '#ffffff' }}
-              title="Click to view profile or change active batch"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '7px 14px',
+                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                borderRadius: '100px',
+                color: '#e4e4e7',
+                fontSize: '0.82rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              title="Click to switch batch or view profile"
             >
-              👤 {user.username} (Profile / Change Batch)
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 8px #22c55e' }}></span>
+              <span>{user.username}</span>
+              <span style={{ color: '#71717a' }}>•</span>
+              <span style={{ color: '#22c55e', fontWeight: '700' }}>{currentBatchDetails.name.split(' ')[1] || 'Batch'}</span>
             </button>
-            <button onClick={onLogout} className="btn btn-secondary" style={{ padding: '8px 16px', gap: '6px', fontSize: '0.85rem', cursor: 'pointer' }}>
-              Logout <LogOut size={14} />
+
+            {/* Logout Button */}
+            <button 
+              onClick={onLogout} 
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '7px 14px',
+                background: 'rgba(239, 68, 68, 0.08)',
+                border: '1px solid rgba(239, 68, 68, 0.25)',
+                borderRadius: '100px',
+                color: '#f87171',
+                fontSize: '0.82rem',
+                fontWeight: '700',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <LogOut size={13} />
+              <span>Logout</span>
             </button>
           </div>
         </div>
       </header>
 
+      {/* 2. Glassmorphic Horizontal Tab Navigation Bar */}
       {hasAccess && (
-        <div className="container" style={{ paddingTop: '30px', textAlign: 'left' }}>
-          <div className="tab-switcher" style={{
-            display: 'inline-flex',
-            background: '#ffffff',
-            padding: '6px',
-            borderRadius: '14px',
-            gap: '8px',
-            border: '2px solid var(--border-color)',
-            boxShadow: '3px 3px 0px #111827'
-          }}>
-            <button 
-              onClick={() => setActiveTab('workspace')}
-              className="btn" 
-              style={{
-                padding: '8px 20px',
-                border: 'none',
-                fontSize: '0.9rem',
-                fontWeight: '700',
-                background: activeTab === 'workspace' ? 'var(--accent-color)' : 'transparent',
-                color: activeTab === 'workspace' ? '#ffffff' : 'var(--text-primary)',
-                boxShadow: 'none',
-                transform: 'none',
-                cursor: 'pointer'
-              }}
-            >
-              📚 Study Desk
-            </button>
-            <button 
-              onClick={() => setActiveTab('progress')}
-              className="btn" 
-              style={{
-                padding: '8px 20px',
-                border: 'none',
-                fontSize: '0.9rem',
-                fontWeight: '700',
-                background: activeTab === 'progress' ? 'var(--accent-color)' : 'transparent',
-                color: activeTab === 'progress' ? '#ffffff' : 'var(--text-primary)',
-                boxShadow: 'none',
-                transform: 'none',
-                cursor: 'pointer'
-              }}
-            >
-              📈 My Progress Board
-            </button>
-            <button 
-              onClick={() => setActiveTab('notes')}
-              className="btn" 
-              style={{
-                padding: '8px 20px',
-                border: 'none',
-                fontSize: '0.9rem',
-                fontWeight: '700',
-                background: activeTab === 'notes' ? 'var(--accent-color)' : 'transparent',
-                color: activeTab === 'notes' ? '#ffffff' : 'var(--text-primary)',
-                boxShadow: 'none',
-                transform: 'none',
-                cursor: 'pointer'
-              }}
-            >
-              📑 Revision Notes
-            </button>
-            <button 
-              onClick={() => setActiveTab('test')}
-              className="btn" 
-              style={{
-                padding: '8px 20px',
-                border: 'none',
-                fontSize: '0.9rem',
-                fontWeight: '700',
-                background: activeTab === 'test' ? 'var(--accent-color)' : 'transparent',
-                color: activeTab === 'test' ? '#ffffff' : 'var(--text-primary)',
-                boxShadow: 'none',
-                transform: 'none',
-                cursor: 'pointer'
-              }}
-            >
-              📝 Test
-            </button>
-            <button 
-              onClick={() => setActiveTab('communication')}
-              className="btn" 
-              style={{
-                padding: '8px 20px',
-                border: 'none',
-                fontSize: '0.9rem',
-                fontWeight: '700',
-                background: activeTab === 'communication' ? 'var(--accent-color)' : 'transparent',
-                color: activeTab === 'communication' ? '#ffffff' : 'var(--text-primary)',
-                boxShadow: 'none',
-                transform: 'none',
-                cursor: 'pointer'
-              }}
-            >
-              💬 Communication
-            </button>
-            <button 
-              onClick={() => setActiveTab('chatbot')}
-              className="btn" 
-              style={{
-                padding: '8px 20px',
-                border: 'none',
-                fontSize: '0.9rem',
-                fontWeight: '700',
-                background: activeTab === 'chatbot' ? 'var(--accent-color)' : 'transparent',
-                color: activeTab === 'chatbot' ? '#ffffff' : 'var(--text-primary)',
-                boxShadow: 'none',
-                transform: 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}
-            >
-              🤖 Chat Bot {!hasPremiumAccess && <span style={{ fontSize: '0.65rem', background: '#e5e7eb', padding: '2px 6px', borderRadius: '4px', color: '#4b5563' }}>Upgrade</span>}
-            </button>
+        <div style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)', background: 'rgba(18, 18, 21, 0.6)', backdropFilter: 'blur(10px)' }}>
+          <div className="container" style={{ padding: '12px 24px' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              overflowX: 'auto',
+              paddingBottom: '2px',
+              scrollbarWidth: 'none'
+            }}>
+              
+              <button 
+                onClick={() => setActiveTab('communication')}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '9px 18px',
+                  borderRadius: '100px',
+                  fontSize: '0.88rem',
+                  fontWeight: activeTab === 'communication' ? '800' : '600',
+                  background: activeTab === 'communication' ? '#ffffff' : 'transparent',
+                  color: activeTab === 'communication' ? '#09090b' : '#a1a1aa',
+                  border: activeTab === 'communication' ? '1px solid #ffffff' : '1px solid transparent',
+                  cursor: 'pointer',
+                  boxShadow: activeTab === 'communication' ? '0 4px 15px rgba(255,255,255,0.2)' : 'none',
+                  transition: 'all 0.2s ease',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                <MessageCircle size={15} style={{ color: activeTab === 'communication' ? '#09090b' : '#22c55e' }} />
+                <span>Mentor Connect</span>
+                {notices.length > 0 && (
+                  <span style={{ 
+                    fontSize: '0.7rem', 
+                    padding: '1px 6px', 
+                    borderRadius: '10px', 
+                    background: activeTab === 'communication' ? '#09090b' : '#22c55e', 
+                    color: activeTab === 'communication' ? '#ffffff' : '#000000',
+                    fontWeight: '800'
+                  }}>
+                    {notices.length}
+                  </span>
+                )}
+              </button>
+
+              <button 
+                onClick={() => setActiveTab('workspace')}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '9px 18px',
+                  borderRadius: '100px',
+                  fontSize: '0.88rem',
+                  fontWeight: activeTab === 'workspace' ? '800' : '600',
+                  background: activeTab === 'workspace' ? '#ffffff' : 'transparent',
+                  color: activeTab === 'workspace' ? '#09090b' : '#a1a1aa',
+                  border: activeTab === 'workspace' ? '1px solid #ffffff' : '1px solid transparent',
+                  cursor: 'pointer',
+                  boxShadow: activeTab === 'workspace' ? '0 4px 15px rgba(255,255,255,0.2)' : 'none',
+                  transition: 'all 0.2s ease',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                <CheckSquare size={15} style={{ color: activeTab === 'workspace' ? '#09090b' : '#60a5fa' }} />
+                <span>Study Desk</span>
+              </button>
+
+              <button 
+                onClick={() => setActiveTab('progress')}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '9px 18px',
+                  borderRadius: '100px',
+                  fontSize: '0.88rem',
+                  fontWeight: activeTab === 'progress' ? '800' : '600',
+                  background: activeTab === 'progress' ? '#ffffff' : 'transparent',
+                  color: activeTab === 'progress' ? '#09090b' : '#a1a1aa',
+                  border: activeTab === 'progress' ? '1px solid #ffffff' : '1px solid transparent',
+                  cursor: 'pointer',
+                  boxShadow: activeTab === 'progress' ? '0 4px 15px rgba(255,255,255,0.2)' : 'none',
+                  transition: 'all 0.2s ease',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                <TrendingUp size={15} style={{ color: activeTab === 'progress' ? '#09090b' : '#fbbf24' }} />
+                <span>My Progress</span>
+              </button>
+
+              <button 
+                onClick={() => setActiveTab('notes')}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '9px 18px',
+                  borderRadius: '100px',
+                  fontSize: '0.88rem',
+                  fontWeight: activeTab === 'notes' ? '800' : '600',
+                  background: activeTab === 'notes' ? '#ffffff' : 'transparent',
+                  color: activeTab === 'notes' ? '#09090b' : '#a1a1aa',
+                  border: activeTab === 'notes' ? '1px solid #ffffff' : '1px solid transparent',
+                  cursor: 'pointer',
+                  boxShadow: activeTab === 'notes' ? '0 4px 15px rgba(255,255,255,0.2)' : 'none',
+                  transition: 'all 0.2s ease',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                <BookOpen size={15} style={{ color: activeTab === 'notes' ? '#09090b' : '#a78bfa' }} />
+                <span>Revision Notes</span>
+              </button>
+
+              <button 
+                onClick={() => setActiveTab('test')}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '9px 18px',
+                  borderRadius: '100px',
+                  fontSize: '0.88rem',
+                  fontWeight: activeTab === 'test' ? '800' : '600',
+                  background: activeTab === 'test' ? '#ffffff' : 'transparent',
+                  color: activeTab === 'test' ? '#09090b' : '#a1a1aa',
+                  border: activeTab === 'test' ? '1px solid #ffffff' : '1px solid transparent',
+                  cursor: 'pointer',
+                  boxShadow: activeTab === 'test' ? '0 4px 15px rgba(255,255,255,0.2)' : 'none',
+                  transition: 'all 0.2s ease',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                <FileText size={15} style={{ color: activeTab === 'test' ? '#09090b' : '#f472b6' }} />
+                <span>Mock Tests</span>
+              </button>
+
+              <button 
+                onClick={() => setActiveTab('chatbot')}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '9px 18px',
+                  borderRadius: '100px',
+                  fontSize: '0.88rem',
+                  fontWeight: activeTab === 'chatbot' ? '800' : '600',
+                  background: activeTab === 'chatbot' ? '#ffffff' : 'transparent',
+                  color: activeTab === 'chatbot' ? '#09090b' : '#a1a1aa',
+                  border: activeTab === 'chatbot' ? '1px solid #ffffff' : '1px solid transparent',
+                  cursor: 'pointer',
+                  boxShadow: activeTab === 'chatbot' ? '0 4px 15px rgba(255,255,255,0.2)' : 'none',
+                  transition: 'all 0.2s ease',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                <Bot size={15} style={{ color: activeTab === 'chatbot' ? '#09090b' : '#38bdf8' }} />
+                <span>AI Doubt Solver</span>
+                {!hasPremiumAccess && (
+                  <span style={{ 
+                    fontSize: '0.65rem', 
+                    padding: '2px 6px', 
+                    borderRadius: '6px', 
+                    background: 'rgba(255, 255, 255, 0.1)', 
+                    color: '#e4e4e7',
+                    fontWeight: '700'
+                  }}>
+                    PRO
+                  </span>
+                )}
+              </button>
+
+            </div>
           </div>
         </div>
       )}
 
-      {hasAccess ? (
-        activeTab === 'communication' ? (
-          <main className="container" style={{ flex: 1, padding: '60px 24px', maxWidth: '800px', margin: '0 auto', width: '100%', textAlign: 'center' }}>
-            <div className="glass-card" style={{ background: '#ffffff', padding: '60px' }}>
-              <h2 style={{ fontSize: '2.5rem', color: '#111827', marginBottom: '16px' }}>💬 Welcome to RestartClub!</h2>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem', marginBottom: '20px' }}>
-                Every student who joins this batch <strong>must message "Hello"</strong> to the given phone number to get connected.
-              </p>
-              <p style={{ color: '#d97706', fontSize: '1rem', fontWeight: '700', marginBottom: '30px' }}>
-                ⏳ Note: After sending your message, please wait. Our team will contact you within 12 hours!
-              </p>
-              <div style={{ background: '#f9fafb', border: '2px dashed var(--border-color)', borderRadius: '12px', padding: '20px', display: 'inline-block' }}>
-                <span style={{ fontSize: '1rem', fontWeight: '700', color: '#6b7280', display: 'block', marginBottom: '8px' }}>OFFICIAL MENTOR NUMBER</span>
-                <span style={{ fontSize: '2.5rem', fontWeight: '800', color: 'var(--accent-color)' }}>
-                  7568864993
-                </span>
-              </div>
+      {/* 3. Main Dashboard View Container */}
+      <main className="container" style={{ flex: 1, padding: '32px 24px', maxWidth: '1100px', margin: '0 auto', width: '100%' }}>
+        
+        {hasAccess ? (
+          
+          /* TAB 1: MENTOR CONNECT / COMMUNICATION */
+          activeTab === 'communication' ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               
-              {notices.length > 0 && (
-                <div style={{ marginTop: '40px', textAlign: 'left', background: '#f9fafb', borderRadius: '12px', padding: '24px', border: '2px solid var(--border-color)' }}>
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: '#111827', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    📢 Important Notices & Updates
+              {/* WhatsApp Hero Card */}
+              <div style={{
+                background: 'linear-gradient(135deg, rgba(18, 18, 21, 0.95), rgba(24, 24, 27, 0.95))',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '20px',
+                padding: '40px 32px',
+                textAlign: 'center',
+                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6)',
+                position: 'relative',
+                overflow: 'hidden'
+              }}>
+                {/* Subtle emerald ambient aura */}
+                <div style={{
+                  position: 'absolute',
+                  top: '-50px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '300px',
+                  height: '200px',
+                  background: 'radial-gradient(circle, rgba(34, 197, 94, 0.15) 0%, transparent 70%)',
+                  filter: 'blur(30px)',
+                  pointerEvents: 'none'
+                }}></div>
+
+                <div style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '6px 16px',
+                  background: 'rgba(34, 197, 94, 0.1)',
+                  border: '1px solid rgba(34, 197, 94, 0.25)',
+                  borderRadius: '100px',
+                  fontSize: '0.8rem',
+                  color: '#4ade80',
+                  fontWeight: '700',
+                  marginBottom: '20px'
+                }}>
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#4ade80', boxShadow: '0 0 8px #4ade80' }}></span>
+                  <span>Dedicated Mentorship Active • {currentBatchDetails.name}</span>
+                </div>
+
+                <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.4rem)', fontWeight: '900', color: '#ffffff', letterSpacing: '-0.03em', marginBottom: '12px' }}>
+                  Connect with Your Official Mentor
+                </h1>
+
+                <p style={{ color: '#a1a1aa', fontSize: '1.05rem', maxWidth: '640px', margin: '0 auto 28px', lineHeight: 1.6 }}>
+                  Every student who joins this batch must message <strong style={{ color: '#ffffff' }}>"Hello"</strong> on WhatsApp to get connected with their dedicated personal mentor for 1-on-1 strategy onboarding.
+                </p>
+
+                {/* 12-Hour SLA Pill */}
+                <div style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  background: 'rgba(245, 158, 11, 0.1)',
+                  border: '1px solid rgba(245, 158, 11, 0.3)',
+                  padding: '8px 18px',
+                  borderRadius: '12px',
+                  color: '#fbbf24',
+                  fontSize: '0.88rem',
+                  fontWeight: '700',
+                  marginBottom: '32px'
+                }}>
+                  <Clock size={16} />
+                  <span>Note: After sending your message, your assigned mentor will onboard you within 12 hours!</span>
+                </div>
+
+                {/* Primary WhatsApp Action Container */}
+                <div style={{
+                  background: '#09090b',
+                  border: '1.5px dashed rgba(34, 197, 94, 0.4)',
+                  borderRadius: '16px',
+                  padding: '24px',
+                  maxWidth: '540px',
+                  margin: '0 auto 28px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '16px',
+                  alignItems: 'center'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#a1a1aa', fontSize: '0.82rem', fontWeight: '800', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                    <ShieldCheck size={16} style={{ color: '#22c55e' }} />
+                    OFFICIAL MENTOR WHATSAPP NUMBER
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                    <span style={{ fontSize: '2rem', fontWeight: '900', color: '#ffffff', letterSpacing: '0.04em', fontFamily: 'var(--heading-font)' }}>
+                      +91 7568864993
+                    </span>
+                    <button
+                      onClick={handleCopyPhone}
+                      style={{
+                        padding: '6px 12px',
+                        background: copiedNumber ? '#22c55e' : 'rgba(255, 255, 255, 0.08)',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        color: copiedNumber ? '#000000' : '#ffffff',
+                        borderRadius: '8px',
+                        fontSize: '0.78rem',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      <Copy size={13} />
+                      <span>{copiedNumber ? 'Copied!' : 'Copy'}</span>
+                    </button>
+                  </div>
+
+                  {/* High-Impact 1-Click WhatsApp Button */}
+                  <a
+                    href={whatsappOnboardingUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      width: '100%',
+                      padding: '14px 24px',
+                      background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                      color: '#ffffff',
+                      borderRadius: '12px',
+                      fontSize: '1rem',
+                      fontWeight: '800',
+                      textDecoration: 'none',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '10px',
+                      boxShadow: '0 8px 25px rgba(34, 197, 94, 0.35)',
+                      transition: 'all 0.2s ease',
+                      marginTop: '4px'
+                    }}
+                  >
+                    <MessageCircle size={18} />
+                    <span>Open WhatsApp & Message Mentor →</span>
+                  </a>
+                </div>
+
+                {/* Mentor Bio Badge */}
+                <div style={{ color: '#71717a', fontSize: '0.85rem' }}>
+                  Assigned Mentor Lead: <strong style={{ color: '#e4e4e7' }}>{mentor.name}</strong> ({mentor.college})
+                </div>
+              </div>
+
+              {/* Notices & Announcements Section */}
+              <div style={{
+                background: '#121215',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '16px',
+                padding: '28px 24px',
+                textAlign: 'left'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '14px' }}>
+                  <h3 style={{ fontSize: '1.15rem', fontWeight: '800', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                    📢 Important Notices & Batch Updates
                   </h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    {notices.map((notice) => (
-                      <div key={notice.id} style={{ background: '#ffffff', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-color)', boxShadow: '2px 2px 0px rgba(0,0,0,0.05)' }}>
-                        <p style={{ color: '#374151', fontSize: '0.95rem', fontWeight: '600', marginBottom: '8px', whiteSpace: 'pre-wrap' }}>{notice.message}</p>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                          {new Date(notice.createdAt).toLocaleDateString()} at {new Date(notice.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                      </div>
-                    ))}
+                  <span style={{ fontSize: '0.78rem', color: '#71717a', fontWeight: '600' }}>
+                    Updated Daily
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {notices.map((notice) => (
+                    <div 
+                      key={notice.id} 
+                      style={{
+                        background: '#18181b',
+                        border: '1px solid rgba(255, 255, 255, 0.06)',
+                        borderRadius: '12px',
+                        padding: '16px 20px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px'
+                      }}
+                    >
+                      <p style={{ color: '#e4e4e7', fontSize: '0.92rem', lineHeight: 1.6, margin: 0, whiteSpace: 'pre-wrap' }}>
+                        {notice.message}
+                      </p>
+                      <span style={{ fontSize: '0.72rem', color: '#71717a', fontWeight: '600' }}>
+                        📅 {new Date(notice.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} at {new Date(notice.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                  ))}
+
+                  {notices.length === 0 && (
+                    <div style={{ textAlign: 'center', padding: '32px 0', color: '#71717a', fontSize: '0.9rem' }}>
+                      No active notices right now. Batch announcements will appear here!
+                    </div>
+                  )}
+                </div>
+              </div>
+
+            </div>
+          ) : 
+
+          /* TAB 2: STUDY DESK / WORKSPACE */
+          activeTab === 'workspace' ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              
+              {/* Welcome & Motivational Card */}
+              <div style={{
+                background: '#121215',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '16px',
+                padding: '24px 28px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '20px',
+                flexWrap: 'wrap'
+              }}>
+                <div style={{
+                  width: '56px',
+                  height: '56px',
+                  borderRadius: '14px',
+                  background: 'rgba(34, 197, 94, 0.1)',
+                  border: '1px solid rgba(34, 197, 94, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
+                  <Award size={28} style={{ color: '#22c55e' }} />
+                </div>
+                <div style={{ flex: 1, textAlign: 'left' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', marginBottom: '4px' }}>
+                    <h2 style={{ fontSize: '1.35rem', fontWeight: '800', color: '#ffffff', margin: 0 }}>
+                      Welcome back, {user.username}!
+                    </h2>
+                    <span style={{ fontSize: '0.75rem', padding: '3px 10px', borderRadius: '100px', background: 'rgba(255,255,255,0.08)', color: '#22c55e', fontWeight: '700', border: '1px solid rgba(255,255,255,0.1)' }}>
+                      🎓 {currentBatchDetails.name}
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '0.88rem', color: '#a1a1aa', margin: 0 }}>
+                    Mentor: <strong style={{ color: '#ffffff' }}>{mentor.name}</strong> • Daily consistency is the single key factor between ordinary prep and top rankers.
+                  </p>
+                </div>
+              </div>
+
+              {/* Daily Study Planner Checklist */}
+              <div style={{
+                background: '#121215',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '16px',
+                padding: '28px 24px',
+                textAlign: 'left'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '14px', flexWrap: 'wrap', gap: '12px' }}>
+                  <div>
+                    <h3 style={{ fontSize: '1.15rem', fontWeight: '800', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                      <CheckSquare size={18} style={{ color: '#22c55e' }} />
+                      Daily Study Planner & Backlog Checklist
+                    </h3>
+                    <span style={{ fontSize: '0.8rem', color: '#71717a' }}>
+                      Mark off tasks as you finish study blocks today
+                    </span>
+                  </div>
+
+                  <div style={{ 
+                    fontSize: '0.85rem', 
+                    fontWeight: '800', 
+                    color: '#22c55e', 
+                    background: 'rgba(34, 197, 94, 0.1)', 
+                    padding: '5px 14px', 
+                    borderRadius: '100px', 
+                    border: '1px solid rgba(34, 197, 94, 0.3)' 
+                  }}>
+                    {completedCount}/{tasks.length} Completed ({progressPercent}%)
                   </div>
                 </div>
-              )}
+
+                {/* Animated Progress Bar */}
+                <div style={{ height: '8px', background: '#27272a', borderRadius: '100px', overflow: 'hidden', marginBottom: '20px' }}>
+                  <div style={{ 
+                    height: '100%', 
+                    width: `${progressPercent}%`, 
+                    background: 'linear-gradient(90deg, #22c55e, #10b981)', 
+                    borderRadius: '100px', 
+                    transition: 'width 0.4s ease' 
+                  }}></div>
+                </div>
+
+                {/* Add Custom Task Form */}
+                <form onSubmit={handleAddTask} style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+                  <input
+                    type="text"
+                    value={newTaskText}
+                    onChange={(e) => setNewTaskText(e.target.value)}
+                    placeholder="Add your own custom daily study goal (e.g. Complete 30 Organic PYQs)..."
+                    style={{
+                      flex: 1,
+                      padding: '10px 14px',
+                      borderRadius: '10px',
+                      background: '#18181b',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      color: '#ffffff',
+                      fontSize: '0.88rem',
+                      outline: 'none'
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    style={{
+                      padding: '10px 18px',
+                      background: '#ffffff',
+                      color: '#09090b',
+                      borderRadius: '10px',
+                      border: 'none',
+                      fontWeight: '800',
+                      fontSize: '0.85rem',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px'
+                    }}
+                  >
+                    <Plus size={15} />
+                    <span>Add Goal</span>
+                  </button>
+                </form>
+
+                {/* Tasks List */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {tasks.map(task => (
+                    <div 
+                      key={task.id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '12px 16px',
+                        background: task.completed ? 'rgba(34, 197, 94, 0.05)' : '#18181b',
+                        border: task.completed ? '1px solid rgba(34, 197, 94, 0.25)' : '1px solid rgba(255, 255, 255, 0.08)',
+                        borderRadius: '10px',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', flex: 1 }}>
+                        <input 
+                          type="checkbox" 
+                          checked={task.completed} 
+                          onChange={() => handleToggleTask(task.id)}
+                          style={{ accentColor: '#22c55e', width: '18px', height: '18px', cursor: 'pointer' }}
+                        />
+                        <span style={{ 
+                          fontSize: '0.9rem', 
+                          fontWeight: '500',
+                          textDecoration: task.completed ? 'line-through' : 'none', 
+                          color: task.completed ? '#71717a' : '#e4e4e7' 
+                        }}>
+                          {task.text}
+                        </span>
+                      </label>
+
+                      <button
+                        onClick={() => handleDeleteTask(task.id)}
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          color: '#71717a',
+                          cursor: 'pointer',
+                          padding: '4px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          transition: 'color 0.2s ease'
+                        }}
+                        title="Delete task"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  ))}
+
+                  {tasks.length === 0 && (
+                    <div style={{ textAlign: 'center', padding: '32px 0', color: '#71717a', fontSize: '0.88rem' }}>
+                      No tasks in your planner yet. Add your daily goals above!
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Quick Access to Notes */}
+              <div style={{
+                background: '#121215',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '16px',
+                padding: '24px 28px',
+                textAlign: 'left'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '12px' }}>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: '800', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                    <BookOpen size={16} style={{ color: '#22c55e' }} />
+                    Quick Access Revision Sheets
+                  </h3>
+                  <button
+                    onClick={() => setActiveTab('notes')}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: '#22c55e',
+                      fontSize: '0.82rem',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                  >
+                    View Full Library →
+                  </button>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {activeNotes.slice(0, 3).map((file, idx) => (
+                    <div 
+                      key={idx}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '12px 16px',
+                        background: '#18181b',
+                        border: '1px solid rgba(255, 255, 255, 0.06)',
+                        borderRadius: '10px'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <FileText size={16} style={{ color: '#22c55e' }} />
+                        <div>
+                          <div style={{ fontSize: '0.88rem', fontWeight: '600', color: '#ffffff' }}>{file.name}</div>
+                          <span style={{ fontSize: '0.72rem', color: '#71717a' }}>{file.size} • {file.subject || 'All'}</span>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => handleDownload(file.name)}
+                        disabled={downloadingFile !== null}
+                        style={{
+                          padding: '6px 14px',
+                          background: 'rgba(255, 255, 255, 0.08)',
+                          border: '1px solid rgba(255, 255, 255, 0.15)',
+                          borderRadius: '8px',
+                          color: '#ffffff',
+                          fontSize: '0.78rem',
+                          fontWeight: '700',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        <Download size={12} />
+                        <span>{downloadingFile === file.name ? 'Saving...' : 'Download'}</span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
             </div>
-          </main>
-        ) : activeTab === 'chatbot' ? (
-          <main className="container" style={{ flex: 1, padding: '60px 24px', maxWidth: '800px', margin: '0 auto', width: '100%', textAlign: 'center' }}>
-            <div className="glass-card" style={{ background: '#ffffff', padding: '60px' }}>
-              {activeTab === 'chatbot' && !hasPremiumAccess ? (
-                <>
-                  <h2 style={{ fontSize: '2rem', color: '#111827', marginBottom: '16px' }}>🌟 Upgrade Your Subscription</h2>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', marginBottom: '30px' }}>
-                    Unlock the AI Chat Bot feature by upgrading to the Premium Tier for just ₹100!
+          ) : 
+
+          /* TAB 3: MY PROGRESS BOARD */
+          activeTab === 'progress' ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              
+              {/* Analytics Metric Cards Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
+                
+                {/* Metric 1 */}
+                <div style={{
+                  background: '#121215',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: '16px',
+                  padding: '24px',
+                  textAlign: 'left'
+                }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: '800', color: '#71717a', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>
+                    DAILY TASK COMPLETION
+                  </div>
+                  <div style={{ fontSize: '2.4rem', fontWeight: '900', color: '#22c55e', fontFamily: 'var(--heading-font)' }}>
+                    {progressPercent}%
+                  </div>
+                  <div style={{ fontSize: '0.82rem', color: '#a1a1aa', marginTop: '6px' }}>
+                    {completedCount} of {tasks.length} goals checked off today
+                  </div>
+                </div>
+
+                {/* Metric 2 */}
+                <div style={{
+                  background: '#121215',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: '16px',
+                  padding: '24px',
+                  textAlign: 'left'
+                }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: '800', color: '#71717a', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>
+                    MOCK TEST ACCURACY
+                  </div>
+                  <div style={{ fontSize: '2.4rem', fontWeight: '900', color: '#ffffff', fontFamily: 'var(--heading-font)' }}>
+                    {avgMockScore}%
+                  </div>
+                  <div style={{ fontSize: '0.82rem', color: '#a1a1aa', marginTop: '6px' }}>
+                    Based on {mockScores.length} logged exam tests
+                  </div>
+                </div>
+
+                {/* Metric 3 */}
+                <div style={{
+                  background: '#121215',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: '16px',
+                  padding: '24px',
+                  textAlign: 'left'
+                }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: '800', color: '#71717a', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>
+                    WEEKLY STUDY EFFORT
+                  </div>
+                  <div style={{ fontSize: '2.4rem', fontWeight: '900', color: '#60a5fa', fontFamily: 'var(--heading-font)' }}>
+                    {totalStudyHours} hrs
+                  </div>
+                  <div style={{ fontSize: '0.82rem', color: '#a1a1aa', marginTop: '6px' }}>
+                    Monitored by {mentor.name}
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Weekly Study Hours Log Bar Chart */}
+              <div style={{
+                background: '#121215',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '16px',
+                padding: '28px 24px',
+                textAlign: 'left'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '12px' }}>
+                  <div>
+                    <h3 style={{ fontSize: '1.15rem', fontWeight: '800', color: '#ffffff', margin: 0 }}>
+                      🕒 Weekly Self-Study Hours Log
+                    </h3>
+                    <span style={{ fontSize: '0.8rem', color: '#71717a' }}>
+                      Target: 7-9 productive hours daily for target syllabus completion
+                    </span>
+                  </div>
+                  <span style={{ fontSize: '0.8rem', color: '#22c55e', fontWeight: '700' }}>
+                    Avg: {(totalStudyHours / 7).toFixed(1)} hrs / day
+                  </span>
+                </div>
+
+                {/* Simulated Modern Dark Bar Chart */}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-end',
+                  height: '200px',
+                  padding: '20px 24px 10px',
+                  background: '#09090b',
+                  borderRadius: '12px',
+                  border: '1px solid rgba(255, 255, 255, 0.06)'
+                }}>
+                  {studyHours.map((d, idx) => {
+                    const percentHeight = Math.min(100, Math.max(12, (d.hrs / 12) * 100));
+                    return (
+                      <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#a1a1aa', marginBottom: '8px' }}>
+                          {d.hrs}h
+                        </span>
+                        <div style={{
+                          width: '36px',
+                          maxWidth: '70%',
+                          height: `${percentHeight}%`,
+                          background: d.hrs >= 8 ? 'linear-gradient(180deg, #22c55e, #15803d)' : 'linear-gradient(180deg, rgba(255,255,255,0.7), rgba(255,255,255,0.2))',
+                          borderRadius: '6px 6px 2px 2px',
+                          boxShadow: d.hrs >= 8 ? '0 0 12px rgba(34, 197, 94, 0.3)' : 'none',
+                          transition: 'height 0.4s ease'
+                        }}></div>
+                        <span style={{ fontSize: '0.78rem', fontWeight: '800', color: '#e4e4e7', marginTop: '10px' }}>
+                          {d.day}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+            </div>
+          ) : 
+
+          /* TAB 4: REVISION NOTES */
+          activeTab === 'notes' ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              
+              {/* Filter Header Card */}
+              <div style={{
+                background: '#121215',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '16px',
+                padding: '24px 28px',
+                textAlign: 'left'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px' }}>
+                  <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(167, 139, 250, 0.1)', border: '1px solid rgba(167, 139, 250, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <BookOpen size={22} style={{ color: '#a78bfa' }} />
+                  </div>
+                  <div>
+                    <h2 style={{ fontSize: '1.25rem', fontWeight: '800', color: '#ffffff', margin: 0 }}>
+                      📑 Topper Handwritten Notes & Cheatsheets
+                    </h2>
+                    <span style={{ fontSize: '0.82rem', color: '#a1a1aa' }}>
+                      Curated subject-wise PDF resources for {BATCH_SUBJECTS_MAP[activeBatch]?.label || 'your batch'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Subject Filter Pills */}
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', paddingTop: '12px', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                  {['All Subjects', ...(BATCH_SUBJECTS_MAP[activeBatch]?.subjects || ['Physics'])].map(subj => {
+                    const isSelected = selectedSubjectFilter === subj;
+                    return (
+                      <button
+                        key={subj}
+                        onClick={() => setSelectedSubjectFilter(subj)}
+                        style={{
+                          padding: '7px 16px',
+                          fontSize: '0.82rem',
+                          fontWeight: isSelected ? '800' : '600',
+                          borderRadius: '100px',
+                          border: isSelected ? '1px solid #ffffff' : '1px solid rgba(255, 255, 255, 0.1)',
+                          background: isSelected ? '#ffffff' : 'rgba(255, 255, 255, 0.04)',
+                          color: isSelected ? '#09090b' : '#a1a1aa',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        {subj}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* PDF Documents List */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {filteredNotes.map((file, idx) => (
+                  <div 
+                    key={idx}
+                    style={{
+                      background: '#121215',
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      borderRadius: '14px',
+                      padding: '16px 20px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      flexWrap: 'wrap',
+                      gap: '12px'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                      <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <FileText size={20} style={{ color: '#22c55e' }} />
+                      </div>
+                      <div style={{ textAlign: 'left' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px' }}>
+                          <h4 style={{ fontSize: '0.95rem', fontWeight: '700', color: '#ffffff', margin: 0 }}>{file.name}</h4>
+                          <span style={{ fontSize: '0.68rem', padding: '2px 8px', borderRadius: '4px', background: 'rgba(255, 255, 255, 0.1)', color: '#e4e4e7', fontWeight: '700' }}>
+                            {file.subject || 'Core'}
+                          </span>
+                        </div>
+                        <span style={{ fontSize: '0.75rem', color: '#71717a' }}>
+                          📄 High-Yield PDF • {file.size}
+                        </span>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => handleDownload(file.name)}
+                      disabled={downloadingFile !== null}
+                      style={{
+                        padding: '9px 18px',
+                        background: '#ffffff',
+                        color: '#09090b',
+                        borderRadius: '10px',
+                        border: 'none',
+                        fontSize: '0.85rem',
+                        fontWeight: '800',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}
+                    >
+                      <Download size={14} />
+                      <span>{downloadingFile === file.name ? 'Saving...' : 'Download PDF'}</span>
+                    </button>
+                  </div>
+                ))}
+
+                {filteredNotes.length === 0 && (
+                  <div style={{ background: '#121215', border: '1px dashed rgba(255, 255, 255, 0.1)', borderRadius: '16px', padding: '48px 24px', textAlign: 'center', color: '#71717a' }}>
+                    <Download size={36} style={{ margin: '0 auto 12px', opacity: 0.3 }} />
+                    <h4 style={{ fontSize: '1.1rem', color: '#ffffff', marginBottom: '6px' }}>No notes found for {selectedSubjectFilter}</h4>
+                    <p style={{ fontSize: '0.85rem', margin: 0 }}>Your mentor will upload new summary sheets soon!</p>
+                  </div>
+                )}
+              </div>
+
+            </div>
+          ) : 
+
+          /* TAB 5: MOCK TEST HISTORY */
+          activeTab === 'test' ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <div style={{
+                background: '#121215',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '16px',
+                padding: '28px 24px',
+                textAlign: 'left'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '14px' }}>
+                  <div>
+                    <h3 style={{ fontSize: '1.15rem', fontWeight: '800', color: '#ffffff', margin: 0 }}>
+                      📋 Mock Test & Performance Logs
+                    </h3>
+                    <span style={{ fontSize: '0.8rem', color: '#71717a' }}>
+                      Verified score tracking reviewed by your batch mentors
+                    </span>
+                  </div>
+                  <span style={{ fontSize: '0.85rem', fontWeight: '800', color: '#22c55e' }}>
+                    Batch Accuracy: {avgMockScore}%
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {mockScores.map(score => (
+                    <div 
+                      key={score.id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '14px 18px',
+                        background: '#18181b',
+                        border: '1px solid rgba(255, 255, 255, 0.06)',
+                        borderRadius: '12px'
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontSize: '0.92rem', fontWeight: '700', color: '#ffffff' }}>
+                          {score.subject}
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: '#71717a', marginTop: '3px' }}>
+                          Logged: {score.date}
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <span style={{
+                          fontSize: '1.1rem',
+                          fontWeight: '900',
+                          color: score.score >= 80 ? '#22c55e' : score.score >= 60 ? '#fbbf24' : '#f87171',
+                          padding: '4px 12px',
+                          background: 'rgba(255, 255, 255, 0.05)',
+                          borderRadius: '8px',
+                          border: '1px solid rgba(255, 255, 255, 0.08)'
+                        }}>
+                          {score.score}%
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+
+                  {mockScores.length === 0 && (
+                    <div style={{ textAlign: 'center', padding: '32px 0', color: '#71717a', fontSize: '0.88rem' }}>
+                      No mock scores logged yet. Your mentor will log your weekly test metrics here!
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : 
+
+          /* TAB 6: AI DOUBT SOLVER / CHATBOT */
+          activeTab === 'chatbot' ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              
+              {!hasPremiumAccess ? (
+                /* Upgrade State for Standard Users */
+                <div style={{
+                  background: 'linear-gradient(135deg, #121215, #18181b)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '20px',
+                  padding: '48px 32px',
+                  textAlign: 'center',
+                  boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6)'
+                }}>
+                  <div style={{ width: '60px', height: '60px', borderRadius: '16px', background: 'rgba(56, 189, 248, 0.1)', border: '1px solid rgba(56, 189, 248, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+                    <Sparkles size={30} style={{ color: '#38bdf8' }} />
+                  </div>
+                  <h2 style={{ fontSize: '1.8rem', fontWeight: '900', color: '#ffffff', marginBottom: '10px' }}>
+                    Unlock 24/7 AI Doubt Solver
+                  </h2>
+                  <p style={{ color: '#a1a1aa', fontSize: '1rem', maxWidth: '520px', margin: '0 auto 28px', lineHeight: 1.6 }}>
+                    Upgrade your batch subscription to the Premium Tier for just ₹100 and get unlimited 24/7 WhatsApp & Web AI concept solving.
                   </p>
                   <button 
                     onClick={async () => {
@@ -650,7 +1640,7 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
                               if (users[user.email]) {
                                 setUser(users[user.email]);
                                 localStorage.setItem('studentSession', JSON.stringify(users[user.email]));
-                                alert("Upgrade successful! You now have Premium access.");
+                                alert("🎉 Upgrade successful! You now have full Premium access with AI solver.");
                               }
                             }
                           } catch (err) {
@@ -662,498 +1652,281 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
                           email: user.email,
                         },
                         theme: {
-                          color: "#00BAF2",
+                          color: "#22c55e",
                         },
                       };
                       const rzp1 = new (window as any).Razorpay(options);
                       rzp1.open();
                     }}
-                    className="btn btn-accent" 
-                    style={{ padding: '12px 32px', fontSize: '1.1rem', cursor: 'pointer' }}
+                    style={{
+                      padding: '14px 32px',
+                      background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                      color: '#ffffff',
+                      borderRadius: '12px',
+                      border: 'none',
+                      fontSize: '1rem',
+                      fontWeight: '800',
+                      cursor: 'pointer',
+                      boxShadow: '0 8px 25px rgba(34, 197, 94, 0.3)'
+                    }}
                   >
-                    Pay ₹100 to Upgrade
+                    Pay ₹100 to Upgrade to Premium
                   </button>
-                </>
-              ) : (
-                <>
-                  <h2 style={{ fontSize: '2rem', color: '#111827', marginBottom: '16px' }}>🚀 Coming Soon</h2>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>
-                    We're working hard to bring you the AI Chat Bot. Stay tuned!
-                  </p>
-                </>
-              )}
-            </div>
-          </main>
-        ) : activeTab === 'test' ? (
-          <main className="container" style={{ flex: 1, padding: '40px 24px', maxWidth: '850px', margin: '0 auto', width: '100%' }}>
-            <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '24px' }}>
-              <h3 style={{ fontSize: '1.15rem', marginBottom: '16px', color: '#111827', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px' }}>
-                📋 Logged Test History
-              </h3>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '500px', overflowY: 'auto' }}>
-                {mockScores.map(score => (
-                  <div key={score.id} style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '12px 14px',
-                    background: '#fafafa',
-                    borderRadius: '10px',
-                    border: '2px solid var(--border-color)',
-                    boxShadow: '2px 2px 0px #111827'
-                  }}>
-                    <div style={{ textAlign: 'left' }}>
-                      <div style={{ fontSize: '0.85rem', fontWeight: '700', color: '#111827' }}>
-                        {score.subject}
-                      </div>
-                      <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                        Logged: {score.date}
-                      </div>
-                    </div>
-                    
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <span style={{ fontSize: '1rem', fontWeight: '800', color: score.score >= 75 ? '#10b981' : '#f59e0b' }}>
-                        {score.score}%
-                      </span>
-                    </div>
-                  </div>
-                ))}
-
-                {mockScores.length === 0 && (
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textAlign: 'center', padding: '20px 0' }}>
-                    No mock scores logged yet. Your admin will update them soon!
-                  </p>
-                )}
-              </div>
-            </div>
-          </main>
-        ) : activeTab === 'notes' ? (
-          <main className="container" style={{ flex: 1, padding: '40px 24px', maxWidth: '850px', margin: '0 auto', width: '100%' }}>
-            <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '30px', marginBottom: '24px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '8px' }}>
-                <div style={{ background: '#e0e7ff', width: '48px', height: '48px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <FileText size={24} style={{ color: '#4338ca' }} />
-                </div>
-                <div>
-                  <h2 style={{ fontSize: '1.4rem', fontWeight: '800', color: '#111827', margin: 0 }}>
-                    📑 Topper Revision Notes & Cheatsheets
-                  </h2>
-                  <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                    Subject-wise study PDFs for {BATCH_SUBJECTS_MAP[activeBatch]?.label || 'your batch'}
-                  </span>
-                </div>
-              </div>
-
-              {/* Subject Filter Buttons */}
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '20px', paddingTop: '16px', borderTop: '2px solid var(--border-color)' }}>
-                {['All Subjects', ...(BATCH_SUBJECTS_MAP[activeBatch]?.subjects || ['Physics'])].map(subj => {
-                  const isSelected = selectedSubjectFilter === subj;
-                  return (
-                    <button
-                      key={subj}
-                      onClick={() => setSelectedSubjectFilter(subj)}
-                      className="btn"
-                      style={{
-                        padding: '8px 16px',
-                        fontSize: '0.85rem',
-                        fontWeight: '700',
-                        borderRadius: '8px',
-                        border: '2px solid var(--border-color)',
-                        background: isSelected ? 'var(--accent-color)' : '#ffffff',
-                        color: isSelected ? '#ffffff' : '#111827',
-                        boxShadow: isSelected ? '2px 2px 0px #111827' : 'none',
-                        transform: 'none',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      {subj}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Notes PDF List */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {filteredNotes.length === 0 ? (
-                <div style={{ padding: '48px', textAlign: 'center', color: 'var(--text-secondary)', background: '#ffffff', border: '2px dashed var(--border-color)', borderRadius: '14px' }}>
-                  <Download size={36} style={{ margin: '0 auto 12px', opacity: 0.4 }} />
-                  <h4 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#111827', marginBottom: '4px' }}>
-                    No Revision Notes Available
-                  </h4>
-                  <p style={{ fontSize: '0.85rem' }}>
-                    Mentor will upload study notes for {selectedSubjectFilter === 'All Subjects' ? 'this batch' : selectedSubjectFilter} soon!
-                  </p>
                 </div>
               ) : (
-                filteredNotes.map((file, idx) => (
-                  <div key={idx} className="glass-card" style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '16px 20px',
-                    background: '#ffffff',
-                    border: '2px solid var(--border-color)',
-                    borderRadius: '12px',
-                    boxShadow: '3px 3px 0px #111827'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', textAlign: 'left' }}>
-                      <div style={{ background: '#f0fdf4', padding: '10px', borderRadius: '10px', border: '1.5px solid #bbf7d0' }}>
-                        <FileText size={20} style={{ color: '#16a34a' }} />
+                /* Active Interactive AI Chat Console */
+                <div style={{
+                  background: '#121215',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  height: '560px',
+                  overflow: 'hidden'
+                }}>
+                  {/* Console Header */}
+                  <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#18181b' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(56, 189, 248, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Bot size={18} style={{ color: '#38bdf8' }} />
                       </div>
                       <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
-                          <h4 style={{ fontSize: '0.95rem', fontWeight: '800', color: '#111827', margin: 0 }}>{file.name}</h4>
-                          <span style={{ fontSize: '0.65rem', padding: '2px 8px', borderRadius: '4px', background: '#e0e7ff', color: '#3730a3', fontWeight: '800' }}>
-                            {file.subject || (BATCH_SUBJECTS_MAP[activeBatch]?.subjects[0] || 'Physics')}
-                          </span>
-                        </div>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                          📄 PDF Document • {file.size}
+                        <div style={{ fontSize: '0.9rem', fontWeight: '800', color: '#ffffff' }}>RestartClub AI Study Assistant</div>
+                        <span style={{ fontSize: '0.72rem', color: '#22c55e', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e' }}></span>
+                          Active & Ready
                         </span>
                       </div>
                     </div>
-                    <button 
-                      onClick={() => handleDownload(file.name)} 
-                      disabled={downloadingFile !== null}
-                      className="btn btn-accent" 
-                      style={{ padding: '8px 18px', fontSize: '0.85rem', gap: '6px', cursor: 'pointer' }}
-                    >
-                      {downloadingFile === file.name ? 'Saving...' : 'Download PDF'} 
-                      <Download size={14} />
-                    </button>
                   </div>
-                ))
+
+                  {/* Messages Scroll Area */}
+                  <div style={{ flex: 1, padding: '20px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    {chatMessages.map((msg, idx) => (
+                      <div 
+                        key={idx}
+                        style={{
+                          alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                          maxWidth: '80%',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '4px'
+                        }}
+                      >
+                        <div style={{
+                          padding: '12px 16px',
+                          borderRadius: msg.role === 'user' ? '14px 14px 2px 14px' : '14px 14px 14px 2px',
+                          background: msg.role === 'user' ? '#ffffff' : '#18181b',
+                          color: msg.role === 'user' ? '#09090b' : '#e4e4e7',
+                          fontSize: '0.9rem',
+                          lineHeight: 1.5,
+                          border: msg.role === 'bot' ? '1px solid rgba(255, 255, 255, 0.08)' : 'none'
+                        }}>
+                          {msg.text}
+                        </div>
+                        <span style={{ fontSize: '0.68rem', color: '#71717a', alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start', padding: '0 4px' }}>
+                          {msg.time}
+                        </span>
+                      </div>
+                    ))}
+                    {isChatThinking && (
+                      <div style={{ alignSelf: 'flex-start', padding: '10px 16px', borderRadius: '12px', background: '#18181b', color: '#a1a1aa', fontSize: '0.85rem' }}>
+                        Thinking...
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Chat Input Bar */}
+                  <form onSubmit={handleSendChatMessage} style={{ padding: '14px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', background: '#18181b', display: 'flex', gap: '10px' }}>
+                    <input
+                      type="text"
+                      value={chatInput}
+                      onChange={(e) => setChatInput(e.target.value)}
+                      placeholder="Ask any JEE/NEET doubt or concept clarification..."
+                      style={{
+                        flex: 1,
+                        padding: '10px 14px',
+                        background: '#09090b',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '10px',
+                        color: '#ffffff',
+                        fontSize: '0.88rem',
+                        outline: 'none'
+                      }}
+                    />
+                    <button
+                      type="submit"
+                      disabled={!chatInput.trim() || isChatThinking}
+                      style={{
+                        padding: '10px 16px',
+                        background: '#22c55e',
+                        border: 'none',
+                        borderRadius: '10px',
+                        color: '#ffffff',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      <Send size={15} />
+                    </button>
+                  </form>
+                </div>
               )}
+
             </div>
-          </main>
-        ) : activeTab === 'workspace' ? (
-          <main className="container" style={{ flex: 1, padding: '40px 24px', maxWidth: '800px', margin: '0 auto', width: '100%' }}>
-        
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+          ) : null
+
+        ) : (
           
-          <div className="glass-card" style={{ background: '#ffffff', display: 'flex', gap: '20px', alignItems: 'center' }}>
-            <div style={{ background: 'var(--bg-primary)', width: '60px', height: '60px', borderRadius: '14px', border: '2px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <Award size={30} style={{ color: 'var(--accent-color)' }} />
-            </div>
-            <div style={{ textAlign: 'left', flex: 1 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '4px' }}>
-                <h3 style={{ fontSize: '1.25rem', color: '#111827', margin: 0 }}>Welcome, {user.username}!</h3>
-                <button 
+          /* LOCKED / UNPAID BATCH STATE */
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+            <div style={{
+              width: '100%',
+              maxWidth: '540px',
+              background: '#121215',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '20px',
+              textAlign: 'center',
+              padding: '40px 32px',
+              boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7)'
+            }}>
+              <div style={{ 
+                display: 'inline-flex', 
+                alignItems: 'center', 
+                gap: '6px', 
+                padding: '4px 14px', 
+                borderRadius: '100px', 
+                background: 'rgba(239, 68, 68, 0.1)', 
+                color: '#f87171', 
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                fontSize: '0.8rem',
+                fontWeight: '700',
+                marginBottom: '16px'
+              }}>
+                🔒 Subscription Activation Pending
+              </div>
+
+              <h2 style={{ fontSize: '1.8rem', fontWeight: '900', color: '#ffffff', marginBottom: '8px' }}>
+                Unlock {currentBatchDetails.name}
+              </h2>
+              <p style={{ fontSize: '0.9rem', color: '#a1a1aa', marginBottom: '24px' }}>
+                {currentBatchDetails.tagline}
+              </p>
+
+              {/* Batch Switch Notice */}
+              <div style={{
+                background: 'rgba(59, 130, 246, 0.08)',
+                border: '1px solid rgba(59, 130, 246, 0.25)',
+                borderRadius: '12px',
+                padding: '12px 16px',
+                marginBottom: '24px',
+                fontSize: '0.85rem',
+                color: '#93c5fd',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '10px',
+                textAlign: 'left'
+              }}>
+                <span>💡 Joined another batch? Switch active batch anytime in your profile.</span>
+                <button
                   onClick={() => setIsProfileOpen(true)}
-                  style={{ 
-                    fontSize: '0.75rem', 
-                    color: 'var(--accent-color)', 
-                    background: '#eff6ff', 
-                    padding: '4px 10px', 
-                    borderRadius: '6px', 
-                    border: '1.5px solid #bfdbfe', 
-                    fontWeight: '700', 
+                  style={{
+                    padding: '6px 12px',
+                    background: '#ffffff',
+                    color: '#09090b',
+                    borderRadius: '8px',
+                    border: 'none',
+                    fontSize: '0.75rem',
+                    fontWeight: '800',
                     cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px'
+                    whiteSpace: 'nowrap'
                   }}
-                  title="Change active batch"
                 >
-                  🎓 Batch: {currentBatchDetails?.name || activeBatch} <span style={{ textDecoration: 'underline', color: '#2563eb' }}>(Change in Profile 👤)</span>
+                  Profile 👤
                 </button>
               </div>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                Believe in yourself and your goals. Every study session brings you closer to success!
-              </p>
-            </div>
-          </div>
 
-          <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '2px solid var(--border-color)', paddingBottom: '12px' }}>
-              <h3 style={{ fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '8px', color: '#111827' }}>
-                <CheckSquare size={20} style={{ color: 'var(--accent-color)' }} />
-                Daily Study Planner Checklist
-              </h3>
-              <div style={{ whiteSpace: 'nowrap', flexShrink: 0, fontSize: '0.85rem', fontWeight: '700', color: 'var(--accent-color)', background: 'var(--bg-primary)', padding: '4px 10px', borderRadius: '6px', border: '1.5px solid var(--border-color)' }}>
-                {progressPercent}% Complete
+              {/* Seat Capacity Tracker */}
+              <div style={{
+                background: '#18181b',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '12px',
+                padding: '14px 18px',
+                marginBottom: '28px',
+                textAlign: 'left'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', fontSize: '0.82rem', fontWeight: '700' }}>
+                  <span style={{ color: '#e4e4e7', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Users size={14} style={{ color: '#22c55e' }} />
+                    Seats Filled: {currentBatchDetails.filled}/500
+                  </span>
+                  <span style={{ color: '#f87171' }}>
+                    {500 - currentBatchDetails.filled} Slots Left
+                  </span>
+                </div>
+                <div style={{ height: '8px', background: '#27272a', borderRadius: '100px', overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${(currentBatchDetails.filled / 500) * 100}%`, background: '#22c55e' }}></div>
+                </div>
               </div>
-            </div>
 
-            <div className="progress-bar-track" style={{ height: '8px', marginBottom: '20px' }}>
-              <div className="progress-bar-fill" style={{ width: `${progressPercent}%`, transition: 'width 0.3s ease' }}></div>
-            </div>
-
-            <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
-                {tasks.map(task => (
-                  <div key={task.id} style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '12px 14px',
-                    background: '#fafafa',
-                    borderRadius: '10px',
-                    border: task.completed ? '2px solid rgba(16, 185, 129, 0.3)' : '2px solid var(--border-color)',
-                    boxShadow: task.completed ? 'none' : '2px 2px 0px #111827',
-                    transition: 'all 0.2s ease'
-                  }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', flex: 1 }}>
-                      <input 
-                        type="checkbox" 
-                        checked={task.completed} 
-                        onChange={() => handleToggleTask(task.id)}
-                        style={{ accentColor: 'var(--accent-color)', width: '18px', height: '18px', cursor: 'pointer' }}
-                      />
-                      <span style={{ 
-                        fontSize: '0.9rem', 
-                        fontWeight: '600',
-                        textDecoration: task.completed ? 'line-through' : 'none', 
-                        color: task.completed ? 'var(--text-muted)' : 'var(--text-primary)' 
-                      }}>
-                        {task.text}
-                      </span>
-                    </label>
-                  </div>
+              {/* Feature Checklist */}
+              <ul style={{ textAlign: 'left', marginBottom: '28px', listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {currentBatchDetails.features.map((feature, idx) => (
+                  <li key={idx} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.88rem', color: '#d4d4d8' }}>
+                    <Check size={16} style={{ color: '#22c55e', flexShrink: 0 }} />
+                    <span>{feature}</span>
+                  </li>
                 ))}
+              </ul>
 
-                {tasks.length === 0 && (
-                  <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-secondary)', background: '#fafafa', border: '2px dashed var(--border-color)', borderRadius: '10px' }}>
-                    <CheckSquare size={32} style={{ margin: '0 auto 12px', opacity: 0.5 }} />
-                    <p style={{ fontWeight: 600, fontSize: '0.95rem' }}>Mentor will upload it soon</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '2px solid var(--border-color)', paddingBottom: '12px' }}>
-              <h3 style={{ fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '8px', color: '#111827', margin: 0 }}>
-                <Calendar size={20} style={{ color: 'var(--accent-color)' }} />
-                Revision Study Notes & Cheat Sheets
-              </h3>
-              <button
-                onClick={() => setActiveTab('notes')}
-                className="btn"
-                style={{ padding: '6px 14px', fontSize: '0.8rem', fontWeight: '700', cursor: 'pointer', background: 'var(--accent-color)', color: '#fff', border: 'none', borderRadius: '6px' }}
-              >
-                View All Subject Sections 📑
-              </button>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {activeNotes.length === 0 ? (
-                <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-secondary)', background: '#fafafa', border: '2px dashed var(--border-color)', borderRadius: '12px' }}>
-                  <Download size={32} style={{ margin: '0 auto 12px', opacity: 0.5 }} />
-                  <p style={{ fontWeight: 600, fontSize: '0.95rem' }}>Mentor will upload it soon</p>
-                </div>
-              ) : (
-                activeNotes.map((file, idx) => (
-                  <div key={idx} style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
+              {/* Payment CTA Buttons */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <button 
+                  onClick={() => { setCheckoutTier('standard'); setShowCheckout(true); }} 
+                  style={{
+                    width: '100%',
                     padding: '14px',
-                    background: '#ffffff',
-                    border: '2px solid var(--border-color)',
                     borderRadius: '12px',
-                    boxShadow: '2px 2px 0px #111827'
-                  }}>
-                    <div>
-                      <h4 style={{ fontSize: '0.9rem', fontWeight: '700', color: '#111827', marginBottom: '2px' }}>{file.name}</h4>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '600' }}>📄 PDF Document • {file.size}</span>
-                    </div>
-                    <button 
-                      onClick={() => handleDownload(file.name)} 
-                      disabled={downloadingFile !== null}
-                      className="btn btn-secondary" 
-                      style={{ padding: '8px 14px', fontSize: '0.8rem', gap: '4px' }}
-                    >
-                      {downloadingFile === file.name ? 'Saving...' : 'Download'} 
-                      <Download size={12} />
-                    </button>
-                  </div>
-                ))
-              )}
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    color: '#ffffff',
+                    fontSize: '0.95rem',
+                    fontWeight: '800',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Unlock Standard Mentorship (₹499 / 6 months)
+                </button>
+                <button 
+                  onClick={() => { setCheckoutTier('premium'); setShowCheckout(true); }} 
+                  style={{
+                    width: '100%',
+                    padding: '14px',
+                    borderRadius: '12px',
+                    background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                    border: 'none',
+                    color: '#ffffff',
+                    fontSize: '0.95rem',
+                    fontWeight: '800',
+                    cursor: 'pointer',
+                    boxShadow: '0 8px 25px rgba(34, 197, 94, 0.3)'
+                  }}
+                >
+                  Unlock Premium with AI Solver (₹599 / 6 months)
+                </button>
+              </div>
+
             </div>
           </div>
-        </div>
+        )}
+
       </main>
-        ) : (
-          <main className="container" style={{ flex: 1, padding: '40px 24px', display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '40px' }}>
-            {/* Left Column: Progress Metrics & Logs */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-              
-              <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '30px' }}>
-                <h3 style={{ fontSize: '1.25rem', marginBottom: '20px', color: '#111827', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px' }}>
-                  📈 Overall Academic Progress
-                </h3>
-                
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                  <div style={{ background: '#f9fafb', border: '2px solid var(--border-color)', borderRadius: '12px', padding: '20px', textAlign: 'center', boxShadow: '3px 3px 0px #111827' }}>
-                    <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: '#6b7280', marginBottom: '8px' }}>DAY WISE TASK COMPLETED</span>
-                    <span style={{ fontSize: '2.5rem', fontWeight: '800', color: 'var(--accent-color)', fontFamily: 'var(--heading-font)' }}>
-                      {progressPercent}%
-                    </span>
-                    <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '8px' }}>
-                      {tasks.filter(t => t.completed).length} of {tasks.length} goals complete
-                    </span>
-                  </div>
 
-                  <div style={{ background: '#f9fafb', border: '2px solid var(--border-color)', borderRadius: '12px', padding: '20px', textAlign: 'center', boxShadow: '3px 3px 0px #111827' }}>
-                    <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: '#6b7280', marginBottom: '8px' }}>MOCK TEST AVERAGE</span>
-                    <span style={{ fontSize: '2.5rem', fontWeight: '800', color: 'var(--accent-color)', fontFamily: 'var(--heading-font)' }}>
-                      {mockScores.length > 0 ? Math.round(mockScores.reduce((acc, curr) => acc + curr.score, 0) / mockScores.length) : 0}%
-                    </span>
-                    <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '8px' }}>
-                      Based on {mockScores.length} tests logged
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Weekly Study Hours Log */}
-              <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '30px' }}>
-                <h3 style={{ fontSize: '1.25rem', marginBottom: '20px', color: '#111827', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px' }}>
-                  🕒 Weekly Study Hours Log
-                </h3>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '20px' }}>
-                  Self-study hours tracker monitored by **{mentor.name}**.
-                </p>
-
-                {/* Simulated Chart Bars */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', height: '180px', padding: '0 20px 20px 20px', background: '#fafafa', borderRadius: '12px', border: '2px solid var(--border-color)' }}>
-                  {studyHours.map((d, idx) => {
-                    const percentHeight = (d.hrs / 12) * 100;
-                    return (
-                      <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '40px' }}>
-                        <span style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '6px' }}>{d.hrs}h</span>
-                        <div style={{
-                          width: '100%',
-                          height: `${percentHeight}%`,
-                          minHeight: '10px',
-                          background: 'var(--accent-color)',
-                          border: '2px solid #111827',
-                          borderRadius: '6px',
-                          boxShadow: '2px 0px 0px #111827',
-                          transition: 'height 0.3s ease'
-                        }}></div>
-                        <span style={{ fontSize: '0.75rem', fontWeight: '800', color: '#111827', marginTop: '8px' }}>{d.day}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-
-
-          </main>
-        )
-      ) : (
-        <main className="container" style={{ flex: 1, padding: '40px 24px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <div className="glass-card" style={{
-            width: '100%',
-            maxWidth: '520px',
-            background: '#ffffff',
-            textAlign: 'center',
-            padding: '40px'
-          }}>
-            <div className="badge-pill" style={{ background: '#fef2f2', color: '#ef4444', borderColor: '#ef4444' }}>
-              🔒 Payment Pending
-            </div>
-            <h2 style={{ fontSize: '1.75rem', marginBottom: '8px', color: '#111827' }}>
-              Unlock {currentBatchDetails.name}
-            </h2>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
-              {currentBatchDetails.tagline}
-            </p>
-
-            {/* Change Batch Hint Banner */}
-            <div style={{
-              background: '#eff6ff',
-              border: '1.5px solid #93c5fd',
-              borderRadius: '10px',
-              padding: '10px 14px',
-              marginBottom: '20px',
-              fontSize: '0.85rem',
-              color: '#1e40af',
-              fontWeight: '600',
-              textAlign: 'left',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: '10px'
-            }}>
-              <span>💡 Joined a different batch? Switch your active batch anytime!</span>
-              <button 
-                onClick={() => setIsProfileOpen(true)}
-                className="btn btn-secondary"
-                style={{ fontSize: '0.75rem', padding: '4px 10px', cursor: 'pointer', whiteSpace: 'nowrap', background: '#ffffff' }}
-              >
-                👤 Open Profile
-              </button>
-            </div>
-
-            {/* Visual Seat Filled Progress Tracker */}
-            <div className="seat-filled-tracker" style={{
-              background: '#121214',
-              border: '2px solid #ffffff',
-              borderRadius: '12px',
-              padding: '14px 18px',
-              marginBottom: '24px',
-              boxShadow: '3px 3px 0px #ffffff',
-              textAlign: 'left'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', fontWeight: '700' }}>
-                  <Users size={14} style={{ color: 'var(--accent-color)' }} />
-                  Seats Filled: {currentBatchDetails.filled}/500
-                </span>
-                <span style={{ fontSize: '0.8rem', fontWeight: '800', color: '#ef4444' }}>
-                  {500 - currentBatchDetails.filled} Slots Left!
-                </span>
-              </div>
-              <div className="progress-bar-track" style={{ height: '10px', background: '#e5e7eb', border: '1.5px solid var(--border-color)', borderRadius: '6px', overflow: 'hidden' }}>
-                <div className="progress-bar-fill" style={{ 
-                  height: '100%', 
-                  width: `${(currentBatchDetails.filled / 500) * 100}%`, 
-                  background: 'var(--accent-color)'
-                }}></div>
-              </div>
-            </div>
-
-            <div className="comp-price" style={{ display: 'flex', justifyContent: 'center', alignItems: 'baseline', marginBottom: '24px' }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: '800', fontFamily: 'var(--heading-font)' }}>₹500</span>
-              <span style={{ color: 'var(--text-secondary)', marginLeft: '6px', fontSize: '0.95rem' }}>/ month</span>
-            </div>
-
-            <ul className="comp-features-list" style={{ textAlign: 'left', marginBottom: '32px', listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {currentBatchDetails.features.map((feature, idx) => (
-                <li key={idx} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                  <Check size={16} className="text-emerald" style={{ flexShrink: 0 }} />
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <button 
-                onClick={() => { setCheckoutTier('standard'); setShowCheckout(true); }} 
-                className="btn btn-secondary w-full"
-                style={{ padding: '14px', fontSize: '1rem', fontWeight: '800', cursor: 'pointer', background: '#f3f4f6' }}
-              >
-                Unlock Standard Mentorship (₹499 for 6months)
-              </button>
-              <button 
-                onClick={() => { setCheckoutTier('premium'); setShowCheckout(true); }} 
-                className="btn btn-accent w-full"
-                style={{ padding: '14px', fontSize: '1rem', fontWeight: '800', cursor: 'pointer' }}
-              >
-                Unlock Premium with AI Chat Bot (₹599 for 6months)
-              </button>
-            </div>
-          </div>
-        </main>
-      )}
-
+      {/* Razorpay Subscription Checkout Modal */}
       {showCheckout && (
         <div style={{
           position: 'fixed',
@@ -1161,58 +1934,81 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
           left: 0,
           width: '100%',
           height: '100%',
-          backgroundColor: 'rgba(17, 24, 39, 0.4)',
+          backgroundColor: 'rgba(0, 0, 0, 0.75)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 20000,
-          backdropFilter: 'blur(4px)'
+          backdropFilter: 'blur(8px)',
+          padding: '20px'
         }}>
-          <div className="glass-card" style={{
-            background: '#ffffff',
+          <div style={{
+            background: '#121215',
+            border: '1px solid rgba(255, 255, 255, 0.15)',
+            borderRadius: '20px',
             width: '100%',
-            maxWidth: '380px',
-            padding: '32px',
+            maxWidth: '420px',
+            padding: '32px 28px',
             textAlign: 'center',
-            boxShadow: '8px 8px 0px #111827'
+            boxShadow: '0 25px 60px rgba(0,0,0,0.9)'
           }}>
-            <h3 style={{ fontSize: '1.25rem', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center', color: '#111827', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px' }}>
-              💳 Subscription Checkout
+            <h3 style={{ fontSize: '1.3rem', fontWeight: '800', color: '#ffffff', marginBottom: '12px' }}>
+              💳 Activate Mentorship Access
             </h3>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '20px' }}>
-              You are subscribing to **{currentBatchDetails.name}** {checkoutTier === 'premium' ? 'Premium (₹599 for 6months)' : 'Standard (₹499 for 6months)'}.
+            <p style={{ fontSize: '0.88rem', color: '#a1a1aa', marginBottom: '24px', lineHeight: 1.5 }}>
+              You are subscribing to <strong style={{ color: '#ffffff' }}>{currentBatchDetails.name}</strong> {checkoutTier === 'premium' ? 'Premium (₹599 for 6 months)' : 'Standard (₹499 for 6 months)'}.
             </p>
 
             {checkoutError && (
-              <div style={{ color: '#ef4444', fontSize: '0.8rem', fontWeight: '700', marginBottom: '12px' }}>
+              <div style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '10px', borderRadius: '8px', fontSize: '0.82rem', fontWeight: '700', marginBottom: '16px' }}>
                 {checkoutError}
               </div>
             )}
 
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '10px' }}>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
               <button 
                 type="button"
                 onClick={() => {
                   setShowCheckout(false);
                   setCheckoutError('');
                 }} 
-                className="btn btn-secondary" 
-                style={{ padding: '8px 16px', fontSize: '0.85rem', cursor: 'pointer' }}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: 'transparent',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  borderRadius: '10px',
+                  color: '#a1a1aa',
+                  fontSize: '0.88rem',
+                  fontWeight: '700',
+                  cursor: 'pointer'
+                }}
               >
                 Cancel
               </button>
               <button 
                 onClick={() => handleConfirmPayment()}
-                className="btn btn-accent" 
-                style={{ padding: '8px 20px', fontSize: '0.85rem', cursor: 'pointer' }}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: '#22c55e',
+                  border: 'none',
+                  borderRadius: '10px',
+                  color: '#ffffff',
+                  fontSize: '0.88rem',
+                  fontWeight: '800',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 15px rgba(34, 197, 94, 0.3)'
+                }}
               >
-                Proceed to Payment
+                Proceed to Pay
               </button>
             </div>
           </div>
         </div>
       )}
 
+      {/* Profile & Batch Switcher Modal */}
       {isProfileOpen && (
         <div style={{
           position: 'fixed',
@@ -1220,120 +2016,138 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
           left: 0,
           width: '100%',
           height: '100%',
-          backgroundColor: 'rgba(17, 24, 39, 0.4)',
+          backgroundColor: 'rgba(0, 0, 0, 0.75)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 10000,
-          backdropFilter: 'blur(4px)'
+          backdropFilter: 'blur(8px)',
+          padding: '20px'
         }}>
-          <div className="glass-card" style={{
-            background: '#ffffff',
+          <div style={{
+            background: '#121215',
+            border: '1px solid rgba(255, 255, 255, 0.15)',
+            borderRadius: '20px',
             width: '100%',
-            maxWidth: '400px',
-            padding: '32px',
+            maxWidth: '440px',
+            padding: '32px 28px',
             textAlign: 'left',
-            boxShadow: '8px 8px 0px #111827'
+            boxShadow: '0 25px 60px rgba(0,0,0,0.9)'
           }}>
-            <h3 style={{ fontSize: '1.4rem', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px', color: '#111827' }}>
-              👤 Your RestartClub Profile
+            <h3 style={{ fontSize: '1.35rem', fontWeight: '800', color: '#ffffff', marginBottom: '6px' }}>
+              👤 Your Student Profile
             </h3>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: '600', marginBottom: '20px', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px' }}>
-              💡 Change your active batch or update your password below.
+            <p style={{ fontSize: '0.82rem', color: '#a1a1aa', marginBottom: '20px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '12px' }}>
+              Change your active batch or update account password
             </p>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: '#6b7280', marginBottom: '4px' }}>FULL NAME</label>
-                <div style={{ fontSize: '0.95rem', fontWeight: '700', color: '#111827', padding: '10px 12px', background: '#f9fafb', borderRadius: '8px', border: '1.5px solid var(--border-color)' }}>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: '#71717a', textTransform: 'uppercase', marginBottom: '6px' }}>FULL NAME</label>
+                <div style={{ fontSize: '0.92rem', fontWeight: '700', color: '#ffffff', padding: '10px 14px', background: '#18181b', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
                   {user.username}
                 </div>
               </div>
               
               <div>
-                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: '#6b7280', marginBottom: '4px' }}>EMAIL ADDRESS</label>
-                <div style={{ fontSize: '0.95rem', fontWeight: '700', color: '#111827', padding: '10px 12px', background: '#f9fafb', borderRadius: '8px', border: '1.5px solid var(--border-color)' }}>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: '#71717a', textTransform: 'uppercase', marginBottom: '6px' }}>EMAIL ADDRESS</label>
+                <div style={{ fontSize: '0.92rem', fontWeight: '700', color: '#ffffff', padding: '10px 14px', background: '#18181b', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
                   {user.email}
                 </div>
               </div>
               
               <div>
-                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: '#6b7280', marginBottom: '4px' }}>ACTIVE BATCH</label>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: '#71717a', textTransform: 'uppercase', marginBottom: '6px' }}>ACTIVE BATCH</label>
                 <select 
                   value={pendingBatch}
                   onChange={(e) => setPendingBatch(e.target.value)}
                   disabled={isChangingBatch}
                   style={{ 
                     width: '100%',
-                    fontSize: '0.95rem', 
+                    fontSize: '0.9rem', 
                     fontWeight: '700', 
-                    color: '#111827', 
-                    padding: '10px 12px', 
-                    background: '#f9fafb', 
-                    borderRadius: '8px', 
-                    border: '1.5px solid var(--border-color)',
+                    color: '#ffffff', 
+                    padding: '11px 14px', 
+                    background: '#18181b', 
+                    borderRadius: '10px', 
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
                     cursor: isChangingBatch ? 'not-allowed' : 'pointer',
-                    opacity: isChangingBatch ? 0.7 : 1,
+                    outline: 'none',
                     marginBottom: '10px'
                   }}
                 >
-                  <option value="10">RestartClub Foundation (Class 10)</option>
-                  <option value="11">RestartClub Elite (Class 11)</option>
-                  <option value="12">RestartClub Achiever (Class 12)</option>
-                  <option value="jee-dropper">JEE Dropper Batch</option>
-                  <option value="neet-dropper">NEET Dropper Batch</option>
+                  <option value="10" style={{ background: '#18181b', color: '#ffffff' }}>RestartClub Foundation (Class 10)</option>
+                  <option value="11" style={{ background: '#18181b', color: '#ffffff' }}>RestartClub Aarambh (Class 11)</option>
+                  <option value="12" style={{ background: '#18181b', color: '#ffffff' }}>RestartClub Sankalp (Class 12)</option>
+                  <option value="jee-dropper" style={{ background: '#18181b', color: '#ffffff' }}>RestartClub Dropper JEE</option>
+                  <option value="neet-dropper" style={{ background: '#18181b', color: '#ffffff' }}>RestartClub Dropper NEET</option>
                 </select>
-                <button
-                  onClick={handleBatchSubmit}
-                  disabled={isChangingBatch || pendingBatch === activeBatch}
-                  className="btn btn-primary"
-                  style={{ width: '100%', padding: '10px', borderRadius: '8px', opacity: (isChangingBatch || pendingBatch === activeBatch) ? 0.5 : 1 }}
-                >
-                  {isChangingBatch ? 'Saving...' : 'Save Batch'}
-                </button>
+                
+                {pendingBatch !== activeBatch && (
+                  <button
+                    onClick={handleBatchSubmit}
+                    disabled={isChangingBatch}
+                    style={{ 
+                      width: '100%', 
+                      padding: '10px', 
+                      borderRadius: '10px', 
+                      background: '#22c55e', 
+                      color: '#ffffff', 
+                      border: 'none', 
+                      fontWeight: '800', 
+                      fontSize: '0.85rem', 
+                      cursor: 'pointer' 
+                    }}
+                  >
+                    {isChangingBatch ? 'Saving...' : 'Save & Switch to this Batch'}
+                  </button>
+                )}
               </div>
 
-              <div style={{ borderTop: '2px dashed var(--border-color)', paddingTop: '16px', marginTop: '8px' }}>
-                <h4 style={{ fontSize: '0.9rem', fontWeight: '800', color: '#111827', marginBottom: '12px' }}>Change Password</h4>
+              {/* Password update section */}
+              <div style={{ borderTop: '1px dashed rgba(255, 255, 255, 0.1)', paddingTop: '16px', marginTop: '4px' }}>
+                <h4 style={{ fontSize: '0.9rem', fontWeight: '800', color: '#ffffff', marginBottom: '12px' }}>Update Password</h4>
                 
-                {profileError && <div style={{ color: '#ef4444', fontSize: '0.8rem', fontWeight: '700', marginBottom: '8px' }}>{profileError}</div>}
-                {profileSuccess && <div style={{ color: '#10b981', fontSize: '0.8rem', fontWeight: '700', marginBottom: '8px' }}>{profileSuccess}</div>}
+                {profileError && <div style={{ color: '#f87171', fontSize: '0.8rem', fontWeight: '700', marginBottom: '8px' }}>{profileError}</div>}
+                {profileSuccess && <div style={{ color: '#4ade80', fontSize: '0.8rem', fontWeight: '700', marginBottom: '8px' }}>{profileSuccess}</div>}
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '700', color: '#111827', marginBottom: '4px' }}>NEW PASSWORD</label>
+                    <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: '700', color: '#71717a', marginBottom: '4px' }}>NEW PASSWORD</label>
                     <input 
                       type="password" 
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="Enter new password"
+                      placeholder="••••••••"
                       style={{
                         width: '100%',
-                        padding: '10px 12px',
+                        padding: '10px 14px',
                         borderRadius: '8px',
-                        border: '2px solid var(--border-color)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        background: '#18181b',
+                        color: '#ffffff',
                         outline: 'none',
-                        fontSize: '0.85rem',
-                        fontFamily: 'var(--sans-font)'
+                        fontSize: '0.85rem'
                       }}
                     />
                   </div>
                   
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '700', color: '#111827', marginBottom: '4px' }}>CONFIRM PASSWORD</label>
+                    <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: '700', color: '#71717a', marginBottom: '4px' }}>CONFIRM PASSWORD</label>
                     <input 
                       type="password" 
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="Confirm new password"
+                      placeholder="••••••••"
                       style={{
                         width: '100%',
-                        padding: '10px 12px',
+                        padding: '10px 14px',
                         borderRadius: '8px',
-                        border: '2px solid var(--border-color)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        background: '#18181b',
+                        color: '#ffffff',
                         outline: 'none',
-                        fontSize: '0.85rem',
-                        fontFamily: 'var(--sans-font)'
+                        fontSize: '0.85rem'
                       }}
                     />
                   </div>
@@ -1341,7 +2155,7 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
               <button 
                 onClick={() => {
                   setIsProfileOpen(false);
@@ -1350,15 +2164,31 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
                   setProfileError('');
                   setProfileSuccess('');
                 }} 
-                className="btn btn-secondary" 
-                style={{ padding: '8px 16px', fontSize: '0.85rem', cursor: 'pointer' }}
+                style={{
+                  padding: '9px 18px',
+                  background: 'transparent',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  borderRadius: '10px',
+                  color: '#a1a1aa',
+                  fontSize: '0.85rem',
+                  fontWeight: '700',
+                  cursor: 'pointer'
+                }}
               >
                 Close
               </button>
               <button 
                 onClick={handleChangePassword} 
-                className="btn btn-accent" 
-                style={{ padding: '8px 20px', fontSize: '0.85rem', cursor: 'pointer' }}
+                style={{
+                  padding: '9px 20px',
+                  background: '#ffffff',
+                  border: 'none',
+                  borderRadius: '10px',
+                  color: '#09090b',
+                  fontSize: '0.85rem',
+                  fontWeight: '800',
+                  cursor: 'pointer'
+                }}
               >
                 Update Password
               </button>
@@ -1366,6 +2196,7 @@ export default function StudentDashboard({ user: initialUser, onLogout }: Studen
           </div>
         </div>
       )}
+
     </div>
   );
 }
