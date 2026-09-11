@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
+import Hero from './components/Hero';
 import BentoGrid from './components/BentoGrid';
 import MentorTrust from './components/MentorTrust';
 import FaqAccordion from './components/FaqAccordion';
@@ -14,16 +15,10 @@ import StudentDashboard from './components/StudentDashboard';
 import AdminDashboard from './components/AdminDashboard';
 import BookShowcase from './components/BookShowcase';
 import { 
-  Sparkles, 
   ArrowRight, 
-  MessageSquare, 
   Compass, 
   Smartphone,
-  Calendar,
-  BookOpen,
-  Award,
-  Zap,
-  Users
+  Calendar
 } from 'lucide-react';
 
 export default function App() {
@@ -215,11 +210,8 @@ export default function App() {
   return (
     <div className="app-wrapper">
       <Navbar 
-        onSelectBatch={handleSelectBatch} 
         onJoinClick={() => setView('auth')} 
         onBookCallClick={() => setIsLeadModalOpen(true)}
-        activeTrack={activeTrack}
-        setActiveTrack={handleTrackChange}
       />
       
       {/* Ambient Decorative Glows */}
@@ -227,177 +219,13 @@ export default function App() {
       <div className="glow-glow glow-emerald"></div>
 
       <main>
-        {/* Master First-Fold Hero Section */}
-        <section className="hero-section">
-          <div className="container hero-container">
-            
-            <div className="hero-content">
-              {/* Dynamic Prominent Track Segment Toggle */}
-              <div className="hero-track-switcher-wrap">
-                <span className="track-switcher-label">SELECT YOUR STREAM:</span>
-                <div className="hero-track-switcher">
-                  <button
-                    type="button"
-                    className={`track-switch-btn ${activeTrack === 'neet' ? 'active neet' : ''}`}
-                    onClick={() => handleTrackChange('neet')}
-                  >
-                    <span className="switch-icon">🩺</span>
-                    <span className="switch-text">NEET Aspirant</span>
-                    {activeTrack === 'neet' && <span className="active-glow-dot"></span>}
-                  </button>
-                  <button
-                    type="button"
-                    className={`track-switch-btn ${activeTrack === 'jee' ? 'active jee' : ''}`}
-                    onClick={() => handleTrackChange('jee')}
-                  >
-                    <span className="switch-icon">⚡</span>
-                    <span className="switch-text">JEE Main + Adv</span>
-                    {activeTrack === 'jee' && <span className="active-glow-dot"></span>}
-                  </button>
-                </div>
-              </div>
-
-              {/* Dynamic Value Prop Pill */}
-              <div className="hero-badge float-animation">
-                <Sparkles size={14} className="text-emerald" />
-                <span>
-                  {activeTrack === 'neet'
-                    ? 'AIR Mentors from AIIMS Delhi + NCERT Line-by-Line Notes'
-                    : 'AIR Mentors from IIT Bombay + Physics Formula Logs'}
-                </span>
-              </div>
-              
-              <h1 className="hero-title">
-                From Foundation to <span className="gradient-text-emerald">Top Ranks</span>
-              </h1>
-              
-              <h2 className="hero-subtitle-primary">
-                Dedicated AIR Topper Mentors, NCERT Short Notes, & 24/7 Hinglish AI WhatsApp Solver.
-              </h2>
-              
-              <p className="hero-subtitle">
-                {activeTrack === 'neet'
-                  ? 'Stop getting stuck in Bio NCERT lines and Organic mechanisms. Get paired 1-on-1 with an AIIMS/Top GMC mentor who tracks your weekly targets, backed by 24/7 AI doubt-solving on WhatsApp.'
-                  : 'Stop struggling with complex Physics mechanics derivations and multi-concept Math problems. Get paired 1-on-1 with an IITian mentor who builds your weekly targets, backed by 24/7 AI doubt-solving on WhatsApp.'}
-              </p>
-
-              {/* Quick Batch Selector Chips */}
-              <div className="hero-batch-selector">
-                <span className="selector-label">Target Batch:</span>
-                <div className="batch-chips">
-                  <button onClick={() => handleSelectBatch('10')} className={`batch-chip ${selectedClass === '10' ? 'active' : ''}`}>Class 10</button>
-                  <button onClick={() => handleSelectBatch('11')} className={`batch-chip ${selectedClass === '11' ? 'active' : ''}`}>Class 11</button>
-                  <button onClick={() => handleSelectBatch('12')} className={`batch-chip ${selectedClass === '12' ? 'active' : ''}`}>Class 12</button>
-                  <button onClick={() => handleSelectBatch('jee-dropper')} className={`batch-chip ${selectedClass === 'jee-dropper' ? 'active' : ''}`}>JEE Dropper</button>
-                  <button onClick={() => handleSelectBatch('neet-dropper')} className={`batch-chip ${selectedClass === 'neet-dropper' ? 'active' : ''}`}>NEET Dropper</button>
-                </div>
-              </div>
-              
-              {/* Dual CRO Action Buttons */}
-              <div className="hero-actions">
-                <button 
-                  onClick={() => setIsLeadModalOpen(true)} 
-                  className="btn btn-primary"
-                  type="button"
-                >
-                  <Calendar size={18} />
-                  <span>Book 1-on-1 Strategy Call (Free)</span>
-                </button>
-                <a href="#simulator" className="btn btn-secondary">
-                  <Zap size={18} className="text-amber" />
-                  <span>Try WhatsApp AI Doubt Solver ⚡</span>
-                </a>
-              </div>
-
-              {/* Social Proof Bar */}
-              <div className="hero-trust-bar">
-                <div className="trust-stat">
-                  <Users size={16} className="text-emerald" />
-                  <span><strong>1,000+</strong> Aspirants Mentored</span>
-                </div>
-                <div className="trust-divider"></div>
-                <div className="trust-stat">
-                  <Award size={16} className="text-indigo" />
-                  <span>Mentors from <strong>AIIMS, IITs & Top NITs</strong></span>
-                </div>
-                <div className="trust-divider"></div>
-                <div className="trust-stat">
-                  <MessageSquare size={16} className="text-emerald" />
-                  <span><strong>24/7</strong> WhatsApp AI Assistant</span>
-                </div>
-              </div>
-
-            </div>
-
-            {/* Hero Visual: Live Dynamic Mentor Preview Card */}
-            <div className="hero-visual">
-              <div className="visual-card-glow"></div>
-              <div className="glass-card hero-preview-card">
-                <div className="preview-card-header">
-                  <div className="preview-status-pill">
-                    <div className="pulse-indicator"></div> Live Personal Mentor
-                  </div>
-                  <span className="preview-batch-tag">
-                    {activeTrack === 'neet' ? '🩺 NEET UG' : '⚡ JEE Main & Adv'}
-                  </span>
-                </div>
-
-                <div className="preview-mentor-highlight">
-                  <div className="preview-mentor-avatar" style={{ background: activeTrack === 'neet' ? '#10b981' : '#6366f1' }}>
-                    {activeTrack === 'neet' ? 'AS' : 'RV'}
-                  </div>
-                  <div className="preview-mentor-info">
-                    <strong>{activeTrack === 'neet' ? 'Dr. Aryan Sharma' : 'Rohan Verma'}</strong>
-                    <span>{activeTrack === 'neet' ? 'AIR 89 • AIIMS New Delhi' : 'AIR 247 • IIT Bombay (CSE)'}</span>
-                  </div>
-                </div>
-
-                <div className="preview-feature-box">
-                  <div className="preview-feat-row">
-                    <span className="preview-icon-badge">🎯</span>
-                    <div>
-                      <strong>Weekly 1-on-1 Strategy Call</strong>
-                      <p>Custom timetable, target tracking & backlog clearance</p>
-                    </div>
-                  </div>
-                  <div className="preview-feat-row">
-                    <span className="preview-icon-badge">⚡</span>
-                    <div>
-                      <strong>24/7 Hinglish WhatsApp AI Bot</strong>
-                      <p>Instant camera/text doubt solution with formula traps</p>
-                    </div>
-                  </div>
-                  <div className="preview-feat-row">
-                    <span className="preview-icon-badge">📚</span>
-                    <div>
-                      <strong>{activeTrack === 'neet' ? 'NCERT Line-by-Line Notes' : 'Physics Formula & Derivation Logs'}</strong>
-                      <p>500+ printable pages, PYQ analysis & reaction flowcharts</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="preview-card-actions">
-                  <button 
-                    onClick={() => setView('auth')}
-                    className="btn btn-primary"
-                    style={{ width: '100%', padding: '12px', fontSize: '0.9rem' }}
-                    type="button"
-                  >
-                    Join RestartClub (Starts ₹499/6mos) <ArrowRight size={14} />
-                  </button>
-                  <button
-                    onClick={() => handleOpenSampleModal(activeTrack)}
-                    className="preview-sample-link"
-                    type="button"
-                  >
-                    <BookOpen size={14} /> Preview Sample Notes Free
-                  </button>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </section>
+        {/* Streamlined Clean Hero Section */}
+        <Hero
+          activeTrack={activeTrack}
+          onTrackChange={handleTrackChange}
+          onBookCall={() => setIsLeadModalOpen(true)}
+          onJoinClick={() => setView('auth')}
+        />
 
         {/* Feature Grid / Value Matrix (Bento Grid) */}
         <BentoGrid 
@@ -427,7 +255,7 @@ export default function App() {
         {/* Pricing & Batch Registration Section */}
         <Pricing 
           selectedClass={selectedClass} 
-          setSelectedClass={setSelectedClass} 
+          setSelectedClass={handleSelectBatch} 
           onJoinClick={() => setView('auth')} 
         />
 
