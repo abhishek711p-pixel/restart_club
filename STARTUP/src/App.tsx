@@ -3,7 +3,6 @@ import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import ChatSimulator from './components/ChatSimulator';
 import BentoGrid from './components/BentoGrid';
-import MentorTrust from './components/MentorTrust';
 import Pricing from './components/Pricing';
 import type { BatchKey } from './components/Pricing';
 import FaqAccordion from './components/FaqAccordion';
@@ -213,12 +212,11 @@ export default function App() {
       <div className="glow-glow glow-emerald"></div>
 
       <main>
-        {/* 1. High-Impact Hero Fold */}
+        {/* 1. High-Impact Centered Hero Fold */}
         <Hero
           activeTrack={activeTrack}
           onTrackChange={handleTrackChange}
           onBookCall={() => setIsLeadModalOpen(true)}
-          onJoinClick={() => setView('auth')}
         />
 
         {/* 2. Interactive WhatsApp AI Simulator (Immediate User Engagement) */}
@@ -237,20 +235,14 @@ export default function App() {
           />
         </div>
 
-        {/* 4. Elite AIR Mentors & Verified Social Proof */}
-        <MentorTrust 
-          activeTrack={activeTrack} 
-          onBookCall={() => setIsLeadModalOpen(true)} 
-        />
-
-        {/* 5. Transparent Pricing & Batch Plans */}
+        {/* 4. Transparent Pricing & Batch Plans */}
         <Pricing 
           selectedClass={selectedClass} 
           setSelectedClass={handleSelectBatch} 
           onJoinClick={() => setView('auth')} 
         />
 
-        {/* 6. Concise FAQ Accordion */}
+        {/* 5. Concise FAQ Accordion */}
         <FaqAccordion />
       </main>
 

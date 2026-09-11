@@ -505,6 +505,34 @@ p {
   align-items: center;
 }
 
+.hero-section-centered {
+  text-align: center;
+  justify-content: center;
+  padding: 60px 16px 70px;
+}
+
+.hero-container-centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 860px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.hero-container-centered .hero-desc-clean {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-container-centered .hero-cta-group {
+  justify-content: center;
+}
+
+.hero-container-centered .hero-social-line {
+  justify-content: center;
+}
+
 .hero-container {
   display: grid;
   grid-template-columns: 1.18fr 0.82fr;
