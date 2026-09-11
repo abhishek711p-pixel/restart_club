@@ -12,10 +12,7 @@ import {
   ArrowRight, 
   MessageSquare, 
   Compass, 
-  Users, 
-  Smartphone,
-  Check,
-  X
+  Smartphone
 } from 'lucide-react';
 
 export default function App() {

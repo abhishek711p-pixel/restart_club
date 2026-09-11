@@ -103,14 +103,27 @@ export const api = {
     });
     try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   },
-  togglePayment: async (email: string) => {
+  togglePayment: async (email: string, batch?: string, tier: 'standard' | 'premium' = 'premium') => {
     invalidateCache();
     const res = await fetch(`${API_BASE_URL}/users/toggle-payment`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email })
+      body: JSON.stringify({ email, batch, tier })
     });
-    if (!res.ok) throw new Error('Failed to toggle payment');
+    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
+  },
+  deleteUser: async (email: string) => {
+    invalidateCache('users');
+    const res = await fetch(`${API_BASE_URL}/users/${encodeURIComponent(email)}`, {
+      method: 'DELETE'
+    });
+    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
+  },
+  deleteUserBatch: async (email: string, batch: string) => {
+    invalidateCache();
+    const res = await fetch(`${API_BASE_URL}/users/${encodeURIComponent(email)}/batch/${encodeURIComponent(batch)}`, {
+      method: 'DELETE'
+    });
     try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   },
 
@@ -137,10 +150,12 @@ export const api = {
   },
 
   // Tasks
-  getTasks: async (email: string, batch: string) => {
+  getTasks: async (email: string, batch: string = '12') => {
     return fetchWithCache(`${API_BASE_URL}/tasks/${email}/${batch}`);
   },
-  updateTasks: async (email: string, batch: string, tasks: any[]) => {
+  updateTasks: async (email: string, arg2: any, arg3?: any[]) => {
+    const batch = typeof arg2 === 'string' ? arg2 : '12';
+    const tasks = Array.isArray(arg2) ? arg2 : arg3 || [];
     invalidateCache(`tasks/${email}/${batch}`);
     const res = await fetch(`${API_BASE_URL}/tasks/${email}/${batch}`, {
       method: 'POST',
@@ -182,6 +197,22 @@ export const api = {
   getNotices: async (batch: string) => {
     return fetchWithCache(`${API_BASE_URL}/notices/${batch}`);
   },
+  createNotice: async (batch: string, message: string) => {
+    invalidateCache(`notices/${batch}`);
+    const res = await fetch(`${API_BASE_URL}/notices/${batch}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message })
+    });
+    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
+  },
+  deleteNotice: async (id: string) => {
+    invalidateCache('notices');
+    const res = await fetch(`${API_BASE_URL}/notices/${id}`, {
+      method: 'DELETE'
+    });
+    try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
+  },
 
   // Planners (Templates)
   getBatchPlanner: async (batch: string) => {
@@ -198,18 +229,20 @@ export const api = {
   },
 
   // Notes (Templates)
-  getBatchNotes: async (batch: string, email?: string) => {
-    const url = email 
-      ? `${API_BASE_URL}/templates/notes/${batch}?email=${encodeURIComponent(email)}`
-      : `${API_BASE_URL}/templates/notes/${batch}`;
+  getBatchNotes: async (batch: string, email?: string, onlyStudent?: boolean) => {
+    let url = `${API_BASE_URL}/templates/notes/${batch}`;
+    const params = [];
+    if (email) params.push(`email=${encodeURIComponent(email)}`);
+    if (onlyStudent) params.push(`onlyStudent=true`);
+    if (params.length > 0) url += `?${params.join('&')}`;
     return fetchWithCache(url);
   },
-  updateBatchNotes: async (batch: string, notes: any[]) => {
+  updateBatchNotes: async (batch: string, notes: any[], email?: string) => {
     invalidateCache(`templates/notes/${batch}`);
     const res = await fetch(`${API_BASE_URL}/templates/notes/${batch}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ notes })
+      body: JSON.stringify({ notes, email })
     });
     try { return await res.json(); } catch(e) { return { error: "Network or Server Error" }; }
   },
