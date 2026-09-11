@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
+import SEOHead from './components/SEOHead';
+import ProblemSolutionSEO from './components/ProblemSolutionSEO';
+import CaseStudiesSEO from './components/CaseStudiesSEO';
 import ChatSimulator from './components/ChatSimulator';
 import BentoGrid from './components/BentoGrid';
 import Pricing from './components/Pricing';
 import type { BatchKey } from './components/Pricing';
-import FaqAccordion from './components/FaqAccordion';
+import FAQSection from './components/FAQSection';
 import LeadCaptureModal from './components/LeadCaptureModal';
 import SamplePreviewModal from './components/SamplePreviewModal';
 import StickyMobileBar from './components/StickyMobileBar';
@@ -202,6 +205,9 @@ export default function App() {
 
   return (
     <div className="app-wrapper">
+      {/* Dynamic SEO Meta, OpenGraph & JSON-LD Structured Data */}
+      <SEOHead track={activeTrack} />
+
       <Navbar 
         onJoinClick={() => setView('auth')} 
         onBookCallClick={() => setIsLeadModalOpen(true)}
@@ -212,7 +218,7 @@ export default function App() {
       <div className="glow-glow glow-emerald"></div>
 
       <main>
-        {/* 1. High-Impact Centered Hero Fold */}
+        {/* 1. High-Impact Centered Hero Fold with Target Query Clusters */}
         <Hero
           activeTrack={activeTrack}
           onTrackChange={handleTrackChange}
@@ -220,10 +226,20 @@ export default function App() {
           onLoginClick={() => setView('auth')}
         />
 
-        {/* 2. Interactive WhatsApp AI Simulator (Immediate User Engagement) */}
+        {/* 2. High-Intent "Problem & Solution" SEO Text Hub */}
+        <ProblemSolutionSEO 
+          onBookCall={() => setIsLeadModalOpen(true)} 
+        />
+
+        {/* 3. Crawlable Result-Oriented Social Proof & Case Studies */}
+        <CaseStudiesSEO 
+          onBookCall={() => setIsLeadModalOpen(true)} 
+        />
+
+        {/* 4. Interactive WhatsApp AI Simulator (Immediate User Engagement) */}
         <ChatSimulator />
 
-        {/* 3. Core Features & High-Yield Notes Matrix (Bento Grid) */}
+        {/* 5. Core Features & High-Yield Notes Matrix (Bento Grid) */}
         <div id="resources">
           <BentoGrid 
             activeTrack={activeTrack} 
@@ -236,15 +252,15 @@ export default function App() {
           />
         </div>
 
-        {/* 4. Transparent Pricing & Batch Plans */}
+        {/* 6. Transparent Pricing & Batch Plans for Class 10, 11, 12 & Droppers */}
         <Pricing 
           selectedClass={selectedClass} 
           setSelectedClass={handleSelectBatch} 
           onJoinClick={() => setView('auth')} 
         />
 
-        {/* 5. Concise FAQ Accordion */}
-        <FaqAccordion />
+        {/* 7. High-Intent Student FAQ Accordion with Schema.org JSON-LD */}
+        <FAQSection />
       </main>
 
       {/* Streamlined Consolidated Footer */}
