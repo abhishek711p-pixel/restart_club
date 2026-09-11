@@ -129,7 +129,9 @@ export default function Pricing({ selectedClass, setSelectedClass, onJoinClick }
             padding: '24px',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'space-between'
+            justifyContent: 'space-between',
+            overflow: 'visible',
+            marginTop: '10px'
           }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
@@ -179,19 +181,23 @@ export default function Pricing({ selectedClass, setSelectedClass, onJoinClick }
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            position: 'relative'
+            position: 'relative',
+            overflow: 'visible',
+            marginTop: '10px'
           }}>
             <div style={{
               position: 'absolute',
-              top: '-12px',
+              top: '-13px',
               right: '20px',
               background: '#22c55e',
               color: '#000000',
-              fontSize: '0.72rem',
+              fontSize: '0.74rem',
               fontWeight: '900',
-              padding: '4px 10px',
+              padding: '4px 12px',
               borderRadius: '100px',
-              textTransform: 'uppercase'
+              textTransform: 'uppercase',
+              boxShadow: '0 2px 8px rgba(34, 197, 94, 0.4)',
+              zIndex: 10
             }}>
               ⭐ Most Popular
             </div>
