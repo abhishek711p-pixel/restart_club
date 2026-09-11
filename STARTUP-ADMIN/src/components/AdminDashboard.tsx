@@ -1,6 +1,6 @@
 // Force Vercel build update for Admin Panel Save Button
 import React, { useState, useEffect } from 'react';
-import { Compass, LogOut, X, Users, Trash2, FileText, Edit } from 'lucide-react';
+import { Compass, LogOut, X, Users, Trash2, FileText, Edit, PhoneCall, MessageSquare, RefreshCw } from 'lucide-react';
 import { api } from '../services/api';
 
 interface AdminDashboardProps {
@@ -24,10 +24,15 @@ const BATCH_LABELS: Record<string, string> = {
 };
 
 export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
-  const [activeTab, setActiveTab] = useState<'students' | 'scores' | 'planners' | 'notes' | 'communication'>('students');
+  const [activeTab, setActiveTab] = useState<'students' | 'democalls' | 'scores' | 'planners' | 'notes' | 'communication'>('students');
   const [studentsList, setStudentsList] = useState<StudentUser[]>([]);
   const [selectedBatchFilter, setSelectedBatchFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Demo call leads state
+  const [demoCallsList, setDemoCallsList] = useState<Array<{ id?: string; name: string; number: string; batch: string; class: string; timestamp: string }>>([]);
+  const [demoCallSearch, setDemoCallSearch] = useState('');
+  const [demoCallBatchFilter, setDemoCallBatchFilter] = useState('all');
   
   // Selected student management
   const [selectedStudent, setSelectedStudent] = useState<StudentUser | null>(null);
@@ -414,6 +419,34 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
     })
     .sort((a, b) => a.username.localeCompare(b.username));
 
+  const loadDemoCalls = async () => {
+    try {
+      const calls = await api.getDemoCalls();
+      setDemoCallsList(Array.isArray(calls) ? calls : []);
+    } catch (err) {
+      console.error("Failed to load demo calls", err);
+    }
+  };
+
+  const handleDeleteDemoCall = async (idOrTimestamp: string) => {
+    if (!window.confirm("Are you sure you want to remove this demo call request?")) return;
+    await api.deleteDemoCall(idOrTimestamp);
+    setDemoCallsList(prev => prev.filter(c => c.id !== idOrTimestamp && c.timestamp !== idOrTimestamp));
+  };
+
+  useEffect(() => {
+    loadDemoCalls();
+  }, [activeTab]);
+
+  const filteredDemoCalls = demoCallsList.filter(c => {
+    const matchesSearch = (c.name || '').toLowerCase().includes(demoCallSearch.toLowerCase()) ||
+                          (c.number || '').toLowerCase().includes(demoCallSearch.toLowerCase());
+    const matchesFilter = demoCallBatchFilter === 'all' || 
+                          (c.batch || '').toLowerCase().includes(demoCallBatchFilter.toLowerCase()) ||
+                          (c.class || '').toLowerCase().includes(demoCallBatchFilter.toLowerCase());
+    return matchesSearch && matchesFilter;
+  });
+
   return (
     <div style={{ background: 'var(--bg-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       
@@ -447,7 +480,8 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
           borderRadius: '14px',
           gap: '8px',
           border: '2px solid var(--border-color)',
-          boxShadow: '3px 3px 0px #111827'
+          boxShadow: '3px 3px 0px #111827',
+          flexWrap: 'wrap'
         }}>
           <button 
             onClick={() => { setActiveTab('students'); setSelectedStudent(null); }}
@@ -465,6 +499,26 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
             }}
           >
             👥 Students Directory
+          </button>
+          <button 
+            onClick={() => { setActiveTab('democalls'); setSelectedStudent(null); }}
+            className="btn" 
+            style={{
+              padding: '8px 20px',
+              border: 'none',
+              fontSize: '0.9rem',
+              fontWeight: '700',
+              background: activeTab === 'democalls' ? '#ef4444' : 'transparent',
+              color: activeTab === 'democalls' ? '#ffffff' : 'var(--text-primary)',
+              boxShadow: 'none',
+              transform: 'none',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            📞 Demo Call Requests {demoCallsList.length > 0 && <span style={{ background: activeTab === 'democalls' ? '#ffffff' : '#ef4444', color: activeTab === 'democalls' ? '#ef4444' : '#ffffff', padding: '1px 7px', borderRadius: '10px', fontSize: '0.72rem', fontWeight: '800' }}>{demoCallsList.length}</span>}
           </button>
           <button 
             onClick={() => { setActiveTab('scores'); setSelectedStudent(null); }}
@@ -539,6 +593,161 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
 
       {/* Main Content Area */}
       <main className="container" style={{ paddingTop: '20px', paddingBottom: '60px' }}>
+        
+        {/* Demo Call Requests Tab View */}
+        {activeTab === 'democalls' && (
+          <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '30px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '2px solid var(--border-color)', paddingBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+              <div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px', color: '#111827', margin: 0 }}>
+                  <PhoneCall size={20} style={{ color: '#ef4444' }} />
+                  Demo Strategy Call Requests ({filteredDemoCalls.length})
+                </h3>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '4px 0 0' }}>
+                  All strategy calls requested by prospective students from the landing page.
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <input 
+                  type="text"
+                  placeholder="🔍 Search name / phone..."
+                  value={demoCallSearch}
+                  onChange={(e) => setDemoCallSearch(e.target.value)}
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: '8px',
+                    border: '2px solid var(--border-color)',
+                    fontSize: '0.85rem',
+                    outline: 'none',
+                    width: '180px',
+                    fontFamily: 'var(--sans-font)'
+                  }}
+                />
+
+                <select 
+                  value={demoCallBatchFilter}
+                  onChange={(e) => setDemoCallBatchFilter(e.target.value)}
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: '8px',
+                    border: '2px solid var(--border-color)',
+                    fontSize: '0.85rem',
+                    fontWeight: '700',
+                    outline: 'none'
+                  }}
+                >
+                  <option value="all">All Batches/Streams</option>
+                  <option value="neet">NEET Aspirants</option>
+                  <option value="jee">JEE Main + Adv</option>
+                  <option value="10">Class 10</option>
+                  <option value="11">Class 11</option>
+                  <option value="12">Class 12</option>
+                  <option value="dropper">Dropper</option>
+                </select>
+
+                <button 
+                  onClick={loadDemoCalls}
+                  className="btn btn-secondary"
+                  style={{ padding: '8px 14px', fontSize: '0.8rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                  title="Refresh List"
+                >
+                  <RefreshCw size={13} /> Refresh
+                </button>
+              </div>
+            </div>
+
+            {/* Demo Calls Table */}
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid var(--border-color)' }}>
+                    <th style={{ padding: '12px 10px', fontSize: '0.75rem', fontWeight: '800', color: '#6b7280' }}>NAME</th>
+                    <th style={{ padding: '12px 10px', fontSize: '0.75rem', fontWeight: '800', color: '#6b7280' }}>PHONE NUMBER</th>
+                    <th style={{ padding: '12px 10px', fontSize: '0.75rem', fontWeight: '800', color: '#6b7280' }}>TARGET STREAM (BATCH)</th>
+                    <th style={{ padding: '12px 10px', fontSize: '0.75rem', fontWeight: '800', color: '#6b7280' }}>CLASS / STATUS</th>
+                    <th style={{ padding: '12px 10px', fontSize: '0.75rem', fontWeight: '800', color: '#6b7280' }}>REQUESTED AT</th>
+                    <th style={{ padding: '12px 10px', fontSize: '0.75rem', fontWeight: '800', color: '#6b7280', textAlign: 'right' }}>ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredDemoCalls.map((call, idx) => {
+                    const rawPhone = (call.number || '').replace(/\D/g, '');
+                    const cleanPhone = rawPhone.startsWith('91') && rawPhone.length > 10 ? rawPhone.slice(2) : rawPhone;
+                    const waLink = `https://wa.me/91${cleanPhone}?text=${encodeURIComponent(`Hello ${call.name}! 👋 I am contacting you from the RestartClub Academic Mentor Team. You requested a Free 1-on-1 Strategy Call for ${call.batch} (${call.class}). Let's connect for your session!`)}`;
+
+                    return (
+                      <tr key={call.id || call.timestamp || idx} style={{ borderBottom: '1px solid var(--border-color)', transition: 'background 0.2s ease' }}>
+                        <td style={{ padding: '14px 10px' }}>
+                          <div style={{ fontSize: '0.92rem', fontWeight: '800', color: '#111827' }}>
+                            {call.name}
+                          </div>
+                        </td>
+                        <td style={{ padding: '14px 10px' }}>
+                          <span style={{ fontSize: '0.88rem', fontWeight: '700', color: '#2563eb' }}>
+                            {call.number}
+                          </span>
+                        </td>
+                        <td style={{ padding: '14px 10px' }}>
+                          <span style={{ 
+                            padding: '4px 10px', 
+                            borderRadius: '6px', 
+                            fontSize: '0.75rem', 
+                            fontWeight: '800', 
+                            background: (call.batch || '').toLowerCase().includes('neet') ? '#dcfce7' : '#dbeafe', 
+                            color: (call.batch || '').toLowerCase().includes('neet') ? '#166534' : '#1e40af' 
+                          }}>
+                            {call.batch}
+                          </span>
+                        </td>
+                        <td style={{ padding: '14px 10px' }}>
+                          <span style={{ padding: '4px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '700', background: '#f3f4f6', color: '#374151' }}>
+                            {call.class}
+                          </span>
+                        </td>
+                        <td style={{ padding: '14px 10px', fontSize: '0.78rem', color: '#6b7280' }}>
+                          {call.timestamp ? new Date(call.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) + ' ' + new Date(call.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recent'}
+                        </td>
+                        <td style={{ padding: '14px 10px', textAlign: 'right' }}>
+                          <div style={{ display: 'inline-flex', gap: '8px', alignItems: 'center' }}>
+                            <a
+                              href={waLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn btn-accent"
+                              style={{ padding: '6px 12px', fontSize: '0.75rem', fontWeight: '800', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#22c55e', color: '#ffffff', border: 'none' }}
+                              title="Open WhatsApp Chat with student"
+                            >
+                              <MessageSquare size={13} /> Chat on WhatsApp
+                            </a>
+                            <button
+                              onClick={() => handleDeleteDemoCall(call.id || call.timestamp)}
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', padding: '4px' }}
+                              title="Delete Request"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+
+                  {filteredDemoCalls.length === 0 && (
+                    <tr>
+                      <td colSpan={6} style={{ padding: '48px 12px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                        <PhoneCall size={32} style={{ margin: '0 auto 10px', opacity: 0.4 }} />
+                        <p style={{ fontWeight: '700', fontSize: '0.95rem', margin: 0 }}>No Demo Call requests found.</p>
+                        <span style={{ fontSize: '0.8rem' }}>When students submit the "Book Free Call" modal, they will appear here in real-time.</span>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
         {(activeTab === 'students' || activeTab === 'scores') && (
           <div style={{ display: 'grid', gridTemplateColumns: selectedStudent ? '1fr 0.8fr' : '1fr', gap: '30px' }}>
             
