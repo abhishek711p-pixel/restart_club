@@ -1,25 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
+import ChatSimulator from './components/ChatSimulator';
 import BentoGrid from './components/BentoGrid';
 import MentorTrust from './components/MentorTrust';
+import Pricing from './components/Pricing';
+import type { BatchKey } from './components/Pricing';
 import FaqAccordion from './components/FaqAccordion';
 import LeadCaptureModal from './components/LeadCaptureModal';
 import SamplePreviewModal from './components/SamplePreviewModal';
 import StickyMobileBar from './components/StickyMobileBar';
-import ChatSimulator from './components/ChatSimulator';
-import Pricing from './components/Pricing';
-import type { BatchKey } from './components/Pricing';
 import AuthScreen from './components/AuthScreen';
 import StudentDashboard from './components/StudentDashboard';
 import AdminDashboard from './components/AdminDashboard';
-import BookShowcase from './components/BookShowcase';
-import { 
-  ArrowRight, 
-  Compass, 
-  Smartphone,
-  Calendar
-} from 'lucide-react';
+import { Compass, Smartphone } from 'lucide-react';
 
 export default function App() {
   const [selectedClass, setSelectedClass] = useState<BatchKey>('12');
@@ -214,12 +208,12 @@ export default function App() {
         onBookCallClick={() => setIsLeadModalOpen(true)}
       />
       
-      {/* Ambient Decorative Glows */}
+      {/* Ambient Glows */}
       <div className="glow-glow glow-indigo"></div>
       <div className="glow-glow glow-emerald"></div>
 
       <main>
-        {/* Streamlined Clean Hero Section */}
+        {/* 1. High-Impact Hero Fold */}
         <Hero
           activeTrack={activeTrack}
           onTrackChange={handleTrackChange}
@@ -227,87 +221,40 @@ export default function App() {
           onJoinClick={() => setView('auth')}
         />
 
-        {/* Feature Grid / Value Matrix (Bento Grid) */}
-        <BentoGrid 
-          activeTrack={activeTrack} 
-          onOpenSampleModal={handleOpenSampleModal}
-          onOpenLeadModal={() => setIsLeadModalOpen(true)}
-          onTrySimulator={() => {
-            const el = document.getElementById('simulator');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-          }}
-        />
-
-        {/* 3D Animated Book Material Showcase (Vault) */}
-        <div id="resources">
-          <BookShowcase />
-        </div>
-
-        {/* Simulator Section (WhatsApp AI Doubt Assistant) */}
+        {/* 2. Interactive WhatsApp AI Simulator (Immediate User Engagement) */}
         <ChatSimulator />
 
-        {/* Mentor & Trust Section */}
+        {/* 3. Core Features & High-Yield Notes Matrix (Bento Grid) */}
+        <div id="resources">
+          <BentoGrid 
+            activeTrack={activeTrack} 
+            onOpenSampleModal={handleOpenSampleModal}
+            onOpenLeadModal={() => setIsLeadModalOpen(true)}
+            onTrySimulator={() => {
+              const el = document.getElementById('simulator');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }}
+          />
+        </div>
+
+        {/* 4. Elite AIR Mentors & Verified Social Proof */}
         <MentorTrust 
           activeTrack={activeTrack} 
           onBookCall={() => setIsLeadModalOpen(true)} 
         />
 
-        {/* Pricing & Batch Registration Section */}
+        {/* 5. Transparent Pricing & Batch Plans */}
         <Pricing 
           selectedClass={selectedClass} 
           setSelectedClass={handleSelectBatch} 
           onJoinClick={() => setView('auth')} 
         />
 
-        {/* FAQ Accordion Section */}
+        {/* 6. Concise FAQ Accordion */}
         <FaqAccordion />
-
-        {/* Join The Family & Support Section */}
-        <section className="join-family-section">
-          <div className="container text-center">
-            <h2 className="section-title">Join the RestartClub Family</h2>
-            <p className="section-description max-w-md mx-auto">
-              Stay updated with free study notes, formula cheatsheets, and live strategy announcements.
-            </p>
-            <div className="family-action-buttons">
-              <button 
-                onClick={() => setView('auth')} 
-                className="btn btn-accent"
-                type="button"
-              >
-                Enroll in Batch (Starts ₹499) <ArrowRight size={16} />
-              </button>
-              <button
-                onClick={() => setIsLeadModalOpen(true)}
-                className="btn btn-secondary"
-                type="button"
-              >
-                <Calendar size={16} /> Book Free Strategy Call
-              </button>
-            </div>
-            
-            <div className="support-contact-notice">
-              ⚠️ Facing any issues? Contact support directly at:{' '}
-              <a href="mailto:rstartclub@gmail.com" className="support-email-link">
-                rstartclub@gmail.com
-              </a>
-            </div>
-            
-            <div className="social-links-grid">
-              <a href="https://t.me/+qUnxBGBGFHFiNjdl" target="_blank" rel="noopener noreferrer" className="social-btn telegram">
-                <Compass size={20} />
-                <span>Join Telegram Group</span>
-              </a>
-              <a href="https://chat.whatsapp.com/Ex2TyD2lP5aJGPvwUVT4tS" target="_blank" rel="noopener noreferrer" className="social-btn whatsapp-social">
-                <Smartphone size={20} />
-                <span>Join WhatsApp Group</span>
-              </a>
-            </div>
-          </div>
-        </section>
       </main>
 
-      {/* Footer */}
+      {/* Streamlined Consolidated Footer */}
       <footer className="app-footer">
         <div className="container footer-container">
           <div className="footer-left">
@@ -320,11 +267,21 @@ export default function App() {
             <p className="footer-desc">
               Empowering Class 10–12, JEE & NEET students with dedicated 1-on-1 AIR Topper Mentors and 24/7 Hinglish AI WhatsApp doubt assistants.
             </p>
+            {/* Quick Community Channels */}
+            <div className="footer-community-links">
+              <a href="https://t.me/+qUnxBGBGFHFiNjdl" target="_blank" rel="noopener noreferrer" className="footer-comm-pill">
+                <Compass size={14} /> Telegram Channel
+              </a>
+              <a href="https://chat.whatsapp.com/Ex2TyD2lP5aJGPvwUVT4tS" target="_blank" rel="noopener noreferrer" className="footer-comm-pill">
+                <Smartphone size={14} /> WhatsApp Community
+              </a>
+            </div>
           </div>
+          
           <div className="footer-right">
             <span className="copyright">© 2026 RestartClub Mentorship. All rights reserved.</span>
             <div className="footer-poc-row">
-              <span>📧 Point of Contact:</span>
+              <span>📧 Support & Enquiries:</span>
               <a href="mailto:rstartclub@gmail.com" className="footer-poc-email">
                 rstartclub@gmail.com
               </a>
@@ -333,13 +290,13 @@ export default function App() {
         </div>
       </footer>
 
-      {/* Sticky Bottom Bar on Mobile (<768px) */}
+      {/* Sticky Bottom Action Bar on Mobile (<768px) */}
       <StickyMobileBar 
         activeTrack={activeTrack} 
         onBookCall={() => setIsLeadModalOpen(true)} 
       />
 
-      {/* Interactive Free Sample Preview Drawer / Modal */}
+      {/* Free Sample Preview Drawer / Modal */}
       <SamplePreviewModal
         isOpen={isSampleModalOpen}
         onClose={() => setIsSampleModalOpen(false)}
@@ -350,7 +307,7 @@ export default function App() {
         }}
       />
 
-      {/* Lead Capture & 1-on-1 Strategy Call Modal */}
+      {/* 1-on-1 Strategy Call Lead Capture Modal */}
       <LeadCaptureModal
         isOpen={isLeadModalOpen}
         onClose={() => setIsLeadModalOpen(false)}

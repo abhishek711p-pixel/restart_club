@@ -4938,6 +4938,36 @@ p {
   object-fit: contain;
 }
 
+.footer-community-links {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.footer-comm-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #18181b;
+  border: 1px solid #27272a;
+  color: #d4d4d8;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.footer-comm-pill:hover {
+  background: #27272a;
+  border-color: #22c55e;
+  color: #22c55e;
+  transform: translateY(-1px);
+}
+
 .footer-poc-row {
   font-size: 0.8rem;
   color: #a1a1aa;
