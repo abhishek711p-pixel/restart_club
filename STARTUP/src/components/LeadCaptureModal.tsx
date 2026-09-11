@@ -55,27 +55,34 @@ export default function LeadCaptureModal({
     if (!validatePhone(phone)) return;
 
     const classNameMap = {
-      '10': 'Class 10 Foundation',
+      '10': 'Class 10',
       '11': 'Class 11',
       '12': 'Class 12',
-      'dropper': `${track.toUpperCase()} Dropper`
+      'dropper': 'Dropper'
     };
 
-    const targetExamLabel = track === 'neet' ? 'NEET UG' : 'JEE Main + Advanced';
-    const message = `Hello RestartClub Mentor Team! 👋\n\nI want to book my Free 1-on-1 Strategy Call.\n• Name: ${name.trim()}\n• Target Exam: ${targetExamLabel}\n• Class/Status: ${classNameMap[currentClass]}\n• WhatsApp: +91 ${phone}\n\nPlease share my study roadmap & connect me with an AIR mentor!`;
+    const targetExamLabel = track === 'neet' ? 'NEET Aspirant' : 'JEE Main + Adv';
+    const message = `Hello RestartClub Mentor Team! 👋\n\nI want to book my Free 1-on-1 Strategy Call:\nname = ${name.trim()}\nnumber = +91 ${phone}\nbatch = ${targetExamLabel}\nclass = ${classNameMap[currentClass]}`;
 
     const encoded = encodeURIComponent(message);
-    const link = `https://wa.me/918340384877?text=${encoded}`;
+    const link = `https://wa.me/917568864993?text=${encoded}`;
     setWhatsappUrl(link);
     setIsSubmitted(true);
+
+    // Automatically trigger WhatsApp direct message link
+    try {
+      window.open(link, '_blank');
+    } catch {
+      // Handled by modal CTA button fallback
+    }
 
     try {
       const existingLeads = JSON.parse(localStorage.getItem('rc_leads') || '[]');
       existingLeads.push({
         name: name.trim(),
-        phone,
-        track,
-        currentClass,
+        phone: `+91 ${phone}`,
+        batch: targetExamLabel,
+        currentClass: classNameMap[currentClass],
         timestamp: new Date().toISOString()
       });
       localStorage.setItem('rc_leads', JSON.stringify(existingLeads));
