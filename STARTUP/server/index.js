@@ -909,6 +909,117 @@ app.delete('/api/notices/:id', async (req, res) => {
   }
 });
 
+// 6. Demo Calls (Lead Capture for 1-on-1 Strategy Calls)
+let inMemoryDemoCalls = [];
+
+app.get(['/api/demo-calls', '/demo-calls'], async (req, res) => {
+  let dbCalls = [];
+  try {
+    if (prisma.demoCall) {
+      dbCalls = await prisma.demoCall.findMany({
+        orderBy: { timestamp: 'desc' }
+      });
+    }
+  } catch (err) {
+    console.error('[DemoCalls DB Read Error]:', err.message);
+  }
+
+  // Combine DB calls and in-memory calls seamlessly so nothing is ever lost
+  const ids = new Set((dbCalls || []).map(d => d.id));
+  const combined = [
+    ...(dbCalls || []),
+    ...inMemoryDemoCalls.filter(m => !ids.has(m.id))
+  ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+  res.json(combined);
+});
+
+app.post(['/api/demo-calls', '/demo-calls'], async (req, res) => {
+  const { name, number, batch, class: currentClass, timestamp } = req.body;
+  if (!name || !number) {
+    return res.status(400).json({ error: 'Name and number are required' });
+  }
+
+  const newEntry = {
+    id: `call_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+    name: String(name).trim(),
+    number: String(number).trim(),
+    batch: batch || 'General',
+    class: currentClass || '12',
+    timestamp: timestamp ? new Date(timestamp) : new Date()
+  };
+
+  // Add to memory storage
+  inMemoryDemoCalls = [newEntry, ...inMemoryDemoCalls.filter(c => c.id !== newEntry.id)];
+
+  // Attempt DB persistence
+  try {
+    if (prisma.demoCall) {
+      await prisma.demoCall.create({
+        data: {
+          id: newEntry.id,
+          name: newEntry.name,
+          number: newEntry.number,
+          batch: newEntry.batch,
+          class: newEntry.class,
+          timestamp: newEntry.timestamp
+        }
+      });
+      console.log(`[Demo Call Saved in DB]: ${newEntry.id} - ${newEntry.name} (${newEntry.number})`);
+    }
+  } catch (err) {
+    console.error('[DemoCalls DB Save Error]:', err.message);
+  }
+
+  // Send email alert to admin
+  try {
+    const rawDigits = newEntry.number.replace(/\D/g, '');
+    const cleanDigits = rawDigits.startsWith('91') && rawDigits.length > 10 ? rawDigits.slice(2) : rawDigits;
+    const waLink = `https://wa.me/91${cleanDigits}?text=${encodeURIComponent(`Hello ${newEntry.name}! 👋 I am contacting you from RestartClub Academic Mentor Team. You requested a Free 1-on-1 Strategy Call for ${newEntry.batch} (${newEntry.class}). Let's connect for your session!`)}`;
+
+    sendEmail({
+      to: 'rstartclub@gmail.com',
+      subject: `🚨 New Free Mentorship Call Request: ${newEntry.name} (${newEntry.batch})`,
+      text: `New Free Demo Call Request Received!\n\nName: ${newEntry.name}\nWhatsApp: ${newEntry.number}\nTarget Stream: ${newEntry.batch}\nClass: ${newEntry.class}\nTime: ${newEntry.timestamp}\n\nDirect WhatsApp Chat: ${waLink}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px; border: 1px solid #e5e7eb; border-radius: 12px; background: #ffffff;">
+          <h2 style="color: #ef4444; margin-top: 0;">📞 New Free Strategy Call Request!</h2>
+          <p style="font-size: 15px; color: #374151;">A student just booked a free mentorship call on RestartClub:</p>
+          <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
+            <tr><td style="padding: 8px; font-weight: bold; color: #111827; border-bottom: 1px solid #f3f4f6;">Name:</td><td style="padding: 8px; color: #111827; border-bottom: 1px solid #f3f4f6;">${newEntry.name}</td></tr>
+            <tr><td style="padding: 8px; font-weight: bold; color: #111827; border-bottom: 1px solid #f3f4f6;">WhatsApp:</td><td style="padding: 8px; color: #2563eb; font-weight: bold; border-bottom: 1px solid #f3f4f6;">${newEntry.number}</td></tr>
+            <tr><td style="padding: 8px; font-weight: bold; color: #111827; border-bottom: 1px solid #f3f4f6;">Target Stream:</td><td style="padding: 8px; color: #111827; border-bottom: 1px solid #f3f4f6;">${newEntry.batch}</td></tr>
+            <tr><td style="padding: 8px; font-weight: bold; color: #111827; border-bottom: 1px solid #f3f4f6;">Class:</td><td style="padding: 8px; color: #111827; border-bottom: 1px solid #f3f4f6;">${newEntry.class}</td></tr>
+          </table>
+          <div style="margin-top: 20px;">
+            <a href="${waLink}" style="background: #22c55e; color: #ffffff; padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;">
+              💬 Click to Chat with Student on WhatsApp
+            </a>
+          </div>
+        </div>
+      `
+    }).catch(e => console.error('[Email Notification Error]:', e));
+  } catch (err) {
+    console.error('[Email Dispatch Error]:', err);
+  }
+
+  res.status(201).json({ success: true, lead: newEntry });
+});
+
+app.delete(['/api/demo-calls/:id', '/demo-calls/:id'], async (req, res) => {
+  const { id } = req.params;
+  inMemoryDemoCalls = inMemoryDemoCalls.filter(c => c.id !== id && c.timestamp !== id);
+  try {
+    if (prisma.demoCall) {
+      await prisma.demoCall.delete({ where: { id } }).catch(() => {});
+    }
+  } catch (err) {
+    console.error('[DemoCalls Delete Error]:', err.message);
+  }
+  res.json({ success: true });
+});
+
+
 const path = require('path');
 const fs = require('fs');
 const distPath = path.join(__dirname, '../dist');

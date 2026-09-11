@@ -274,7 +274,7 @@ export const api = {
       const res = await fetch(`${API_BASE_URL}/demo-calls`);
       if (res.ok) {
         const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) return data;
+        if (Array.isArray(data)) return data;
       }
     } catch {
       // fallback to localStorage
