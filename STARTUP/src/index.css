@@ -1682,60 +1682,77 @@ p {
   40% { transform: scale(1); }
 }
 
-.whatsapp-footer {
-  background: #f0f2f5;
-  padding: 10px 14px;
+.whatsapp-sample-footer {
+  background: #182229;
+  padding: 12px 14px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 8px;
   z-index: 10;
-  border-top: 1.5px solid var(--border-color);
+  border-top: 1.5px solid #27272a;
 }
 
-.whatsapp-input {
-  flex: 1;
-  background: #ffffff;
-  border: 1.5px solid var(--border-color);
-  outline: none;
-  padding: 10px 16px;
-  border-radius: 20px;
-  color: #111827;
-  font-size: 0.85rem;
-  font-family: var(--sans-font);
-  box-shadow: 2px 2px 0px #111827;
-}
-
-.whatsapp-input::placeholder {
-  color: #8696a0;
-}
-
-.whatsapp-send-btn {
-  background: #00a884;
-  border: 1.5px solid var(--border-color);
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  color: #ffffff;
+.sample-footer-header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: var(--transition-smooth);
-  box-shadow: 2px 2px 0px #111827;
-}
-
-.whatsapp-send-btn:hover:not(:disabled) {
-  background: #008f72;
-  transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px #111827;
-}
-
-.whatsapp-send-btn:disabled {
-  background: #e6ebd0;
+  gap: 6px;
+  font-size: 0.74rem;
+  font-weight: 700;
   color: #8696a0;
+  letter-spacing: 0.02em;
+}
+
+.sample-pills-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.sample-pill-btn {
+  background: #202c33;
+  border: 1.5px solid #2a3942;
+  color: #e9edef;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: left;
+}
+
+.sample-pill-btn:hover:not(:disabled) {
+  background: #00a884;
+  border-color: #00a884;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.sample-pill-btn.active {
+  background: #00a884;
+  border-color: #00a884;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 168, 132, 0.4);
+}
+
+.sample-pill-btn:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
-  box-shadow: none;
-  transform: none;
+}
+
+.sample-pill-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.sample-pill-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Pricing Section */
