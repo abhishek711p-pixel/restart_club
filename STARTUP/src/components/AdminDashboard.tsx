@@ -448,24 +448,24 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
   });
 
   return (
-    <div style={{ background: 'var(--bg-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ background: '#050505', minHeight: '100vh', display: 'flex', flexDirection: 'column', color: '#ffffff' }}>
       
       {/* Admin Navbar */}
-      <header className="navbar-header" style={{ background: '#ffffff', borderBottom: '2px solid var(--border-color)', padding: '16px 0' }}>
+      <header className="navbar-header" style={{ background: '#111113', borderBottom: '1px solid #27272a', padding: '16px 0' }}>
         <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div className="logo-icon-wrapper" style={{ background: '#ef4444' }}>
-              <Compass className="logo-icon animate-spin-slow" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div className="logo-icon-wrapper" style={{ background: '#ef4444', width: '36px', height: '36px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Compass className="logo-icon animate-spin-slow" size={20} color="#ffffff" />
             </div>
-            <span className="logo-text">RestartClub <span style={{ color: '#ef4444' }}>Admin</span></span>
+            <span className="logo-text" style={{ fontSize: '1.25rem', fontWeight: '800', color: '#ffffff' }}>RestartClub <span style={{ color: '#ef4444' }}>Admin</span></span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <div className="badge-pill" style={{ margin: 0, background: '#fee2e2', borderColor: '#ef4444', color: '#ef4444' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div className="badge-pill" style={{ margin: 0, background: 'rgba(239, 68, 68, 0.15)', borderColor: 'rgba(239, 68, 68, 0.3)', color: '#ef4444', fontSize: '0.8rem', fontWeight: '700', padding: '4px 12px', borderRadius: '9999px' }}>
               🛡️ Owner Session
             </div>
-            <button onClick={onLogout} className="btn btn-secondary" style={{ padding: '8px 16px', gap: '6px', fontSize: '0.85rem', cursor: 'pointer' }}>
-              Exit Panel <LogOut size={14} />
+            <button onClick={onLogout} className="btn" style={{ padding: '8px 16px', gap: '6px', fontSize: '0.85rem', cursor: 'pointer', background: '#18181b', color: '#ffffff', border: '1px solid #3f3f46', borderRadius: '8px', fontWeight: '700', display: 'inline-flex', alignItems: 'center' }}>
+              Exit Panel <LogOut size={14} style={{ marginLeft: '4px' }} />
             </button>
           </div>
         </div>
@@ -475,27 +475,29 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
       <div className="container" style={{ paddingTop: '30px', textAlign: 'left' }}>
         <div style={{
           display: 'inline-flex',
-          background: '#ffffff',
+          background: '#111113',
           padding: '6px',
           borderRadius: '14px',
           gap: '8px',
-          border: '2px solid var(--border-color)',
-          boxShadow: '3px 3px 0px #111827',
+          border: '1px solid #27272a',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
           flexWrap: 'wrap'
         }}>
           <button 
             onClick={() => { setActiveTab('students'); setSelectedStudent(null); }}
             className="btn" 
             style={{
-              padding: '8px 20px',
+              padding: '9px 18px',
               border: 'none',
-              fontSize: '0.9rem',
+              fontSize: '0.88rem',
               fontWeight: '700',
+              borderRadius: '10px',
               background: activeTab === 'students' ? '#ef4444' : 'transparent',
-              color: activeTab === 'students' ? '#ffffff' : 'var(--text-primary)',
-              boxShadow: 'none',
+              color: activeTab === 'students' ? '#ffffff' : '#a1a1aa',
+              boxShadow: activeTab === 'students' ? '0 2px 10px rgba(239, 68, 68, 0.4)' : 'none',
               transform: 'none',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
             }}
           >
             👥 Students Directory
@@ -504,18 +506,20 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
             onClick={() => { setActiveTab('democalls'); setSelectedStudent(null); }}
             className="btn" 
             style={{
-              padding: '8px 20px',
+              padding: '9px 18px',
               border: 'none',
-              fontSize: '0.9rem',
+              fontSize: '0.88rem',
               fontWeight: '700',
+              borderRadius: '10px',
               background: activeTab === 'democalls' ? '#ef4444' : 'transparent',
-              color: activeTab === 'democalls' ? '#ffffff' : 'var(--text-primary)',
-              boxShadow: 'none',
+              color: activeTab === 'democalls' ? '#ffffff' : '#a1a1aa',
+              boxShadow: activeTab === 'democalls' ? '0 2px 10px rgba(239, 68, 68, 0.4)' : 'none',
               transform: 'none',
               cursor: 'pointer',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px'
+              gap: '6px',
+              transition: 'all 0.2s ease'
             }}
           >
             📞 Demo Call Requests {demoCallsList.length > 0 && <span style={{ background: activeTab === 'democalls' ? '#ffffff' : '#ef4444', color: activeTab === 'democalls' ? '#ef4444' : '#ffffff', padding: '1px 7px', borderRadius: '10px', fontSize: '0.72rem', fontWeight: '800' }}>{demoCallsList.length}</span>}
@@ -524,15 +528,17 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
             onClick={() => { setActiveTab('scores'); setSelectedStudent(null); }}
             className="btn" 
             style={{
-              padding: '8px 20px',
+              padding: '9px 18px',
               border: 'none',
-              fontSize: '0.9rem',
+              fontSize: '0.88rem',
               fontWeight: '700',
+              borderRadius: '10px',
               background: activeTab === 'scores' ? '#ef4444' : 'transparent',
-              color: activeTab === 'scores' ? '#ffffff' : 'var(--text-primary)',
-              boxShadow: 'none',
+              color: activeTab === 'scores' ? '#ffffff' : '#a1a1aa',
+              boxShadow: activeTab === 'scores' ? '0 2px 10px rgba(239, 68, 68, 0.4)' : 'none',
               transform: 'none',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
             }}
           >
             📊 Manage Test Scores
@@ -541,15 +547,17 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
             onClick={() => setActiveTab('planners')}
             className="btn" 
             style={{
-              padding: '8px 20px',
+              padding: '9px 18px',
               border: 'none',
-              fontSize: '0.9rem',
+              fontSize: '0.88rem',
               fontWeight: '700',
+              borderRadius: '10px',
               background: activeTab === 'planners' ? '#ef4444' : 'transparent',
-              color: activeTab === 'planners' ? '#ffffff' : 'var(--text-primary)',
-              boxShadow: 'none',
+              color: activeTab === 'planners' ? '#ffffff' : '#a1a1aa',
+              boxShadow: activeTab === 'planners' ? '0 2px 10px rgba(239, 68, 68, 0.4)' : 'none',
               transform: 'none',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
             }}
           >
             📝 Manage Batch Planners
@@ -558,15 +566,17 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
             onClick={() => setActiveTab('notes')}
             className="btn" 
             style={{
-              padding: '8px 20px',
+              padding: '9px 18px',
               border: 'none',
-              fontSize: '0.9rem',
+              fontSize: '0.88rem',
               fontWeight: '700',
+              borderRadius: '10px',
               background: activeTab === 'notes' ? '#ef4444' : 'transparent',
-              color: activeTab === 'notes' ? '#ffffff' : 'var(--text-primary)',
-              boxShadow: 'none',
+              color: activeTab === 'notes' ? '#ffffff' : '#a1a1aa',
+              boxShadow: activeTab === 'notes' ? '0 2px 10px rgba(239, 68, 68, 0.4)' : 'none',
               transform: 'none',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
             }}
           >
             📂 Manage Revision Notes
@@ -575,15 +585,17 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
             onClick={() => setActiveTab('communication')}
             className="btn" 
             style={{
-              padding: '8px 20px',
+              padding: '9px 18px',
               border: 'none',
-              fontSize: '0.9rem',
+              fontSize: '0.88rem',
               fontWeight: '700',
+              borderRadius: '10px',
               background: activeTab === 'communication' ? '#ef4444' : 'transparent',
-              color: activeTab === 'communication' ? '#ffffff' : 'var(--text-primary)',
-              boxShadow: 'none',
+              color: activeTab === 'communication' ? '#ffffff' : '#a1a1aa',
+              boxShadow: activeTab === 'communication' ? '0 2px 10px rgba(239, 68, 68, 0.4)' : 'none',
               transform: 'none',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
             }}
           >
             💬 Manage Communication
@@ -596,14 +608,14 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
         
         {/* Demo Call Requests Tab View */}
         {activeTab === 'democalls' && (
-          <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '30px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '2px solid var(--border-color)', paddingBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+          <div className="glass-card" style={{ background: '#111113', border: '1px solid #27272a', textAlign: 'left', padding: '30px', borderRadius: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #27272a', paddingBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
               <div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px', color: '#111827', margin: 0 }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px', color: '#ffffff', margin: 0 }}>
                   <PhoneCall size={20} style={{ color: '#ef4444' }} />
                   Demo Strategy Call Requests ({filteredDemoCalls.length})
                 </h3>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '4px 0 0' }}>
+                <p style={{ fontSize: '0.85rem', color: '#a1a1aa', margin: '4px 0 0' }}>
                   All strategy calls requested by prospective students from the landing page.
                 </p>
               </div>
@@ -617,7 +629,9 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                   style={{
                     padding: '8px 12px',
                     borderRadius: '8px',
-                    border: '2px solid var(--border-color)',
+                    border: '1px solid #3f3f46',
+                    background: '#18181b',
+                    color: '#ffffff',
                     fontSize: '0.85rem',
                     outline: 'none',
                     width: '180px',
@@ -631,7 +645,9 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                   style={{
                     padding: '8px 12px',
                     borderRadius: '8px',
-                    border: '2px solid var(--border-color)',
+                    border: '1px solid #3f3f46',
+                    background: '#18181b',
+                    color: '#ffffff',
                     fontSize: '0.85rem',
                     fontWeight: '700',
                     outline: 'none'
@@ -648,8 +664,8 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
 
                 <button 
                   onClick={loadDemoCalls}
-                  className="btn btn-secondary"
-                  style={{ padding: '8px 14px', fontSize: '0.8rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                  className="btn"
+                  style={{ padding: '8px 14px', fontSize: '0.8rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#18181b', color: '#ffffff', border: '1px solid #3f3f46', borderRadius: '8px', fontWeight: '700' }}
                   title="Refresh List"
                 >
                   <RefreshCw size={13} /> Refresh
@@ -661,13 +677,13 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                 <thead>
-                  <tr style={{ borderBottom: '2px solid var(--border-color)' }}>
-                    <th style={{ padding: '12px 10px', fontSize: '0.75rem', fontWeight: '800', color: '#6b7280' }}>NAME</th>
-                    <th style={{ padding: '12px 10px', fontSize: '0.75rem', fontWeight: '800', color: '#6b7280' }}>PHONE NUMBER</th>
-                    <th style={{ padding: '12px 10px', fontSize: '0.75rem', fontWeight: '800', color: '#6b7280' }}>TARGET STREAM (BATCH)</th>
-                    <th style={{ padding: '12px 10px', fontSize: '0.75rem', fontWeight: '800', color: '#6b7280' }}>CLASS / STATUS</th>
-                    <th style={{ padding: '12px 10px', fontSize: '0.75rem', fontWeight: '800', color: '#6b7280' }}>REQUESTED AT</th>
-                    <th style={{ padding: '12px 10px', fontSize: '0.75rem', fontWeight: '800', color: '#6b7280', textAlign: 'right' }}>ACTIONS</th>
+                  <tr style={{ borderBottom: '1px solid #27272a', background: '#18181b' }}>
+                    <th style={{ padding: '12px 10px', fontSize: '0.75rem', fontWeight: '800', color: '#a1a1aa' }}>NAME</th>
+                    <th style={{ padding: '12px 10px', fontSize: '0.75rem', fontWeight: '800', color: '#a1a1aa' }}>PHONE NUMBER</th>
+                    <th style={{ padding: '12px 10px', fontSize: '0.75rem', fontWeight: '800', color: '#a1a1aa' }}>TARGET STREAM (BATCH)</th>
+                    <th style={{ padding: '12px 10px', fontSize: '0.75rem', fontWeight: '800', color: '#a1a1aa' }}>CLASS / STATUS</th>
+                    <th style={{ padding: '12px 10px', fontSize: '0.75rem', fontWeight: '800', color: '#a1a1aa' }}>REQUESTED AT</th>
+                    <th style={{ padding: '12px 10px', fontSize: '0.75rem', fontWeight: '800', color: '#a1a1aa', textAlign: 'right' }}>ACTIONS</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -677,14 +693,14 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                     const waLink = `https://wa.me/91${cleanPhone}?text=${encodeURIComponent(`Hello ${call.name}! 👋 I am contacting you from the RestartClub Academic Mentor Team. You requested a Free 1-on-1 Strategy Call for ${call.batch} (${call.class}). Let's connect for your session!`)}`;
 
                     return (
-                      <tr key={call.id || call.timestamp || idx} style={{ borderBottom: '1px solid var(--border-color)', transition: 'background 0.2s ease' }}>
+                      <tr key={call.id || call.timestamp || idx} style={{ borderBottom: '1px solid #27272a', transition: 'background 0.2s ease' }}>
                         <td style={{ padding: '14px 10px' }}>
-                          <div style={{ fontSize: '0.92rem', fontWeight: '800', color: '#111827' }}>
+                          <div style={{ fontSize: '0.92rem', fontWeight: '800', color: '#ffffff' }}>
                             {call.name}
                           </div>
                         </td>
                         <td style={{ padding: '14px 10px' }}>
-                          <span style={{ fontSize: '0.88rem', fontWeight: '700', color: '#2563eb' }}>
+                          <span style={{ fontSize: '0.88rem', fontWeight: '700', color: '#60a5fa' }}>
                             {call.number}
                           </span>
                         </td>
@@ -694,18 +710,19 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                             borderRadius: '6px', 
                             fontSize: '0.75rem', 
                             fontWeight: '800', 
-                            background: (call.batch || '').toLowerCase().includes('neet') ? '#dcfce7' : '#dbeafe', 
-                            color: (call.batch || '').toLowerCase().includes('neet') ? '#166534' : '#1e40af' 
+                            background: (call.batch || '').toLowerCase().includes('neet') ? 'rgba(16, 185, 129, 0.15)' : 'rgba(59, 130, 246, 0.15)', 
+                            color: (call.batch || '').toLowerCase().includes('neet') ? '#10b981' : '#60a5fa',
+                            border: (call.batch || '').toLowerCase().includes('neet') ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(59, 130, 246, 0.3)'
                           }}>
                             {call.batch}
                           </span>
                         </td>
                         <td style={{ padding: '14px 10px' }}>
-                          <span style={{ padding: '4px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '700', background: '#f3f4f6', color: '#374151' }}>
+                          <span style={{ padding: '4px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '700', background: '#27272a', color: '#e4e4e7' }}>
                             {call.class}
                           </span>
                         </td>
-                        <td style={{ padding: '14px 10px', fontSize: '0.78rem', color: '#6b7280' }}>
+                        <td style={{ padding: '14px 10px', fontSize: '0.78rem', color: '#a1a1aa' }}>
                           {call.timestamp ? new Date(call.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) + ' ' + new Date(call.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recent'}
                         </td>
                         <td style={{ padding: '14px 10px', textAlign: 'right' }}>
@@ -714,8 +731,8 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                               href={waLink}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="btn btn-accent"
-                              style={{ padding: '6px 12px', fontSize: '0.75rem', fontWeight: '800', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#22c55e', color: '#ffffff', border: 'none' }}
+                              className="btn"
+                              style={{ padding: '6px 12px', fontSize: '0.75rem', fontWeight: '800', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#10b981', color: '#050505', border: 'none', borderRadius: '6px' }}
                               title="Open WhatsApp Chat with student"
                             >
                               <MessageSquare size={13} /> Chat on WhatsApp
@@ -735,9 +752,9 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
 
                   {filteredDemoCalls.length === 0 && (
                     <tr>
-                      <td colSpan={6} style={{ padding: '48px 12px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                      <td colSpan={6} style={{ padding: '48px 12px', textAlign: 'center', color: '#a1a1aa' }}>
                         <PhoneCall size={32} style={{ margin: '0 auto 10px', opacity: 0.4 }} />
-                        <p style={{ fontWeight: '700', fontSize: '0.95rem', margin: 0 }}>No Demo Call requests found.</p>
+                        <p style={{ fontWeight: '700', fontSize: '0.95rem', margin: 0, color: '#ffffff' }}>No Demo Call requests found.</p>
                         <span style={{ fontSize: '0.8rem' }}>When students submit the "Book Free Call" modal, they will appear here in real-time.</span>
                       </td>
                     </tr>
@@ -752,9 +769,9 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
           <div style={{ display: 'grid', gridTemplateColumns: selectedStudent ? '1fr 0.8fr' : '1fr', gap: '30px' }}>
             
             {/* Students Table */}
-            <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '30px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '2px solid var(--border-color)', paddingBottom: '12px' }}>
-                <h3 style={{ fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '8px', color: '#111827' }}>
+            <div className="glass-card" style={{ background: '#111113', border: '1px solid #27272a', textAlign: 'left', padding: '30px', borderRadius: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #27272a', paddingBottom: '12px' }}>
+                <h3 style={{ fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '8px', color: '#ffffff' }}>
                   <Users size={20} style={{ color: '#ef4444' }} />
                   Registered Students ({filteredStudents.reduce((acc, student) => acc + Array.from(new Set([...(student.purchasedBatches || []).map(b => b.replace('_premium', '').replace('_standard', '')), student.batch])).filter(Boolean).length, 0)})
                 </h3>
@@ -769,7 +786,9 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                     style={{
                       padding: '8px 12px',
                       borderRadius: '8px',
-                      border: '2px solid var(--border-color)',
+                      border: '1px solid #3f3f46',
+                      background: '#18181b',
+                      color: '#ffffff',
                       fontSize: '0.85rem',
                       outline: 'none',
                       width: '200px',
@@ -784,7 +803,9 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                     style={{
                       padding: '8px 12px',
                       borderRadius: '8px',
-                      border: '2px solid var(--border-color)',
+                      border: '1px solid #3f3f46',
+                      background: '#18181b',
+                      color: '#ffffff',
                       fontSize: '0.85rem',
                       fontWeight: '700',
                       outline: 'none'
@@ -804,11 +825,11 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                   <thead>
-                    <tr style={{ borderBottom: '2px solid var(--border-color)' }}>
-                      <th style={{ padding: '12px 10px', fontSize: '0.75rem', fontWeight: '800', color: '#6b7280' }}>STUDENT</th>
-                      <th style={{ padding: '12px 10px', fontSize: '0.75rem', fontWeight: '800', color: '#6b7280' }}>BATCH</th>
-                      <th style={{ padding: '12px 10px', fontSize: '0.75rem', fontWeight: '800', color: '#6b7280' }}>STATUS</th>
-                      <th style={{ padding: '12px 10px', fontSize: '0.75rem', fontWeight: '800', color: '#6b7280', textAlign: 'right' }}>ACTIONS</th>
+                    <tr style={{ borderBottom: '1px solid #27272a', background: '#18181b' }}>
+                      <th style={{ padding: '12px 10px', fontSize: '0.75rem', fontWeight: '800', color: '#a1a1aa' }}>STUDENT</th>
+                      <th style={{ padding: '12px 10px', fontSize: '0.75rem', fontWeight: '800', color: '#a1a1aa' }}>BATCH</th>
+                      <th style={{ padding: '12px 10px', fontSize: '0.75rem', fontWeight: '800', color: '#a1a1aa' }}>STATUS</th>
+                      <th style={{ padding: '12px 10px', fontSize: '0.75rem', fontWeight: '800', color: '#a1a1aa', textAlign: 'right' }}>ACTIONS</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -819,15 +840,13 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                       ])).filter(Boolean); 
                       
                       return batches.map(batch => {
-
-                        
                         return (
-                          <tr key={`${student.email}-${batch}`} style={{ borderBottom: '1px solid #f3f4f6', height: '60px' }}>
+                          <tr key={`${student.email}-${batch}`} style={{ borderBottom: '1px solid #27272a', height: '60px' }}>
                             <td style={{ padding: '10px' }}>
-                              <div style={{ fontWeight: '700', color: '#111827', fontSize: '0.9rem' }}>{student.username}</div>
-                              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{student.email}</div>
+                              <div style={{ fontWeight: '700', color: '#ffffff', fontSize: '0.9rem' }}>{student.username}</div>
+                              <div style={{ fontSize: '0.75rem', color: '#a1a1aa' }}>{student.email}</div>
                             </td>
-                            <td style={{ padding: '10px', fontWeight: '600', fontSize: '0.85rem' }}>
+                            <td style={{ padding: '10px', fontWeight: '600', fontSize: '0.85rem', color: '#e4e4e7' }}>
                               {BATCH_LABELS[batch] || batch}
                             </td>
                             {(() => {
@@ -836,8 +855,8 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                               const isBought = isPremium || isStandard;
                               
                               let statusText = 'Unpaid/Pending';
-                              if (isPremium) statusText = 'Active (Premium ₹599 for 6months)';
-                              else if (isStandard) statusText = 'Active (Standard ₹499 for 6months)';
+                              if (isPremium) statusText = 'Active (Premium ₹599/6mo)';
+                              else if (isStandard) statusText = 'Active (Standard ₹499/6mo)';
 
                               return (
                                 <React.Fragment>
@@ -848,10 +867,10 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                                       borderRadius: '4px',
                                       fontSize: '0.7rem',
                                       fontWeight: '800',
-                                      border: '1.5px solid',
-                                      borderColor: isBought ? '#10b981' : '#f59e0b',
-                                      background: isBought ? '#d1fae5' : '#fef3c7',
-                                      color: isBought ? '#065f46' : '#92400e'
+                                      border: '1px solid',
+                                      borderColor: isBought ? 'rgba(16, 185, 129, 0.4)' : 'rgba(245, 158, 11, 0.4)',
+                                      background: isBought ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)',
+                                      color: isBought ? '#10b981' : '#f59e0b'
                                     }}>
                                       {statusText}
                                     </span>
@@ -866,18 +885,20 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                                                 handleTogglePayment(student.email, batch, 'standard');
                                               }
                                             }}
-                                            className="btn btn-secondary"
-                                            title="₹499 for 6months Tier (No AI Chat Bot)"
+                                            className="btn"
+                                            title="₹499 for 6months Tier (Standard)"
                                             style={{ 
                                               padding: '6px 12px', 
                                               fontSize: '0.7rem', 
+                                              fontWeight: '700',
                                               cursor: 'pointer', 
-                                              background: isStandard && !isPremium ? '#10b981' : '#ffffff',
-                                              color: isStandard && !isPremium ? '#ffffff' : '#111827',
-                                              border: isStandard && !isPremium ? '2px solid #10b981' : '2px solid var(--border-color)'
+                                              borderRadius: '6px',
+                                              background: isStandard && !isPremium ? '#10b981' : '#18181b',
+                                              color: isStandard && !isPremium ? '#050505' : '#a1a1aa',
+                                              border: isStandard && !isPremium ? '1px solid #10b981' : '1px solid #3f3f46'
                                             }}
                                           >
-                                            Paid ₹499 for 6months
+                                            Paid ₹499
                                           </button>
                                           <button 
                                             onClick={() => {
@@ -885,18 +906,20 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                                                 handleTogglePayment(student.email, batch, 'premium');
                                               }
                                             }}
-                                            className="btn btn-secondary"
-                                            title="₹599 for 6months Tier (With AI Chat Bot)"
+                                            className="btn"
+                                            title="₹599 for 6months Tier (Premium with AI)"
                                             style={{ 
                                               padding: '6px 12px', 
                                               fontSize: '0.7rem', 
+                                              fontWeight: '700',
                                               cursor: 'pointer', 
-                                              background: isPremium ? '#10b981' : '#ffffff',
-                                              color: isPremium ? '#ffffff' : '#111827',
-                                              border: isPremium ? '2px solid #10b981' : '2px solid var(--border-color)'
+                                              borderRadius: '6px',
+                                              background: isPremium ? '#10b981' : '#18181b',
+                                              color: isPremium ? '#050505' : '#a1a1aa',
+                                              border: isPremium ? '1px solid #10b981' : '1px solid #3f3f46'
                                             }}
                                           >
-                                            Paid ₹599 for 6months
+                                            Paid ₹599
                                           </button>
                                           <button 
                                             onClick={() => {
@@ -906,15 +929,17 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                                                 handleTogglePayment(student.email, batch, 'standard');
                                               }
                                             }}
-                                            className="btn btn-secondary"
+                                            className="btn"
                                             title="Revoke Access"
                                             style={{ 
                                               padding: '6px 12px', 
                                               fontSize: '0.7rem', 
+                                              fontWeight: '700',
                                               cursor: 'pointer', 
-                                              background: !(isStandard || isPremium) ? '#10b981' : '#ffffff',
-                                              color: !(isStandard || isPremium) ? '#ffffff' : '#111827',
-                                              border: !(isStandard || isPremium) ? '2px solid #10b981' : '2px solid var(--border-color)'
+                                              borderRadius: '6px',
+                                              background: !(isStandard || isPremium) ? '#ef4444' : '#18181b',
+                                              color: !(isStandard || isPremium) ? '#ffffff' : '#a1a1aa',
+                                              border: !(isStandard || isPremium) ? '1px solid #ef4444' : '1px solid #3f3f46'
                                             }}
                                           >
                                             Unpaid
@@ -937,9 +962,10 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                                               padding: '6px 10px',
                                               fontSize: '0.7rem',
                                               cursor: 'pointer',
-                                              background: '#fee2e2',
-                                              color: '#dc2626',
-                                              border: '2px solid #f87171',
+                                              background: 'rgba(239, 68, 68, 0.15)',
+                                              color: '#ef4444',
+                                              border: '1px solid rgba(239, 68, 68, 0.4)',
+                                              borderRadius: '6px',
                                               fontWeight: '800',
                                               display: 'inline-flex',
                                               alignItems: 'center',
@@ -952,8 +978,17 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                                       ) : (
                                         <button 
                                           onClick={() => setSelectedStudent({ ...student, batch })}
-                                          className="btn btn-accent"
-                                          style={{ padding: '6px 12px', fontSize: '0.75rem', cursor: 'pointer' }}
+                                          className="btn"
+                                          style={{ 
+                                            padding: '6px 12px', 
+                                            fontSize: '0.75rem', 
+                                            fontWeight: '700',
+                                            cursor: 'pointer',
+                                            borderRadius: '6px',
+                                            background: selectedStudent?.email === student.email && selectedStudent?.batch === batch ? '#ef4444' : '#27272a',
+                                            color: '#ffffff',
+                                            border: '1px solid #3f3f46'
+                                          }}
                                         >
                                           <Edit size={14} style={{ marginRight: '4px' }} /> Manage Scores
                                         </button>
@@ -969,7 +1004,7 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                     })}
                     {filteredStudents.length === 0 && (
                       <tr>
-                        <td colSpan={4} style={{ textAlign: 'center', padding: '30px 0', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                        <td colSpan={4} style={{ textAlign: 'center', padding: '30px 0', color: '#a1a1aa', fontSize: '0.9rem' }}>
                           No students registered in this batch filter yet.
                         </td>
                       </tr>
@@ -982,9 +1017,9 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
             {/* Sidebar: Manage Selected Student Tasks */}
             {selectedStudent && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-                <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '24px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px' }}>
-                    <h3 style={{ fontSize: '1.15rem', color: '#111827', fontWeight: '800' }}>
+                <div className="glass-card" style={{ background: '#111113', border: '1px solid #27272a', textAlign: 'left', padding: '24px', borderRadius: '16px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid #27272a', paddingBottom: '10px' }}>
+                    <h3 style={{ fontSize: '1.15rem', color: '#ffffff', fontWeight: '800' }}>
                       👤 Manage: {selectedStudent.username}
                     </h3>
                     <button 
@@ -995,16 +1030,16 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                     </button>
                   </div>
 
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
-                    Email: <strong>{selectedStudent.email}</strong> <br/>
-                    Batch: <strong>{BATCH_LABELS[selectedStudent.batch] || selectedStudent.batch}</strong>
+                  <p style={{ fontSize: '0.85rem', color: '#a1a1aa', marginBottom: '16px' }}>
+                    Email: <strong style={{ color: '#ffffff' }}>{selectedStudent.email}</strong> <br/>
+                    Batch: <strong style={{ color: '#ffffff' }}>{BATCH_LABELS[selectedStudent.batch] || selectedStudent.batch}</strong>
                   </p>
 
                   {activeTab === 'students' && (
                     <React.Fragment>
                       {/* Add task directly to student */}
                       <form onSubmit={handleAddStudentTask} style={{ marginBottom: '20px' }}>
-                        <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: '#111827', marginBottom: '6px' }}>
+                        <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: '#e4e4e7', marginBottom: '6px' }}>
                           ASSIGN DIRECT TASK / GOAL
                         </label>
                         <div style={{ display: 'flex', gap: '8px' }}>
@@ -1017,19 +1052,21 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                               flex: 1,
                               padding: '10px 12px',
                               borderRadius: '8px',
-                              border: '2px solid var(--border-color)',
+                              border: '1px solid #3f3f46',
+                              background: '#18181b',
+                              color: '#ffffff',
                               outline: 'none',
                               fontSize: '0.85rem'
                             }}
                           />
-                          <button type="submit" className="btn btn-accent" style={{ padding: '10px 14px', fontSize: '0.85rem', cursor: 'pointer' }}>
+                          <button type="submit" className="btn" style={{ padding: '10px 14px', fontSize: '0.85rem', cursor: 'pointer', background: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '8px', fontWeight: '700' }}>
                             Assign
                           </button>
                         </div>
                       </form>
 
                       {/* Student Active Task List */}
-                      <h4 style={{ fontSize: '0.85rem', fontWeight: '800', color: '#111827', marginBottom: '10px' }}>
+                      <h4 style={{ fontSize: '0.85rem', fontWeight: '800', color: '#ffffff', marginBottom: '10px' }}>
                         Active Checklist Tasks ({studentTasks.length})
                       </h4>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '250px', overflowY: 'auto' }}>
@@ -1039,11 +1076,11 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                             alignItems: 'center',
                             justifyContent: 'space-between',
                             padding: '10px 12px',
-                            background: '#fafafa',
+                            background: '#18181b',
                             borderRadius: '8px',
-                            border: '1.5px solid var(--border-color)'
+                            border: '1px solid #27272a'
                           }}>
-                            <span style={{ fontSize: '0.85rem', fontWeight: '600', textDecoration: task.completed ? 'line-through' : 'none', color: task.completed ? '#9ca3af' : '#111827' }}>
+                            <span style={{ fontSize: '0.85rem', fontWeight: '600', textDecoration: task.completed ? 'line-through' : 'none', color: task.completed ? '#71717a' : '#ffffff' }}>
                               {task.text} {task.completed && '✓'}
                             </span>
                             <button 
@@ -1055,7 +1092,7 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                           </div>
                         ))}
                         {studentTasks.length === 0 && (
-                          <p style={{ fontSize: '0.8rem', color: '#9ca3af', textAlign: 'center', padding: '10px' }}>
+                          <p style={{ fontSize: '0.8rem', color: '#71717a', textAlign: 'center', padding: '10px' }}>
                             No checklist tasks assigned yet.
                           </p>
                         )}
@@ -1066,7 +1103,7 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                   {activeTab === 'scores' && (
                     <React.Fragment>
                       {/* Student Test Scores List */}
-                      <h4 style={{ fontSize: '0.85rem', fontWeight: '800', color: '#111827', marginBottom: '10px' }}>
+                      <h4 style={{ fontSize: '0.85rem', fontWeight: '800', color: '#ffffff', marginBottom: '10px' }}>
                         Mock Test Scores ({studentScores.length})
                       </h4>
                       <form onSubmit={handleAddStudentScore} style={{ marginBottom: '16px' }}>
@@ -1080,7 +1117,9 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                               flex: 1,
                               padding: '10px 12px',
                               borderRadius: '8px',
-                              border: '2px solid var(--border-color)',
+                              border: '1px solid #3f3f46',
+                              background: '#18181b',
+                              color: '#ffffff',
                               outline: 'none',
                               fontSize: '0.85rem'
                             }}
@@ -1094,12 +1133,14 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                               width: '120px',
                               padding: '10px 12px',
                               borderRadius: '8px',
-                              border: '2px solid var(--border-color)',
+                              border: '1px solid #3f3f46',
+                              background: '#18181b',
+                              color: '#ffffff',
                               outline: 'none',
                               fontSize: '0.85rem'
                             }}
                           />
-                          <button type="submit" className="btn btn-accent" style={{ padding: '10px 14px', fontSize: '0.85rem', cursor: 'pointer' }}>
+                          <button type="submit" className="btn" style={{ padding: '10px 14px', fontSize: '0.85rem', cursor: 'pointer', background: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '8px', fontWeight: '700' }}>
                             Add
                           </button>
                         </div>
@@ -1111,12 +1152,12 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                             alignItems: 'center',
                             justifyContent: 'space-between',
                             padding: '10px 12px',
-                            background: '#fafafa',
+                            background: '#18181b',
                             borderRadius: '8px',
-                            border: '1.5px solid var(--border-color)'
+                            border: '1px solid #27272a'
                           }}>
-                            <span style={{ fontSize: '0.85rem', fontWeight: '600', color: '#111827' }}>
-                              {score.subject} <span style={{ color: 'var(--accent-color)', marginLeft: '8px' }}>{score.score}%</span>
+                            <span style={{ fontSize: '0.85rem', fontWeight: '600', color: '#ffffff' }}>
+                              {score.subject} <span style={{ color: '#10b981', marginLeft: '8px' }}>{score.score}%</span>
                             </span>
                             <button 
                               onClick={() => handleDeleteStudentScore(score.id)}
@@ -1127,21 +1168,21 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                           </div>
                         ))}
                         {studentScores.length === 0 && (
-                          <p style={{ fontSize: '0.8rem', color: '#9ca3af', textAlign: 'center', padding: '10px' }}>
+                          <p style={{ fontSize: '0.8rem', color: '#71717a', textAlign: 'center', padding: '10px' }}>
                             No mock test scores logged yet.
                           </p>
                         )}
                       </div>
 
                       {/* Weekly Study Hours Form */}
-                      <div style={{ marginTop: '30px', paddingTop: '20px', borderTop: '2px solid var(--border-color)' }}>
-                        <h4 style={{ fontSize: '0.85rem', fontWeight: '800', color: '#111827', marginBottom: '12px' }}>
+                      <div style={{ marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #27272a' }}>
+                        <h4 style={{ fontSize: '0.85rem', fontWeight: '800', color: '#ffffff', marginBottom: '12px' }}>
                           Manage Weekly Study Hours
                         </h4>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '16px' }}>
                           {['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].map((day) => (
                             <div key={day} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                              <label style={{ fontSize: '0.7rem', fontWeight: '700', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>{day}</label>
+                              <label style={{ fontSize: '0.7rem', fontWeight: '700', color: '#a1a1aa', textTransform: 'uppercase' }}>{day}</label>
                               <input 
                                 type="number" 
                                 min="0"
@@ -1151,7 +1192,9 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                                 style={{
                                   padding: '8px',
                                   borderRadius: '6px',
-                                  border: '2px solid var(--border-color)',
+                                  border: '1px solid #3f3f46',
+                                  background: '#18181b',
+                                  color: '#ffffff',
                                   outline: 'none',
                                   fontSize: '0.85rem'
                                 }}
@@ -1161,8 +1204,8 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                         </div>
                         <button 
                           onClick={handleSaveStudyHours}
-                          className="btn btn-accent" 
-                          style={{ width: '100%', padding: '10px 14px', fontSize: '0.85rem', cursor: 'pointer' }}
+                          className="btn" 
+                          style={{ width: '100%', padding: '10px 14px', fontSize: '0.85rem', cursor: 'pointer', background: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '8px', fontWeight: '700' }}
                         >
                           Save Study Hours
                         </button>
@@ -1170,7 +1213,7 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                     </React.Fragment>
                   )}
 
-                  <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '2px solid var(--border-color)' }}>
+                  <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #27272a' }}>
                     <button
                       onClick={async () => {
                         const batchName = BATCH_LABELS[selectedStudent.batch] || selectedStudent.batch;
@@ -1186,9 +1229,10 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                         padding: '10px',
                         fontSize: '0.85rem',
                         fontWeight: '800',
-                        background: '#fee2e2',
-                        color: '#dc2626',
-                        border: '2px solid #f87171',
+                        background: 'rgba(239, 68, 68, 0.15)',
+                        color: '#ef4444',
+                        border: '1px solid rgba(239, 68, 68, 0.4)',
+                        borderRadius: '8px',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -1209,7 +1253,7 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
         {activeTab === 'planners' && (
           <div>
             {/* Planner Mode Toggle */}
-            <div style={{ display: 'flex', gap: '15px', marginBottom: '24px', background: '#fafafa', padding: '10px', borderRadius: '12px', border: '2px solid var(--border-color)', boxShadow: '3px 3px 0px #111827', maxWidth: '400px' }}>
+            <div style={{ display: 'flex', gap: '15px', marginBottom: '24px', background: '#111113', padding: '8px', borderRadius: '12px', border: '1px solid #27272a', maxWidth: '420px' }}>
               <button
                 onClick={() => setPlannerMode('batch')}
                 style={{
@@ -1220,8 +1264,8 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                   fontWeight: '800',
                   cursor: 'pointer',
                   fontSize: '0.85rem',
-                  background: plannerMode === 'batch' ? 'var(--accent-color)' : 'transparent',
-                  color: plannerMode === 'batch' ? '#ffffff' : 'var(--text-primary)',
+                  background: plannerMode === 'batch' ? '#ef4444' : 'transparent',
+                  color: plannerMode === 'batch' ? '#ffffff' : '#a1a1aa',
                   transition: 'all 0.2s ease'
                 }}
               >
@@ -1237,8 +1281,8 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                   fontWeight: '800',
                   cursor: 'pointer',
                   fontSize: '0.85rem',
-                  background: plannerMode === 'student' ? 'var(--accent-color)' : 'transparent',
-                  color: plannerMode === 'student' ? '#ffffff' : 'var(--text-primary)',
+                  background: plannerMode === 'student' ? '#ef4444' : 'transparent',
+                  color: plannerMode === 'student' ? '#ffffff' : '#a1a1aa',
                   transition: 'all 0.2s ease'
                 }}
               >
@@ -1249,8 +1293,8 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
             {plannerMode === 'batch' ? (
               <div style={{ display: 'grid', gridTemplateColumns: '0.8fr 1.2fr', gap: '30px' }}>
                 {/* Batch Selector */}
-                <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '24px', alignSelf: 'start' }}>
-                  <h3 style={{ fontSize: '1.15rem', color: '#111827', marginBottom: '16px', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px' }}>
+                <div className="glass-card" style={{ background: '#111113', border: '1px solid #27272a', textAlign: 'left', padding: '24px', alignSelf: 'start', borderRadius: '16px' }}>
+                  <h3 style={{ fontSize: '1.15rem', color: '#ffffff', marginBottom: '16px', borderBottom: '1px solid #27272a', paddingBottom: '10px' }}>
                     Select Target Batch
                   </h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -1262,14 +1306,12 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                           textAlign: 'left',
                           padding: '12px 14px',
                           borderRadius: '8px',
-                          border: '2px solid var(--border-color)',
+                          border: selectedBatchPlanner === key ? '1px solid #ef4444' : '1px solid #27272a',
                           fontWeight: '700',
                           cursor: 'pointer',
                           fontSize: '0.85rem',
-                          background: selectedBatchPlanner === key ? 'var(--accent-color)' : '#fafafa',
-                          color: selectedBatchPlanner === key ? '#ffffff' : '#111827',
-                          boxShadow: selectedBatchPlanner === key ? 'none' : '2px 2px 0px #111827',
-                          transform: selectedBatchPlanner === key ? 'translate(2px, 2px)' : 'none',
+                          background: selectedBatchPlanner === key ? '#ef4444' : '#18181b',
+                          color: selectedBatchPlanner === key ? '#ffffff' : '#a1a1aa',
                           transition: 'all 0.1s ease'
                         }}
                       >
@@ -1280,13 +1322,13 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                 </div>
 
                 {/* Template Tasks Editor */}
-                <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '30px' }}>
-                  <h3 style={{ fontSize: '1.2rem', marginBottom: '8px', color: '#111827' }}>
+                <div className="glass-card" style={{ background: '#111113', border: '1px solid #27272a', textAlign: 'left', padding: '30px', borderRadius: '16px' }}>
+                  <h3 style={{ fontSize: '1.2rem', marginBottom: '8px', color: '#ffffff' }}>
                     Default Study Planners: {BATCH_LABELS[selectedBatchPlanner]}
                   </h3>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '24px' }}>
+                  <p style={{ fontSize: '0.85rem', color: '#a1a1aa', marginBottom: '24px' }}>
                     These default study checklist goals are automatically assigned to all newly registering students in this batch.
-                    <span style={{ display: 'inline-block', marginLeft: '10px', fontSize: '0.75rem', fontWeight: '700', color: '#059669', background: '#d1fae5', padding: '2px 8px', borderRadius: '6px' }}>
+                    <span style={{ display: 'inline-block', marginLeft: '10px', fontSize: '0.75rem', fontWeight: '700', color: '#10b981', background: 'rgba(16, 185, 129, 0.15)', padding: '2px 8px', borderRadius: '6px' }}>
                       ✓ Auto-saved to Cloud Database
                     </span>
                   </p>
@@ -1302,12 +1344,14 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                         flex: 1,
                         padding: '10px 14px',
                         borderRadius: '8px',
-                        border: '2px solid var(--border-color)',
+                        border: '1px solid #3f3f46',
+                        background: '#18181b',
+                        color: '#ffffff',
                         outline: 'none',
                         fontSize: '0.85rem'
                       }}
                     />
-                    <button type="submit" className="btn btn-accent" style={{ padding: '10px 20px', fontSize: '0.85rem', cursor: 'pointer' }}>
+                    <button type="submit" className="btn" style={{ padding: '10px 20px', fontSize: '0.85rem', cursor: 'pointer', background: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '8px', fontWeight: '700' }}>
                       Add Task
                     </button>
                   </form>
@@ -1320,12 +1364,11 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         padding: '12px 14px',
-                        background: '#fafafa',
+                        background: '#18181b',
                         borderRadius: '10px',
-                        border: '2px solid var(--border-color)',
-                        boxShadow: '2px 2px 0px #111827'
+                        border: '1px solid #27272a'
                       }}>
-                        <span style={{ fontSize: '0.9rem', fontWeight: '600', color: '#111827' }}>
+                        <span style={{ fontSize: '0.9rem', fontWeight: '600', color: '#ffffff' }}>
                           {task}
                         </span>
                         <button 
@@ -1338,14 +1381,14 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                     ))}
                   </div>
 
-                  <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '2px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #27272a', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <button 
                       onClick={async () => {
                         await api.updateBatchPlanner(selectedBatchPlanner, batchPlannerTasks);
                         alert("✅ Success! Planner tasks saved and synced to all students in this batch!");
                       }}
-                      className="btn btn-accent"
-                      style={{ padding: '12px 24px', fontSize: '0.9rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+                      className="btn"
+                      style={{ padding: '12px 24px', fontSize: '0.9rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', background: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '8px' }}
                     >
                       💾 Save Planner to All Students
                     </button>
@@ -1355,14 +1398,14 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: '0.8fr 1.2fr', gap: '30px' }}>
                 {/* Student Selector */}
-                <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '24px', alignSelf: 'start' }}>
-                  <h3 style={{ fontSize: '1.15rem', color: '#111827', marginBottom: '16px', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px' }}>
+                <div className="glass-card" style={{ background: '#111113', border: '1px solid #27272a', textAlign: 'left', padding: '24px', alignSelf: 'start', borderRadius: '16px' }}>
+                  <h3 style={{ fontSize: '1.15rem', color: '#ffffff', marginBottom: '16px', borderBottom: '1px solid #27272a', paddingBottom: '10px' }}>
                     Select Student
                   </h3>
 
                   {/* Filter by Batch */}
                   <div style={{ marginBottom: '12px' }}>
-                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-secondary)', marginBottom: '4px' }}>FILTER BY BATCH</label>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: '#a1a1aa', marginBottom: '4px' }}>FILTER BY BATCH</label>
                     <select
                       value={plannerBatchFilter}
                       onChange={(e) => setPlannerBatchFilter(e.target.value)}
@@ -1370,10 +1413,11 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                         width: '100%',
                         padding: '8px 12px',
                         borderRadius: '8px',
-                        border: '2px solid var(--border-color)',
+                        border: '1px solid #3f3f46',
+                        background: '#18181b',
+                        color: '#ffffff',
                         outline: 'none',
                         fontSize: '0.8rem',
-                        background: '#ffffff',
                         fontWeight: '700'
                       }}
                     >
@@ -1386,7 +1430,7 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
 
                   {/* Search Student */}
                   <div style={{ marginBottom: '16px' }}>
-                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-secondary)', marginBottom: '4px' }}>SEARCH BY NAME / EMAIL</label>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: '#a1a1aa', marginBottom: '4px' }}>SEARCH BY NAME / EMAIL</label>
                     <input
                       type="text"
                       placeholder="Search student..."
@@ -1396,7 +1440,9 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                         width: '100%',
                         padding: '8px 12px',
                         borderRadius: '8px',
-                        border: '2px solid var(--border-color)',
+                        border: '1px solid #3f3f46',
+                        background: '#18181b',
+                        color: '#ffffff',
                         outline: 'none',
                         fontSize: '0.8rem'
                       }}
@@ -1420,20 +1466,18 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                             textAlign: 'left',
                             padding: '12px 14px',
                             borderRadius: '8px',
-                            border: '2px solid var(--border-color)',
+                            border: selectedStudentPlanner?.email === student.email ? '1px solid #ef4444' : '1px solid #27272a',
                             fontWeight: '700',
                             cursor: 'pointer',
                             fontSize: '0.85rem',
-                            background: selectedStudentPlanner?.email === student.email ? 'var(--accent-color)' : '#fafafa',
-                            color: selectedStudentPlanner?.email === student.email ? '#ffffff' : '#111827',
-                            boxShadow: selectedStudentPlanner?.email === student.email ? 'none' : '2px 2px 0px #111827',
-                            transform: selectedStudentPlanner?.email === student.email ? 'translate(2px, 2px)' : 'none',
+                            background: selectedStudentPlanner?.email === student.email ? '#ef4444' : '#18181b',
+                            color: selectedStudentPlanner?.email === student.email ? '#ffffff' : '#a1a1aa',
                             transition: 'all 0.1s ease'
                           }}
                         >
-                          <div style={{ fontWeight: '800' }}>{student.username}</div>
+                          <div style={{ fontWeight: '800', color: '#ffffff' }}>{student.username}</div>
                           <div style={{ fontSize: '0.75rem', opacity: 0.8, fontWeight: 'normal', marginTop: '2px' }}>{student.email}</div>
-                          <div style={{ fontSize: '0.7rem', opacity: 0.9, marginTop: '4px', textTransform: 'uppercase', display: 'inline-block', background: selectedStudentPlanner?.email === student.email ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.05)', padding: '2px 6px', borderRadius: '4px' }}>
+                          <div style={{ fontSize: '0.7rem', opacity: 0.9, marginTop: '4px', textTransform: 'uppercase', display: 'inline-block', background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: '4px' }}>
                             {BATCH_LABELS[student.batch] || student.batch}
                           </div>
                         </button>
@@ -1441,37 +1485,41 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                   </div>
                 </div>
 
-                {/* Student Specific Planner Editor */}
-                <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '30px' }}>
+                {/* Student Specific Planner Tasks Editor */}
+                <div className="glass-card" style={{ background: '#111113', border: '1px solid #27272a', textAlign: 'left', padding: '30px', borderRadius: '16px' }}>
                   {selectedStudentPlanner ? (
                     <>
-                      <h3 style={{ fontSize: '1.2rem', marginBottom: '8px', color: '#111827' }}>
-                        Planner Checklist for <span style={{ color: 'var(--accent-color)' }}>{selectedStudentPlanner.username}</span>
+                      <h3 style={{ fontSize: '1.2rem', marginBottom: '8px', color: '#ffffff' }}>
+                        Study Planner for <span style={{ color: '#ef4444' }}>{selectedStudentPlanner.username}</span>
                       </h3>
-                      <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '24px' }}>
-                        Modify checklist items specifically for this student. Updates are automatically synced to the student's dashboard.
+                      <p style={{ fontSize: '0.85rem', color: '#a1a1aa', marginBottom: '24px' }}>
+                        Manage daily study goals assigned specifically to this student.
                       </p>
 
+                      {/* Add Student Task Form */}
                       <form onSubmit={handleAddStudentPlannerTask} style={{ marginBottom: '24px', display: 'flex', gap: '10px' }}>
                         <input 
                           type="text" 
                           value={newStudentPlannerTaskText}
                           onChange={(e) => setNewStudentPlannerTaskText(e.target.value)}
-                          placeholder="Add a new custom task for this student..."
+                          placeholder="Assign custom goal for this student..."
                           style={{
                             flex: 1,
                             padding: '10px 14px',
                             borderRadius: '8px',
-                            border: '2px solid var(--border-color)',
+                            border: '1px solid #3f3f46',
+                            background: '#18181b',
+                            color: '#ffffff',
                             outline: 'none',
                             fontSize: '0.85rem'
                           }}
                         />
-                        <button type="submit" className="btn btn-accent" style={{ padding: '10px 20px', fontSize: '0.85rem', cursor: 'pointer' }}>
+                        <button type="submit" className="btn" style={{ padding: '10px 20px', fontSize: '0.85rem', cursor: 'pointer', background: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '8px', fontWeight: '700' }}>
                           Add Task
                         </button>
                       </form>
 
+                      {/* List of active student tasks */}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         {studentPlannerTasks.map((task) => (
                           <div key={task.id} style={{
@@ -1479,19 +1527,17 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                             alignItems: 'center',
                             justifyContent: 'space-between',
                             padding: '12px 14px',
-                            background: '#fafafa',
+                            background: '#18181b',
                             borderRadius: '10px',
-                            border: '2px solid var(--border-color)',
-                            boxShadow: '2px 2px 0px #111827'
+                            border: '1px solid #27272a'
                           }}>
                             <span style={{ 
                               fontSize: '0.9rem', 
                               fontWeight: '600', 
-                              color: '#111827',
-                              textDecoration: task.completed ? 'line-through' : 'none',
-                              opacity: task.completed ? 0.6 : 1
+                              color: task.completed ? '#71717a' : '#ffffff',
+                              textDecoration: task.completed ? 'line-through' : 'none'
                             }}>
-                              {task.text}
+                              {task.text} {task.completed && '✓'}
                             </span>
                             <button 
                               onClick={() => handleDeleteStudentPlannerTask(task.id)}
@@ -1502,17 +1548,17 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                           </div>
                         ))}
                         {studentPlannerTasks.length === 0 && (
-                          <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.9rem', margin: '20px 0' }}>
-                            No tasks found for this student. Add some above!
+                          <p style={{ textAlign: 'center', color: '#a1a1aa', fontSize: '0.9rem', margin: '20px 0' }}>
+                            No custom tasks for this student yet. Add one above!
                           </p>
                         )}
                       </div>
                     </>
                   ) : (
-                    <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-secondary)' }}>
-                      <Users size={48} style={{ margin: '0 auto 16px', opacity: 0.5 }} />
-                      <h4 style={{ fontSize: '1.1rem', color: '#111827', marginBottom: '8px' }}>No Student Selected</h4>
-                      <p style={{ fontSize: '0.85rem' }}>Select a student from the left panel to view and modify their planner checklist.</p>
+                    <div style={{ textAlign: 'center', padding: '60px 20px', color: '#a1a1aa' }}>
+                      <FileText size={48} style={{ margin: '0 auto 16px', opacity: 0.5 }} />
+                      <h4 style={{ fontSize: '1.1rem', color: '#ffffff', marginBottom: '8px' }}>No Student Selected</h4>
+                      <p style={{ fontSize: '0.85rem' }}>Select a student from the left panel to manage their specific checklist goals.</p>
                     </div>
                   )}
                 </div>
@@ -1525,7 +1571,7 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
         {activeTab === 'notes' && (
           <div>
             {/* Notes Mode Toggle */}
-            <div style={{ display: 'flex', gap: '15px', marginBottom: '24px', background: '#fafafa', padding: '10px', borderRadius: '12px', border: '2px solid var(--border-color)', boxShadow: '3px 3px 0px #111827', maxWidth: '400px' }}>
+            <div style={{ display: 'flex', gap: '15px', marginBottom: '24px', background: '#111113', padding: '8px', borderRadius: '12px', border: '1px solid #27272a', maxWidth: '420px' }}>
               <button
                 onClick={() => setNotesMode('batch')}
                 style={{
@@ -1536,8 +1582,8 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                   fontWeight: '800',
                   cursor: 'pointer',
                   fontSize: '0.85rem',
-                  background: notesMode === 'batch' ? 'var(--accent-color)' : 'transparent',
-                  color: notesMode === 'batch' ? '#ffffff' : 'var(--text-primary)',
+                  background: notesMode === 'batch' ? '#ef4444' : 'transparent',
+                  color: notesMode === 'batch' ? '#ffffff' : '#a1a1aa',
                   transition: 'all 0.2s ease'
                 }}
               >
@@ -1553,8 +1599,8 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                   fontWeight: '800',
                   cursor: 'pointer',
                   fontSize: '0.85rem',
-                  background: notesMode === 'student' ? 'var(--accent-color)' : 'transparent',
-                  color: notesMode === 'student' ? '#ffffff' : 'var(--text-primary)',
+                  background: notesMode === 'student' ? '#ef4444' : 'transparent',
+                  color: notesMode === 'student' ? '#ffffff' : '#a1a1aa',
                   transition: 'all 0.2s ease'
                 }}
               >
@@ -1565,8 +1611,8 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
             {notesMode === 'batch' ? (
               <div style={{ display: 'grid', gridTemplateColumns: '0.8fr 1.2fr', gap: '30px' }}>
                 {/* Batch Selector */}
-                <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '24px', alignSelf: 'start' }}>
-                  <h3 style={{ fontSize: '1.15rem', color: '#111827', marginBottom: '16px', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px' }}>
+                <div className="glass-card" style={{ background: '#111113', border: '1px solid #27272a', textAlign: 'left', padding: '24px', alignSelf: 'start', borderRadius: '16px' }}>
+                  <h3 style={{ fontSize: '1.15rem', color: '#ffffff', marginBottom: '16px', borderBottom: '1px solid #27272a', paddingBottom: '10px' }}>
                     Select Target Batch
                   </h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -1578,14 +1624,12 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                           textAlign: 'left',
                           padding: '12px 14px',
                           borderRadius: '8px',
-                          border: '2px solid var(--border-color)',
+                          border: selectedBatchNotes === key ? '1px solid #ef4444' : '1px solid #27272a',
                           fontWeight: '700',
                           cursor: 'pointer',
                           fontSize: '0.85rem',
-                          background: selectedBatchNotes === key ? 'var(--accent-color)' : '#fafafa',
-                          color: selectedBatchNotes === key ? '#ffffff' : '#111827',
-                          boxShadow: selectedBatchNotes === key ? 'none' : '2px 2px 0px #111827',
-                          transform: selectedBatchNotes === key ? 'translate(2px, 2px)' : 'none',
+                          background: selectedBatchNotes === key ? '#ef4444' : '#18181b',
+                          color: selectedBatchNotes === key ? '#ffffff' : '#a1a1aa',
                           transition: 'all 0.1s ease'
                         }}
                       >
@@ -1595,23 +1639,23 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                   </div>
                 </div>
 
-                {/* Notes editor */}
-                <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '30px' }}>
-                  <h3 style={{ fontSize: '1.2rem', marginBottom: '8px', color: '#111827' }}>
+                {/* Revision Notes List & Form */}
+                <div className="glass-card" style={{ background: '#111113', border: '1px solid #27272a', textAlign: 'left', padding: '30px', borderRadius: '16px' }}>
+                  <h3 style={{ fontSize: '1.2rem', marginBottom: '8px', color: '#ffffff' }}>
                     Topper Revision Notes: {BATCH_LABELS[selectedBatchNotes]}
                   </h3>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '24px' }}>
+                  <p style={{ fontSize: '0.85rem', color: '#a1a1aa', marginBottom: '24px' }}>
                     Add and manage study PDFs that students in this batch can download from their dashboards.
                   </p>
 
                   {/* Add Note File form */}
-                  <form onSubmit={handleAddNote} style={{ marginBottom: '24px', background: '#fafafa', border: '2px solid var(--border-color)', padding: '20px', borderRadius: '12px', boxShadow: '3px 3px 0px #111827' }}>
-                    <h4 style={{ fontSize: '0.9rem', fontWeight: '800', color: '#111827', marginBottom: '12px' }}>
-                      📤 Upload Mock Study PDF
+                  <form onSubmit={handleAddNote} style={{ marginBottom: '24px', background: '#18181b', border: '1px solid #27272a', padding: '20px', borderRadius: '12px' }}>
+                    <h4 style={{ fontSize: '0.9rem', fontWeight: '800', color: '#ffffff', marginBottom: '12px' }}>
+                      📤 Upload Study PDF
                     </h4>
                     <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.9fr 0.6fr', gap: '12px', marginBottom: '12px' }}>
                       <div>
-                        <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#111827', marginBottom: '4px' }}>FILE NAME</label>
+                        <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#a1a1aa', marginBottom: '4px' }}>FILE NAME</label>
                         <input 
                           type="text" 
                           value={newNoteName}
@@ -1621,14 +1665,16 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                             width: '100%',
                             padding: '10px 12px',
                             borderRadius: '8px',
-                            border: '2px solid var(--border-color)',
+                            border: '1px solid #3f3f46',
+                            background: '#121214',
+                            color: '#ffffff',
                             outline: 'none',
                             fontSize: '0.85rem'
                           }}
                         />
                       </div>
                       <div>
-                        <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#111827', marginBottom: '4px' }}>SUBJECT SECTION</label>
+                        <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#a1a1aa', marginBottom: '4px' }}>SUBJECT SECTION</label>
                         <select
                           value={newNoteSubject}
                           onChange={(e) => setNewNoteSubject(e.target.value)}
@@ -1636,10 +1682,11 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                             width: '100%',
                             padding: '10px 12px',
                             borderRadius: '8px',
-                            border: '2px solid var(--border-color)',
+                            border: '1px solid #3f3f46',
+                            background: '#121214',
+                            color: '#ffffff',
                             outline: 'none',
-                            fontSize: '0.85rem',
-                            background: '#ffffff'
+                            fontSize: '0.85rem'
                           }}
                         >
                           {(BATCH_SUBJECTS[selectedBatchNotes] || ['Physics']).map(subj => (
@@ -1648,7 +1695,7 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                         </select>
                       </div>
                       <div>
-                        <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#111827', marginBottom: '4px' }}>FILE SIZE</label>
+                        <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#a1a1aa', marginBottom: '4px' }}>FILE SIZE</label>
                         <input 
                           type="text" 
                           value={newNoteSize}
@@ -1658,14 +1705,16 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                             width: '100%',
                             padding: '10px 12px',
                             borderRadius: '8px',
-                            border: '2px solid var(--border-color)',
+                            border: '1px solid #3f3f46',
+                            background: '#121214',
+                            color: '#ffffff',
                             outline: 'none',
                             fontSize: '0.85rem'
                           }}
                         />
                       </div>
                     </div>
-                    <button type="submit" className="btn btn-accent w-full" style={{ padding: '10px', fontSize: '0.85rem', cursor: 'pointer' }}>
+                    <button type="submit" className="btn" style={{ padding: '10px', fontSize: '0.85rem', cursor: 'pointer', background: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '8px', fontWeight: '700', width: '100%' }}>
                       Upload Note PDF
                     </button>
                   </form>
@@ -1678,21 +1727,20 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         padding: '12px 14px',
-                        background: '#ffffff',
+                        background: '#18181b',
                         borderRadius: '10px',
-                        border: '2px solid var(--border-color)',
-                        boxShadow: '2px 2px 0px #111827'
+                        border: '1px solid #27272a'
                       }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <FileText size={18} style={{ color: 'var(--accent-color)' }} />
+                          <FileText size={18} style={{ color: '#ef4444' }} />
                           <div>
-                            <div style={{ fontSize: '0.85rem', fontWeight: '700', color: '#111827', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div style={{ fontSize: '0.85rem', fontWeight: '700', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px' }}>
                               {note.name}
-                              <span style={{ fontSize: '0.65rem', padding: '2px 8px', borderRadius: '4px', background: '#e0e7ff', color: '#3730a3', fontWeight: '800' }}>
+                              <span style={{ fontSize: '0.65rem', padding: '2px 8px', borderRadius: '4px', background: 'rgba(99, 102, 241, 0.2)', color: '#818cf8', fontWeight: '800' }}>
                                 {note.subject || (BATCH_SUBJECTS[selectedBatchNotes]?.[0] || 'Physics')}
                               </span>
                             </div>
-                            <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
+                            <span style={{ fontSize: '0.7rem', color: '#a1a1aa' }}>
                               PDF Document • {note.size}
                             </span>
                           </div>
@@ -1708,14 +1756,14 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                     ))}
                   </div>
 
-                  <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '2px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #27272a', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <button 
                       onClick={async () => {
                         await api.updateBatchNotes(selectedBatchNotes, batchNotesList);
                         alert("✅ Success! Revision notes saved and synced to all students in this batch!");
                       }}
-                      className="btn btn-accent"
-                      style={{ padding: '12px 24px', fontSize: '0.9rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+                      className="btn"
+                      style={{ padding: '12px 24px', fontSize: '0.9rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', background: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '8px' }}
                     >
                       💾 Save Revision Notes to All Students
                     </button>
@@ -1725,14 +1773,14 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: '0.8fr 1.2fr', gap: '30px' }}>
                 {/* Student Selector */}
-                <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '24px', alignSelf: 'start' }}>
-                  <h3 style={{ fontSize: '1.15rem', color: '#111827', marginBottom: '16px', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px' }}>
+                <div className="glass-card" style={{ background: '#111113', border: '1px solid #27272a', textAlign: 'left', padding: '24px', alignSelf: 'start', borderRadius: '16px' }}>
+                  <h3 style={{ fontSize: '1.15rem', color: '#ffffff', marginBottom: '16px', borderBottom: '1px solid #27272a', paddingBottom: '10px' }}>
                     Select Student
                   </h3>
 
                   {/* Filter by Batch */}
                   <div style={{ marginBottom: '12px' }}>
-                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-secondary)', marginBottom: '4px' }}>FILTER BY BATCH</label>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: '#a1a1aa', marginBottom: '4px' }}>FILTER BY BATCH</label>
                     <select
                       value={notesBatchFilter}
                       onChange={(e) => setNotesBatchFilter(e.target.value)}
@@ -1740,10 +1788,11 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                         width: '100%',
                         padding: '8px 12px',
                         borderRadius: '8px',
-                        border: '2px solid var(--border-color)',
+                        border: '1px solid #3f3f46',
+                        background: '#18181b',
+                        color: '#ffffff',
                         outline: 'none',
                         fontSize: '0.8rem',
-                        background: '#ffffff',
                         fontWeight: '700'
                       }}
                     >
@@ -1756,7 +1805,7 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
 
                   {/* Search Student */}
                   <div style={{ marginBottom: '16px' }}>
-                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-secondary)', marginBottom: '4px' }}>SEARCH BY NAME / EMAIL</label>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: '#a1a1aa', marginBottom: '4px' }}>SEARCH BY NAME / EMAIL</label>
                     <input
                       type="text"
                       placeholder="Search student..."
@@ -1766,7 +1815,9 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                         width: '100%',
                         padding: '8px 12px',
                         borderRadius: '8px',
-                        border: '2px solid var(--border-color)',
+                        border: '1px solid #3f3f46',
+                        background: '#18181b',
+                        color: '#ffffff',
                         outline: 'none',
                         fontSize: '0.8rem'
                       }}
@@ -1790,20 +1841,18 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                             textAlign: 'left',
                             padding: '12px 14px',
                             borderRadius: '8px',
-                            border: '2px solid var(--border-color)',
+                            border: selectedStudentNotes?.email === student.email ? '1px solid #ef4444' : '1px solid #27272a',
                             fontWeight: '700',
                             cursor: 'pointer',
                             fontSize: '0.85rem',
-                            background: selectedStudentNotes?.email === student.email ? 'var(--accent-color)' : '#fafafa',
-                            color: selectedStudentNotes?.email === student.email ? '#ffffff' : '#111827',
-                            boxShadow: selectedStudentNotes?.email === student.email ? 'none' : '2px 2px 0px #111827',
-                            transform: selectedStudentNotes?.email === student.email ? 'translate(2px, 2px)' : 'none',
+                            background: selectedStudentNotes?.email === student.email ? '#ef4444' : '#18181b',
+                            color: selectedStudentNotes?.email === student.email ? '#ffffff' : '#a1a1aa',
                             transition: 'all 0.1s ease'
                           }}
                         >
-                          <div style={{ fontWeight: '800' }}>{student.username}</div>
+                          <div style={{ fontWeight: '800', color: '#ffffff' }}>{student.username}</div>
                           <div style={{ fontSize: '0.75rem', opacity: 0.8, fontWeight: 'normal', marginTop: '2px' }}>{student.email}</div>
-                          <div style={{ fontSize: '0.7rem', opacity: 0.9, marginTop: '4px', textTransform: 'uppercase', display: 'inline-block', background: selectedStudentNotes?.email === student.email ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.05)', padding: '2px 6px', borderRadius: '4px' }}>
+                          <div style={{ fontSize: '0.7rem', opacity: 0.9, marginTop: '4px', textTransform: 'uppercase', display: 'inline-block', background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: '4px' }}>
                             {BATCH_LABELS[student.batch] || student.batch}
                           </div>
                         </button>
@@ -1812,24 +1861,24 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                 </div>
 
                 {/* Student Specific Notes Editor */}
-                <div className="glass-card" style={{ background: '#ffffff', textAlign: 'left', padding: '30px' }}>
+                <div className="glass-card" style={{ background: '#111113', border: '1px solid #27272a', textAlign: 'left', padding: '30px', borderRadius: '16px' }}>
                   {selectedStudentNotes ? (
                     <>
-                      <h3 style={{ fontSize: '1.2rem', marginBottom: '8px', color: '#111827' }}>
-                        Revision Notes for <span style={{ color: 'var(--accent-color)' }}>{selectedStudentNotes.username}</span>
+                      <h3 style={{ fontSize: '1.2rem', marginBottom: '8px', color: '#ffffff' }}>
+                        Revision Notes for <span style={{ color: '#ef4444' }}>{selectedStudentNotes.username}</span>
                       </h3>
-                      <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '24px' }}>
+                      <p style={{ fontSize: '0.85rem', color: '#a1a1aa', marginBottom: '24px' }}>
                         Manage study notes assigned specifically to this student.
                       </p>
 
                       {/* Add Student Note Form */}
-                      <form onSubmit={handleAddStudentNote} style={{ marginBottom: '24px', background: '#fafafa', border: '2px solid var(--border-color)', padding: '20px', borderRadius: '12px', boxShadow: '3px 3px 0px #111827' }}>
-                        <h4 style={{ fontSize: '0.9rem', fontWeight: '800', color: '#111827', marginBottom: '12px' }}>
+                      <form onSubmit={handleAddStudentNote} style={{ marginBottom: '24px', background: '#18181b', border: '1px solid #27272a', padding: '20px', borderRadius: '12px' }}>
+                        <h4 style={{ fontSize: '0.9rem', fontWeight: '800', color: '#ffffff', marginBottom: '12px' }}>
                           📤 Upload PDF for Student
                         </h4>
                         <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.9fr 0.6fr', gap: '12px', marginBottom: '12px' }}>
                           <div>
-                            <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#111827', marginBottom: '4px' }}>FILE NAME</label>
+                            <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#a1a1aa', marginBottom: '4px' }}>FILE NAME</label>
                             <input 
                               type="text" 
                               value={newStudentNoteName}
@@ -1839,14 +1888,16 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                                 width: '100%',
                                 padding: '10px 12px',
                                 borderRadius: '8px',
-                                border: '2px solid var(--border-color)',
+                                border: '1px solid #3f3f46',
+                                background: '#121214',
+                                color: '#ffffff',
                                 outline: 'none',
                                 fontSize: '0.85rem'
                               }}
                             />
                           </div>
                           <div>
-                            <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#111827', marginBottom: '4px' }}>SUBJECT SECTION</label>
+                            <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#a1a1aa', marginBottom: '4px' }}>SUBJECT SECTION</label>
                             <select
                               value={newStudentNoteSubject}
                               onChange={(e) => setNewStudentNoteSubject(e.target.value)}
@@ -1854,10 +1905,11 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                                 width: '100%',
                                 padding: '10px 12px',
                                 borderRadius: '8px',
-                                border: '2px solid var(--border-color)',
+                                border: '1px solid #3f3f46',
+                                background: '#121214',
+                                color: '#ffffff',
                                 outline: 'none',
-                                fontSize: '0.85rem',
-                                background: '#ffffff'
+                                fontSize: '0.85rem'
                               }}
                             >
                               {(BATCH_SUBJECTS[selectedStudentNotes.batch] || ['Physics']).map(subj => (
@@ -1866,7 +1918,7 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                             </select>
                           </div>
                           <div>
-                            <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#111827', marginBottom: '4px' }}>FILE SIZE</label>
+                            <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#a1a1aa', marginBottom: '4px' }}>FILE SIZE</label>
                             <input 
                               type="text" 
                               value={newStudentNoteSize}
@@ -1876,14 +1928,16 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                                 width: '100%',
                                 padding: '10px 12px',
                                 borderRadius: '8px',
-                                border: '2px solid var(--border-color)',
+                                border: '1px solid #3f3f46',
+                                background: '#121214',
+                                color: '#ffffff',
                                 outline: 'none',
                                 fontSize: '0.85rem'
                               }}
                             />
                           </div>
                         </div>
-                        <button type="submit" className="btn btn-accent w-full" style={{ padding: '10px', fontSize: '0.85rem', cursor: 'pointer' }}>
+                        <button type="submit" className="btn" style={{ padding: '10px', fontSize: '0.85rem', cursor: 'pointer', background: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '8px', fontWeight: '700', width: '100%' }}>
                           Upload Note PDF
                         </button>
                       </form>
@@ -1896,21 +1950,20 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                             alignItems: 'center',
                             justifyContent: 'space-between',
                             padding: '12px 14px',
-                            background: '#ffffff',
+                            background: '#18181b',
                             borderRadius: '10px',
-                            border: '2px solid var(--border-color)',
-                            boxShadow: '2px 2px 0px #111827'
+                            border: '1px solid #27272a'
                           }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                              <FileText size={18} style={{ color: 'var(--accent-color)' }} />
+                              <FileText size={18} style={{ color: '#ef4444' }} />
                               <div>
-                                <div style={{ fontSize: '0.85rem', fontWeight: '700', color: '#111827', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <div style={{ fontSize: '0.85rem', fontWeight: '700', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                   {note.name}
-                                  <span style={{ fontSize: '0.65rem', padding: '2px 8px', borderRadius: '4px', background: '#e0e7ff', color: '#3730a3', fontWeight: '800' }}>
+                                  <span style={{ fontSize: '0.65rem', padding: '2px 8px', borderRadius: '4px', background: 'rgba(99, 102, 241, 0.2)', color: '#818cf8', fontWeight: '800' }}>
                                     {note.subject || (BATCH_SUBJECTS[selectedStudentNotes.batch]?.[0] || 'Physics')}
                                   </span>
                                 </div>
-                                <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
+                                <span style={{ fontSize: '0.7rem', color: '#a1a1aa' }}>
                                   PDF Document • {note.size}
                                 </span>
                               </div>
@@ -1925,16 +1978,16 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                           </div>
                         ))}
                         {studentNotesList.length === 0 && (
-                          <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.9rem', margin: '20px 0' }}>
+                          <p style={{ textAlign: 'center', color: '#a1a1aa', fontSize: '0.9rem', margin: '20px 0' }}>
                             No custom notes uploaded for this student yet. Upload one above!
                           </p>
                         )}
                       </div>
                     </>
                   ) : (
-                    <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-secondary)' }}>
+                    <div style={{ textAlign: 'center', padding: '60px 20px', color: '#a1a1aa' }}>
                       <FileText size={48} style={{ margin: '0 auto 16px', opacity: 0.5 }} />
-                      <h4 style={{ fontSize: '1.1rem', color: '#111827', marginBottom: '8px' }}>No Student Selected</h4>
+                      <h4 style={{ fontSize: '1.1rem', color: '#ffffff', marginBottom: '8px' }}>No Student Selected</h4>
                       <p style={{ fontSize: '0.85rem' }}>Select a student from the left panel to manage their specific revision notes.</p>
                     </div>
                   )}
@@ -1946,24 +1999,25 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
 
         {/* Manage Communication Tab */}
         {activeTab === 'communication' && (
-          <div className="glass-card" style={{ background: '#ffffff', padding: '40px', maxWidth: '800px', margin: '0 auto', textAlign: 'left' }}>
-            <h2 style={{ fontSize: '1.8rem', color: '#111827', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div className="glass-card" style={{ background: '#111113', border: '1px solid #27272a', padding: '40px', maxWidth: '800px', margin: '0 auto', textAlign: 'left', borderRadius: '16px' }}>
+            <h2 style={{ fontSize: '1.8rem', color: '#ffffff', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
               💬 Manage Important Notices
             </h2>
             <div style={{ marginBottom: '30px' }}>
-              <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: '700', marginBottom: '8px', color: 'var(--text-secondary)' }}>Select Batch to Manage</label>
+              <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: '700', marginBottom: '8px', color: '#a1a1aa' }}>Select Batch to Manage</label>
               <select 
                 value={selectedBatchNotices}
                 onChange={(e) => setSelectedBatchNotices(e.target.value)}
                 style={{
                   padding: '12px 16px',
                   borderRadius: '10px',
-                  border: '2px solid var(--border-color)',
+                  border: '1px solid #3f3f46',
                   fontSize: '1rem',
                   outline: 'none',
                   width: '100%',
                   fontFamily: 'var(--sans-font)',
-                  background: '#f9fafb'
+                  background: '#18181b',
+                  color: '#ffffff'
                 }}
               >
                 {Object.entries(BATCH_SUBJECTS).map(([key, label]) => (
@@ -1972,8 +2026,8 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
               </select>
             </div>
 
-            <div style={{ background: '#f9fafb', border: '2px solid var(--border-color)', borderRadius: '12px', padding: '24px', marginBottom: '30px' }}>
-              <h3 style={{ fontSize: '1.2rem', marginBottom: '16px', color: '#111827' }}>Post New Notice</h3>
+            <div style={{ background: '#18181b', border: '1px solid #27272a', borderRadius: '12px', padding: '24px', marginBottom: '30px' }}>
+              <h3 style={{ fontSize: '1.2rem', marginBottom: '16px', color: '#ffffff' }}>Post New Notice</h3>
               <textarea 
                 placeholder="Type your notice here..."
                 value={newNoticeMessage}
@@ -1983,34 +2037,36 @@ const BATCH_SUBJECTS: Record<string, string[]> = {
                   width: '100%',
                   padding: '12px 16px',
                   borderRadius: '8px',
-                  border: '2px solid var(--border-color)',
+                  border: '1px solid #3f3f46',
                   fontSize: '0.95rem',
                   fontFamily: 'var(--sans-font)',
                   resize: 'vertical',
-                  marginBottom: '16px'
+                  marginBottom: '16px',
+                  background: '#121214',
+                  color: '#ffffff'
                 }}
               />
               <button 
                 onClick={handleAddNotice}
                 disabled={!newNoticeMessage.trim()}
-                className="btn btn-accent"
-                style={{ padding: '10px 20px', fontSize: '0.9rem', fontWeight: '800', cursor: newNoticeMessage.trim() ? 'pointer' : 'not-allowed', opacity: newNoticeMessage.trim() ? 1 : 0.6 }}
+                className="btn"
+                style={{ padding: '10px 20px', fontSize: '0.9rem', fontWeight: '800', cursor: newNoticeMessage.trim() ? 'pointer' : 'not-allowed', opacity: newNoticeMessage.trim() ? 1 : 0.6, background: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '8px' }}
               >
                 📢 Post Notice
               </button>
             </div>
 
             <div>
-              <h3 style={{ fontSize: '1.2rem', marginBottom: '16px', color: '#111827' }}>Previous Notices</h3>
+              <h3 style={{ fontSize: '1.2rem', marginBottom: '16px', color: '#ffffff' }}>Previous Notices</h3>
               {batchNoticesList.length === 0 ? (
-                <p style={{ color: 'var(--text-secondary)' }}>No notices posted for this batch yet.</p>
+                <p style={{ color: '#a1a1aa' }}>No notices posted for this batch yet.</p>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {batchNoticesList.map((notice) => (
-                    <div key={notice.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', background: '#ffffff', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-color)', boxShadow: '2px 2px 0px rgba(0,0,0,0.05)' }}>
+                    <div key={notice.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', background: '#18181b', padding: '16px', borderRadius: '8px', border: '1px solid #27272a' }}>
                       <div>
-                        <p style={{ color: '#374151', fontSize: '0.95rem', fontWeight: '600', marginBottom: '8px', whiteSpace: 'pre-wrap' }}>{notice.message}</p>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                        <p style={{ color: '#e4e4e7', fontSize: '0.95rem', fontWeight: '600', marginBottom: '8px', whiteSpace: 'pre-wrap' }}>{notice.message}</p>
+                        <span style={{ fontSize: '0.75rem', color: '#a1a1aa' }}>
                           {new Date(notice.createdAt).toLocaleDateString()} at {new Date(notice.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
